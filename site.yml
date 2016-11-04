@@ -1,0 +1,140 @@
+- name: Test bigip_facts 
+  hosts: aws_hosts
+  connection: local
+
+  tasks:
+      - name: Get all of the facts from my BIG-IP
+        bigip_facts:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            include: "system_info,software,self_ip"
+            validate_certs: "false"
+
+      - name: Mention the Self IP
+        debug:
+            msg: "I have self IP {{ self_ip['/Common/10.0.1.10'].address }}"
+ 
+      - name: Mention the software
+        debug:
+            msg: "I have software version {{ software[0].version }}"
+
+      - name: Add a new node member1
+        bigip_node:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            host: "54.221.53.201"
+            name: "member1"
+            validate_certs: "false"
+
+      - name: Add a new node member2
+        bigip_node:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            host: "54.221.53.202"
+            name: "member2"
+            validate_certs: "false"
+
+      - name: Create the pool1 pool
+        bigip_pool:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            name: "pool1"
+            validate_certs: "false"
+
+      - name: Create the pool2 pool
+        bigip_pool:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            name: "pool2"
+            validate_certs: "false"
+
+      - name: Add members into pool1
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            state: "present"
+            host: "{{ item }}"
+            pool: "pool1"
+            port: "22"
+            validate_certs: "false"
+        with_items:
+            - member1
+            - member2
+ 
+      - name: Intermediate processing
+        debug:
+            msg: "Upgrade some software"
+ 
+      - name: More intermediate processing
+        debug:
+            msg: "Install some configuration"
+
+      - name: Drop members out of pool1
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            state: "absent"
+            host: "{{ item }}"
+            pool: "pool1"
+            port: "22"
+            validate_certs: "false"
+        with_items:
+            - member1
+            - member2
+ 
+      - name: Add member1 node back
+        bigip_node:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            name: "{{ item }}"
+            host: "10.2.1.1"
+            state: "present"
+            validate_certs: "false"
+        with_items:
+            - member1
+ 
+      - name: Add member2 node back
+        bigip_node:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            name: "{{ item }}"
+            host: "10.2.1.2"
+            state: "present"
+            validate_certs: "false"
+        with_items:
+            - member2
+ 
+      - name: Add member1 back to pool1
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            host: "{{ item }}"
+            pool: "pool1"
+            port: "22"
+            state: "present"
+            validate_certs: "false"
+        with_items:
+            - member1
+ 
+      - name: Add member2 to pool2
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "admin"
+            password: "admin"
+            host: "{{ item }}"
+            pool: "pool2"
+            port: "22"
+            state: "present"
+            validate_certs: "false"
+        with_items:
+            - member2
