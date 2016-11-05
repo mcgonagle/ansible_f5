@@ -138,3 +138,19 @@
             validate_certs: "false"
         with_items:
             - member2
+
+      - name: Create a VIP
+        bigip_virtual_server:
+            server: "{{ inventory_hostname }}"
+            description: "foo-vip"
+            destination: "172.16.10.100"
+            user: "admin"
+            password: "admin"
+            name: "vip-1"
+            pool: "pool1"
+            port: "80"
+            snat: "Automap"
+            all_profiles:
+                - "http"
+                - "clientssl"
+            validate_certs: "no"   
