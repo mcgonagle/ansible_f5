@@ -7,7 +7,7 @@
         bigip_facts:
             server: "{{ inventory_hostname }}"
             user: "admin"
-            password: "admin"
+            password: "adminadmin"
             include: "system_info,software,self_ip"
             validate_certs: "false"
 
