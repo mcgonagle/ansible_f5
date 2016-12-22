@@ -6,8 +6,8 @@
       - name: Get all of the facts from my BIG-IP
         bigip_facts:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "adminadmin"
+            user: "{{username}}"
+            password: "{{password}}"
             include: "system_info,software,self_ip"
             validate_certs: "false"
 
@@ -31,8 +31,8 @@
       - name: Add a new node member2
         bigip_node:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             host: "54.221.53.202"
             name: "member2"
             validate_certs: "false"
@@ -40,24 +40,24 @@
       - name: Create the pool1 pool
         bigip_pool:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             name: "pool1"
             validate_certs: "false"
 
       - name: Create the pool2 pool
         bigip_pool:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             name: "pool2"
             validate_certs: "false"
 
       - name: Add members into pool1
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             state: "present"
             host: "{{ item }}"
             pool: "pool1"
@@ -78,8 +78,8 @@
       - name: Drop members out of pool1
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             state: "absent"
             host: "{{ item }}"
             pool: "pool1"
@@ -92,8 +92,8 @@
       - name: Add member1 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             name: "{{ item }}"
             host: "10.2.1.1"
             state: "present"
@@ -104,8 +104,8 @@
       - name: Add member2 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             name: "{{ item }}"
             host: "10.2.1.2"
             state: "present"
@@ -116,8 +116,8 @@
       - name: Add member1 back to pool1
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             host: "{{ item }}"
             pool: "pool1"
             port: "22"
@@ -129,8 +129,8 @@
       - name: Add member2 to pool2
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             host: "{{ item }}"
             pool: "pool2"
             port: "22"
@@ -144,8 +144,8 @@
             server: "{{ inventory_hostname }}"
             description: "foo-vip"
             destination: "172.16.10.100"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             name: "vip-1"
             pool: "pool1"
             port: "80"
