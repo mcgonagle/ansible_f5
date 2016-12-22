@@ -1,4 +1,4 @@
-- name: Test bigip_facts 
+- name: Test bigip_facts
   hosts: aws_hosts
   connection: local
 
@@ -14,7 +14,7 @@
       - name: Mention the Self IP
         debug:
             msg: "I have self IP {{ self_ip['/Common/10.0.1.10'].address }}"
- 
+            
       - name: Mention the software
         debug:
             msg: "I have software version {{ software[0].version }}"
@@ -66,11 +66,11 @@
         with_items:
             - member1
             - member2
- 
+            
       - name: Intermediate processing
         debug:
             msg: "Upgrade some software"
- 
+            
       - name: More intermediate processing
         debug:
             msg: "Install some configuration"
@@ -88,7 +88,7 @@
         with_items:
             - member1
             - member2
- 
+            
       - name: Add member1 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
@@ -100,7 +100,7 @@
             validate_certs: "false"
         with_items:
             - member1
- 
+            
       - name: Add member2 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
@@ -112,7 +112,7 @@
             validate_certs: "false"
         with_items:
             - member2
- 
+            
       - name: Add member1 back to pool1
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
@@ -125,7 +125,7 @@
             validate_certs: "false"
         with_items:
             - member1
- 
+            
       - name: Add member2 to pool2
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
@@ -153,4 +153,4 @@
             all_profiles:
                 - "http"
                 - "clientssl"
-            validate_certs: "no"   
+            validate_certs: "no"
