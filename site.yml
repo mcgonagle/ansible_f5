@@ -22,8 +22,8 @@
       - name: Add a new node member1
         bigip_node:
             server: "{{ inventory_hostname }}"
-            user: "admin"
-            password: "admin"
+            user: "{{username}}"
+            password: "{{password}}"
             host: "54.221.53.201"
             name: "member1"
             validate_certs: "false"
