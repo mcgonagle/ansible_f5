@@ -19,11 +19,6 @@
         debug:
             msg: "I have software version {{ software[0].version }}
 
-      - name: print all the vlans
-        debug:
-            msg: "{{ item.key }} == {{ item.value.vlan_id }}"
-        with_dict: vlan
-
       - name: Add a new node member1
         bigip_node:
             server: "{{ inventory_hostname }}"
