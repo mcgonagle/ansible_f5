@@ -17,7 +17,7 @@
             
       - name: Mention the software
         debug:
-            msg: "I have software version {{ software[0].version }}
+            msg: "I have software version {{ software[0].version }}"
 
       - name: Add a new node member1
         bigip_node:
