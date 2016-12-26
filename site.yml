@@ -14,7 +14,7 @@
       - name: Mention the Self IP
         debug:
             msg: "I have self IP {{ self_ip['/Common/10.0.1.10'].address }}"
-            
+
       - name: Mention the software
         debug:
             msg: "I have software version {{ software[0].version }}"
