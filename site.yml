@@ -66,11 +66,11 @@
         with_items:
             - member1
             - member2
-            
+
       - name: Intermediate processing
         debug:
             msg: "Upgrade some software"
-            
+
       - name: More intermediate processing
         debug:
             msg: "Install some configuration"
@@ -100,7 +100,7 @@
             validate_certs: "false"
         with_items:
             - member1
-            
+   
       - name: Add member2 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
@@ -112,7 +112,7 @@
             validate_certs: "false"
         with_items:
             - member2
-            
+
       - name: Add member1 back to pool1
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
@@ -125,7 +125,7 @@
             validate_certs: "false"
         with_items:
             - member1
-            
+      
       - name: Add member2 to pool2
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
