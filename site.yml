@@ -88,7 +88,7 @@
         with_items:
             - member1
             - member2
-            
+ 
       - name: Add member1 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
@@ -100,7 +100,7 @@
             validate_certs: "false"
         with_items:
             - member1
-   
+
       - name: Add member2 node back
         bigip_node:
             server: "{{ inventory_hostname }}"
@@ -125,7 +125,7 @@
             validate_certs: "false"
         with_items:
             - member1
-      
+
       - name: Add member2 to pool2
         bigip_pool_member:
             server: "{{ inventory_hostname }}"
