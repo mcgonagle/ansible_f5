@@ -20,8 +20,8 @@ node {
        playbook: 'site.yml', 
        sudoUser: null,
        extraVars: [
-            username: 'admin',
-            password: [value: 'adminadmin', hidden: true]
+            username: 'dev',
+            password: [value: 'devdev', hidden: true]
        ])
    }
 }
