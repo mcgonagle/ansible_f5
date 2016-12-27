@@ -10,8 +10,11 @@ node {
       ])
      
    }
-   stage('Ansible-Lint') {
+   stage('Testing') {
+       echo 'ansible-lint'
        sh "/usr/local/bin/ansible-lint site.yml"
+       echo 'ansible-review'
+       sh "/usr/local/bin/ansible-review site.yml"
    }
    stage('Ansible Run') {
    ansiblePlaybook(
