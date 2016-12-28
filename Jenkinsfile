@@ -1,14 +1,7 @@
 node {
    stage('Preparation') { 
       // Get some code from a GitHub repository
-      git 'https://github.com/mcgonagle/ansible_f5.git'
-      
-      def userInput = input(
-      id: 'userInput', message: 'username?', parameters: [
-      [$class: 'TextParameterDefinition', defaultValue: 'admin', description: 'username', name: 'username'],
-      [$class: 'TextParameterDefinition', defaultValue: 'password', description: 'password', name: 'password']
-      ])
-     
+      git 'https://github.com/mcgonagle/ansible_f5.git
    }
    stage('Testing') {
        echo 'ansible-lint'
@@ -16,15 +9,24 @@ node {
        echo 'ansible-review'
        sh "/usr/local/bin/ansible-review site.yml"
    }
+   stage('') {
+      def userInput = input(
+         id: 'userInput', message: 'Proceed?', parameters: [
+         [$class: 'TextParameterDefinition', defaultValue: 'yes', description: 'proceed', name: 'proceed']
+      ])  
+      if (+userInput['proceed'] == "no" || +userInput['proceed'] == 'No') {
+           error 'Do not proceed.'
+      } 
+   }
    stage('Ansible Run') {
-   ansiblePlaybook(
-       colorized: true, 
-       inventory: 'hosts.ini', 
-       playbook: 'site.yml', 
-       sudoUser: null,
-       extraVars: [
+       ansiblePlaybook(
+         colorized: true, 
+         inventory: 'hosts.ini', 
+         playbook: 'site.yml', 
+         sudoUser: null,
+         extraVars: [
             username: 'dev',
             password: [value: 'devdev', hidden: true]
-       ])
+         ])
    }
 }
