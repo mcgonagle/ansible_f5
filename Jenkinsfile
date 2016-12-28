@@ -14,7 +14,7 @@ node {
          id: 'userInput', message: 'Proceed?', parameters: [
          [$class: 'TextParameterDefinition', defaultValue: 'yes', description: 'proceed', name: 'proceed']
       ])  
-      if (+userInput['proceed'] == "no" || +userInput['proceed'] == 'No') {
+      if (+userInput == "no" || +userInput == 'No') {
            error 'Do not proceed.'
       } 
    }
