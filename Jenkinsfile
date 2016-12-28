@@ -9,7 +9,7 @@ node {
        echo 'ansible-review'
        sh "/usr/local/bin/ansible-review site.yml"
    }
-   stage('Proceed') {
+   stage('Approval') {
       input 'Proceed?'
       //def userInput = input(
          //id: 'userInput', message: 'Proceed?', parameters: [
