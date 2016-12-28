@@ -10,12 +10,13 @@ node {
        sh "/usr/local/bin/ansible-review site.yml"
    }
    stage('Proceed') {
-      def userInput = input(
-         id: 'userInput', message: 'Proceed?', parameters: [
+      input 'Proceed?'
+      //def userInput = input(
+         //id: 'userInput', message: 'Proceed?', parameters: [
          //[$class: 'TextParameterDefinition', defaultValue: 'yes', description: 'proceed', name: 'proceed']
-         [$class: 'TextParameterDefinition']
+         //[$class: 'TextParameterDefinition']
 
-      ])  
+      //])  
    }
    stage('Ansible Run') {
        ansiblePlaybook(
