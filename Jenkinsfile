@@ -14,9 +14,9 @@ node {
          id: 'userInput', message: 'Proceed?', parameters: [
          [$class: 'TextParameterDefinition', defaultValue: 'yes', description: 'proceed', name: 'proceed']
       ])  
-      if (+userInput == "no" || +userInput == 'No') {
-           error 'Do not proceed.'
-      } 
+      //if (+userInput == "no" || +userInput == 'No') {
+      //     error 'Do not proceed.'
+      //} 
    }
    stage('Ansible Run') {
        ansiblePlaybook(
