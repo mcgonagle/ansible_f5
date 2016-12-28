@@ -9,7 +9,7 @@ node {
        echo 'ansible-review'
        sh "/usr/local/bin/ansible-review site.yml"
    }
-   stage('') {
+   stage('Proceed') {
       def userInput = input(
          id: 'userInput', message: 'Proceed?', parameters: [
          [$class: 'TextParameterDefinition', defaultValue: 'yes', description: 'proceed', name: 'proceed']
