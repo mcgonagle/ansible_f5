@@ -1,7 +1,7 @@
 node {
    stage('Preparation') { 
       // Get some code from a GitHub repository
-      git 'https://github.com/mcgonagle/ansible_f5.git
+      git 'https://github.com/mcgonagle/ansible_f5.git'
    }
    stage('Testing') {
        echo 'ansible-lint'
