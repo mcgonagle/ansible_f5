@@ -24,7 +24,7 @@
             server: "{{ inventory_hostname }}"
             user: "{{username}}"
             password: "{{password}}"
-            host: "54.221.53.201"
+            host: "10.2.1.1"
             name: "member1"
             validate_certs: "false"
 
@@ -33,7 +33,7 @@
             server: "{{ inventory_hostname }}"
             user: "{{username}}"
             password: "{{password}}"
-            host: "54.221.53.202"
+            host: "10.2.1.2"
             name: "member2"
             validate_certs: "false"
 
