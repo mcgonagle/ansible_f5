@@ -120,7 +120,7 @@
             password: "{{password}}"
             host: "{{ item }}"
             pool: "pool1"
-            port: "22"
+            port: "80"
             state: "present"
             validate_certs: "false"
         with_items:
@@ -133,7 +133,7 @@
             password: "{{password}}"
             host: "{{ item }}"
             pool: "pool2"
-            port: "22"
+            port: "80"
             state: "present"
             validate_certs: "false"
         with_items:
