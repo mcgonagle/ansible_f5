@@ -24,18 +24,12 @@
             server: "{{ inventory_hostname }}"
             user: "{{username}}"
             password: "{{password}}"
-            host: "10.2.1.1"
+            host: "10.0.2.167"
             name: "member1"
             validate_certs: "false"
-
-      - name: Add a new node member2
-        bigip_node:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            host: "10.2.1.2"
-            name: "member2"
-            validate_certs: "false"
+            state: "present"
+            monitors:
+              - /Common/icmp
 
       - name: Create the pool1 pool
         bigip_pool:
@@ -44,14 +38,8 @@
             password: "{{password}}"
             name: "pool1"
             validate_certs: "false"
-
-      - name: Create the pool2 pool
-        bigip_pool:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            name: "pool2"
-            validate_certs: "false"
+            monitors:
+              - /Common/http_head_f5
 
       - name: Add members into pool1
         bigip_pool_member:
@@ -61,11 +49,10 @@
             state: "present"
             host: "{{ item }}"
             pool: "pool1"
-            port: "22"
+            port: "8080"
             validate_certs: "false"
         with_items:
             - member1
-            - member2
 
       - name: Intermediate processing
         debug:
@@ -75,75 +62,21 @@
         debug:
             msg: "Install some configuration"
 
-      - name: Drop members out of pool1
-        bigip_pool_member:
+      - name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
+        bigip_irule:
+            module: "ltm"
             server: "{{ inventory_hostname }}"
             user: "{{username}}"
             password: "{{password}}"
-            state: "absent"
-            host: "{{ item }}"
-            pool: "pool1"
-            port: "22"
-            validate_certs: "false"
-        with_items:
-            - member1
-            - member2
-
-      - name: Add member1 node back
-        bigip_node:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            name: "{{ item }}"
-            host: "10.2.1.1"
-            state: "present"
-            validate_certs: "false"
-        with_items:
-            - member1
-
-      - name: Add member2 node back
-        bigip_node:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            name: "{{ item }}"
-            host: "10.2.1.2"
-            state: "present"
-            validate_certs: "false"
-        with_items:
-            - member2
-
-      - name: Add member1 back to pool1
-        bigip_pool_member:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            host: "{{ item }}"
-            pool: "pool1"
-            port: "80"
-            state: "present"
-            validate_certs: "false"
-        with_items:
-            - member1
-
-      - name: Add member2 to pool2
-        bigip_pool_member:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            host: "{{ item }}"
-            pool: "pool2"
-            port: "80"
-            state: "present"
-            validate_certs: "false"
-        with_items:
-            - member2
+            name: "Bodgeit_Rewrite"
+            src: "bodgeit-rewrite.tcl"
+            validate_certs: "no"
 
       - name: Create a VIP
         bigip_virtual_server:
             server: "{{ inventory_hostname }}"
             description: "foo-vip"
-            destination: "172.16.10.100"
+            destination: "10.0.2.183"
             user: "{{username}}"
             password: "{{password}}"
             name: "vip-1"
@@ -152,5 +85,6 @@
             snat: "Automap"
             all_profiles:
                 - "http"
-                - "clientssl"
+            all_rules:
+                - "Bodgeit_Rewrite"
             validate_certs: "no"
