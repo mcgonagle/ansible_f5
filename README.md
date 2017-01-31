@@ -74,3 +74,31 @@ export PYTHONPATH=/Users/tom/ansible2/lib/python2.7/site-packages
 ```
 
 I also had to set the **validate_certs: "false"** in my site.yml for each bigip module call. As of Python 2.7.9, python won't work with self signed certificates, which I use in my lab environment. 
+
+# ansible-vault
+```
+sudo pip install ansible-vault
+```
+
+Create the ansible-vault file
+```
+ansible-vault create password.yml
+```
+
+Edit the ansible-vault file
+```
+ansible-vault edit password.yml
+```
+Contents of the ansible-vault file
+```
+    username: admin
+    password: adminadmin
+```
+
+Run the ansible-playbook command with the ansible-vault file 
+```
+ansible-playbook site.yml --ask-vault-pass -e @password.yml -vvv
+```
+
+
+
