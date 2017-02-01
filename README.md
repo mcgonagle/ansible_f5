@@ -99,6 +99,6 @@ Run the ansible-playbook command with the ansible-vault file
 ```
 ansible-playbook site.yml --ask-vault-pass -e @password.yml -vvv
 ```
-
+ansible-vault password for file password.yml is ```password```
 
 
