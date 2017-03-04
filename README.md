@@ -19,8 +19,14 @@ enhancement requests using [Github Issues](https://github.com/F5Networks/f5-ansi
 * [f5-sdk Python Client, latest available][f5-sdk]
 
 ### Documentation
+Pip does not come pre-installed on a mac. To install run 
 
-First, make sure virtualenv is installed.
+```
+sudo easy_install pip
+sudo pip install --upgrade pip
+```
+
+Next, make sure virtualenv is installed.
 
 ```
 pip install virtualenv
@@ -74,6 +80,13 @@ export PYTHONPATH=/Users/tom/ansible2/lib/python2.7/site-packages
 ```
 
 I also had to set the **validate_certs: "false"** in my site.yml for each bigip module call. As of Python 2.7.9, python won't work with self signed certificates, which I use in my lab environment. 
+
+Several of the BigIP ansible modules depend on Bigsuds, and or the Python F5-SDK. Make sure to install both via pip.
+
+```
+pip install bigsuds
+pip install f5-sdk
+```
 
 ## ansible-vault
 ```
