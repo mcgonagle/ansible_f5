@@ -1,66 +1,33 @@
 - name: Configure BigIP
-  hosts: aws_hosts
+  hosts: hosts
+  vars_files:
+    - variables/default_vars.yml
   connection: local
 
   tasks:
-      - name: Add a new node member1
-        bigip_node:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            host: "10.0.2.167"
-            name: "member1"
-            validate_certs: "false"
-            state: "present"
-            monitors:
-              - /Common/icmp
+      - include: tasks/bigip_device_ntp/set_ntp_server.yml
+      - include: tasks/bigip_device_ntp/set_timezone.yml
+#     Need to have dhcp turned off to set dns for management interface
+#      - include: tasks/bigip_device_dns/set_dns.yml
+      - include: tasks/bigip_hostname/set_hostname.yml
 
-      - name: Create the pool1 pool
-        bigip_pool:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            name: "pool1"
-            validate_certs: "false"
-            monitors:
-              - /Common/http_head_f5
+#     add_user.yml is not idempotent, errors out when user exists
+#      - include: tasks/bigip_user/add_user.yml
+#      - include: tasks/bigip_user/remove_user.yml
+#     change_role_shell.yml is not idempotent, errors out when user exists
+#      - include: tasks/bigip_user/change_role_shell.yml
+#      - include: tasks/bigip_user/remove_user.yml
+#     change_admin_advanced_shell.yml is not idempotent, errors out when user exists
+#      - include: tasks/bigip_user/change_admin_advanced_shell.yml
+#      - include: tasks/bigip_user/remove_user.yml
+#     updat_password.yml is not idempotent, errors out when user exists
+#      - include: tasks/bigip_user/update_password.yml
 
-      - name: Add members into pool1
-        bigip_pool_member:
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            state: "present"
-            host: "{{ item }}"
-            pool: "pool1"
-            port: "8080"
-            validate_certs: "false"
-        with_items:
-            - member1
+#     Doesn't appear to be working correctly
+#      - include: tasks/bigip_ssl_certificate/import_certificate.yml
 
-      - name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
-        bigip_irule:
-            module: "ltm"
-            server: "{{ inventory_hostname }}"
-            user: "{{username}}"
-            password: "{{password}}"
-            name: "Bodgeit_Rewrite"
-            src: "bodgeit-rewrite.tcl"
-            validate_certs: "no"
 
-      - name: Create a VIP
-        bigip_virtual_server:
-            server: "{{ inventory_hostname }}"
-            description: "foo-vip"
-            destination: "10.0.2.183"
-            user: "{{username}}"
-            password: "{{password}}"
-            name: "vip-1"
-            pool: "pool1"
-            port: "80"
-            snat: "Automap"
-            all_profiles:
-                - "http"
-            all_rules:
-                - "Bodgeit_Rewrite"
-            validate_certs: "no"
+
+#      - include: tasks/bigip_vlan.yml
+#      - include: tasks/bigip_selfip.yml
+#      - include: tasks/bigip_remote_syslog.yml
