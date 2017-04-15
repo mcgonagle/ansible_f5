@@ -1,0 +1,8 @@
+- name: Remove the user 'johnd'
+  bigip_user:
+      user: "{{ username }}"
+      password: "{{ password }}"
+      server: "{{ inventory_hostname }}"
+      name: "johnd"
+      state: "absent"
+  delegate_to: localhost

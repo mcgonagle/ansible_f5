@@ -1,0 +1,10 @@
+- name: Make the user 'johnd' an admin and set to advanced shell
+  bigip_user:
+      user: "{{ username }}"
+      password: "{{ password }}"
+      server: "{{ inventory_hostname }}"
+      name: "johnd"
+      partition_access: "all:admin"
+      shell: "bash"
+      state: "present"
+  delegate_to: localhost

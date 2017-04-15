@@ -1,0 +1,8 @@
+ntp_server: "time.apple.com"
+time_zone: "America/New_York"
+dns_servers:
+  - "8.8.8.8"
+  - "8.8.4.4"
+search_domains:
+  - "localdomain"
+hostname: "bigip.localhost.localdomain"
