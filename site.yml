@@ -2,6 +2,8 @@
   hosts: hosts
   vars_files:
     - variables/default_vars.yml
+    - variables/bigip_device_ntp.yml
+    - variables/bigip_hostname.yml
   connection: local
 
   tasks:
