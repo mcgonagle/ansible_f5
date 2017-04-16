@@ -5,6 +5,13 @@
 ## Module Documentation
 
 [bigip_device_dns](tasks/bigip_device_dns)
+[bigip_device_ntp](tasks/bigip_device_ntp)
+[bigip_hostname](tasks/bigip_hostname)
+[bigip_remote_syslog](tasks/bigip_remote_syslog)
+[bigip_selfip](tasks/bigip_selfip)
+[bigip_ssl_certificate](tasks/bigip_ssl_certificate)
+[bigip_user](tasks/bigip_user)
+[bigip_vlan](tasks/bigip_vlan)
 
 # Infrastructure as Code Principles, Practices, and Patterns
 
