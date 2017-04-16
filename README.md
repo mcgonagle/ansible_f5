@@ -59,3 +59,7 @@ The main challenges with Infrastructure as Code are people ones. They center aro
 
 * Testing -
 
+## Installing Ansible
+
+[Installing Ansible Documentation](INSTALL.md)
+
