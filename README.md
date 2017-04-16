@@ -1,4 +1,4 @@
-#Infrastructure as Code Principles, Practices, and Patterns
+# Infrastructure as Code Principles, Practices, and Patterns
 
 
 Infrastructure as Code is a powerful concept and approach that promises to help repair the split-brain witnessed so frequently in organizations where developers and system administrators view each other as enemies, and don’t work together. By giving operational responsibilities to the developers and liberating system administrators to start thinking at the higher levels of abstraction that are necessary if we’re to succeed in building robust scaled architectures, we open up a new way of cooperating, a new way of working –which is fundamental to the emerging DevOps Movement. 
@@ -9,7 +9,7 @@ Infrastructure as Code provides the following three core benefits. It allows you
 
 The main challenges with Infrastructure as Code are people ones. They center around fear, uncertainty and doubt that the automation introduced by IaC will cause more headaches, more challenges, and more downtime. The biggest challenges with a dynamic infrastructure are server sprawl, configuration drift, snowflake servers, fragile infrastructures, automation fear, and erosion (the idea that problems will creep into a system over time). Teaching sound IaC principles, practices, and patterns elevate these issues. 
 
-##Principles of Infrastructure as Code
+## Principles of Infrastructure as Code
   
 * Modularity – Our services should be small and simple –think at the level of the simplest 
   Free-standing, useful component.
@@ -32,7 +32,7 @@ The main challenges with Infrastructure as Code are people ones. They center aro
 
 * Convergence – Convergence our servers should take responsibility for their own state being in line with policy; over time, the overall system will tend to correctness. 
 
-##Practices
+## Practices
 
 * Repeatability – Because we’re building systems in a high level programming language, and committing our code, we start to become more confident that our systems are ordered and repeatable. With that same inputs, the same code should produce the same outputs. This means we can now be confident (and ensure on a regular basis) that what we believe will recreate our environment really will do that.
  
@@ -46,7 +46,7 @@ The main challenges with Infrastructure as Code are people ones. They center aro
 
 * Disaster Recovery – In the event of a catastrophic event that wipes out the production systems, if your entire infrastructure has been broken down into modular components and described as code, recovery is as simple as provisioning new compute power, restoring from backup, and deploying the infrastructure and application code. What may have been a business ending event in the old paradigm of custom-built, partially automated infrastructure becomes a manageable few hour outage, potentially delivering competitive value over those organizations suffering from the same external influecnes, but without the power and flexibility brought about by infrastructure as code. 
 
-##Patterns
+## Patterns
 * Design – Our infrastructure code should seek to be simple, iterative, and we should avoid feature creep
 
 * Collective Ownership – All members of the team should be involved in the design and writing of infrastructure as code and, wherever possible, code should be written in pairs. 
