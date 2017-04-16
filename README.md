@@ -1,6 +1,6 @@
 # Installing Ansible
 
-[Installing Ansible Documentation](INSTALL.md)
+[Installing Ansible Documentation](docs/INSTALL.md)
 
 # Infrastructure as Code Principles, Practices, and Patterns
 
