@@ -1,0 +1,2 @@
+ntp_server: "time.apple.com"
+time_zone: "America/New_York"
