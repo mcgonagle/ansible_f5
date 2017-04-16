@@ -2,6 +2,10 @@
 
 [Installing Ansible Documentation](docs/INSTALL.md)
 
+## Module Documentation
+
+[bigip_device_dns](tasks/bigip_device_dns)
+
 # Infrastructure as Code Principles, Practices, and Patterns
 
 
