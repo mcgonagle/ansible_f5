@@ -1,32 +1,32 @@
 - name: Configure BigIP
   hosts: hosts
   vars_files:
-    - variables/default_vars.yml
-    - variables/bigip_device_ntp.yml
-    - variables/bigip_hostname.yml
+    - ../variables/default_vars.yml
+    - ../variables/bigip_device_ntp.yml
+    - ../variables/bigip_hostname.yml
   connection: local
 
   tasks:
-      - include: tasks/bigip_device_ntp/set_ntp_server.yml
-      - include: tasks/bigip_device_ntp/set_timezone.yml
+      - include: ../tasks/bigip_device_ntp/set_ntp_server.yml
+      - include: ../tasks/bigip_device_ntp/set_timezone.yml
 #     Need to have dhcp turned off to set dns for management interface
-#      - include: tasks/bigip_device_dns/set_dns.yml
-      - include: tasks/bigip_hostname/set_hostname.yml
+#      - include: ../tasks/bigip_device_dns/set_dns.yml
+      - include: ../tasks/bigip_hostname/set_hostname.yml
 
 #     add_user.yml is not idempotent, errors out when user exists
-#      - include: tasks/bigip_user/add_user.yml
-#      - include: tasks/bigip_user/remove_user.yml
+#      - include: ../tasks/bigip_user/add_user.yml
+#      - include: ../tasks/bigip_user/remove_user.yml
 #     change_role_shell.yml is not idempotent, errors out when user exists
-#      - include: tasks/bigip_user/change_role_shell.yml
-#      - include: tasks/bigip_user/remove_user.yml
+#      - include: ../tasks/bigip_user/change_role_shell.yml
+#      - include: ../tasks/bigip_user/remove_user.yml
 #     change_admin_advanced_shell.yml is not idempotent, errors out when user exists
-#      - include: tasks/bigip_user/change_admin_advanced_shell.yml
-#      - include: tasks/bigip_user/remove_user.yml
+#      - include: ../tasks/bigip_user/change_admin_advanced_shell.yml
+#      - include: ../tasks/bigip_user/remove_user.yml
 #     updat_password.yml is not idempotent, errors out when user exists
-#      - include: tasks/bigip_user/update_password.yml
+#      - include: ../tasks/bigip_user/update_password.yml
 
 #     Doesn't appear to be working correctly
-#      - include: tasks/bigip_ssl_certificate/import_certificate.yml
+#      - include: ../tasks/bigip_ssl_certificate/import_certificate.yml
 
 
 
