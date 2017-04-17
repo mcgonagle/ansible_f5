@@ -1,0 +1,9 @@
+- name: Create the pool1 pool
+  bigip_pool:
+    server: "{{ inventory_hostname }}"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    name: "pool1"
+    validate_certs: "false"
+    monitors:
+      - /Common/http_head_f5

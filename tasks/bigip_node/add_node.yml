@@ -1,0 +1,11 @@
+- name: Add a new node member1
+  bigip_node:
+    server: "{{ inventory_hostname }}"
+    user: "{{username}}"
+    password: "{{password}}"
+    host: "10.0.2.167"
+    name: "member1"
+    validate_certs: "false"
+    state: "present"
+    monitors:
+      - /Common/icmp

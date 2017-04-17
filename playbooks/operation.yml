@@ -1,0 +1,13 @@
+- name: Configure BigIP
+  hosts: hosts
+  vars_files:
+    - ../variables/default_vars.yml
+    - ../variables/bigip_node.yml
+  connection: local
+
+  tasks:
+      - include: ../tasks/bigip_node/add_node.yml
+      - include: ../tasks/bigip_pool/create_pool.yml
+      - include: ../tasks/bigip_pool_member/add_members.yml
+      - include: ../tasks/bigip_irule/add_irule.yml
+      - include: ../tasks/bigip_virtual_server/add_vip.yml

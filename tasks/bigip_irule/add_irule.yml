@@ -1,0 +1,9 @@
+- name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
+  bigip_irule:
+    server: "{{ inventory_hostname }}"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    module: "ltm"
+    name: "Bodgeit_Rewrite"
+    src: "../tasks/bigip_irule/bodgeit-rewrite.tcl"
+    validate_certs: "no"
