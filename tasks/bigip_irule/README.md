@@ -1,15 +1,15 @@
-module: bigip_irule
-short_description: Manage iRules across different modules on a BIG-IP.
-description:
+## module: bigip_irule
+####short_description: Manage iRules across different modules on a BIG-IP.
+####description:
   - Manage iRules across different modules on a BIG-IP.
-version_added: "2.2"
-options:
-  content:
-    description:
-      - When used instead of 'src', sets the contents of an iRule directly to
-        the specified value. This is for simple values, but can be used with
-        lookup plugins for anything complex or with formatting. Either one
-        of C(src) or C(content) must be provided.
+  
+####version_added: 
+	2.2
+
+#### description:
+When used instead of 'src', sets the contents of an iRule directly to the specified value. This is for simple values, but can be used with lookup plugins for anything complex or with formatting. Either one of C(src) or C(content) must be provided.
+
+```      
   module:
     description:
       - The BIG-IP module to add the iRule to.
@@ -47,11 +47,14 @@ requirements:
   - f5-sdk
 author:
   - Tim Rupp (@caphrim007)
-'''
+```
 
-EXAMPLES = '''
+#### EXAMPLES
+
 - name: Add the iRule contained in template irule.tcl to the LTM module
-  bigip_irule:
+
+```  
+	bigip_irule:
       content: "{{ lookup('template', 'irule.tcl') }}"
       module: "ltm"
       name: "MyiRule"
@@ -71,3 +74,4 @@ EXAMPLES = '''
       state: "present"
       user: "admin"
   delegate_to: localhost
+```
