@@ -1,2 +1,4 @@
 [hosts]
 34.201.98.230
+[bigip1]
+10.0.0.245 ansible_user=root ansible_ssh_pass=default
