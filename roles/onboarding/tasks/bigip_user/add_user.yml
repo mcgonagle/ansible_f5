@@ -1,4 +1,3 @@
----
 - include_vars: bigip_user_vars.yml
 
 - name: Add the user 
