@@ -1,0 +1,11 @@
+- name: Remove the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
+  bigip_irule:
+    server: "{{ inventory_hostname }}"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    module: "ltm"
+    name: "Bodgeit_Rewrite"
+    src: "roles/operations/files/irules/bodgeit-rewrite.tcl"
+    validate_certs: "no"
+    state: "absent"
+  delegate_to: localhost

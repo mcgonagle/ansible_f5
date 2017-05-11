@@ -1,0 +1,13 @@
+- name: remove members from pool1
+  bigip_pool_member:
+    server: "{{ inventory_hostname }}"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    host: "{{ item }}"
+    pool: "pool1"
+    port: "8080"
+    validate_certs: "false"
+    state: "absent"
+  with_items:
+    - member1
+  delegate_to: localhost

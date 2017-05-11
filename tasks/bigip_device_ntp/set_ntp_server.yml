@@ -1,9 +1,0 @@
-- name: Set NTP server
-  bigip_device_ntp:
-      user: "{{ username }}"
-      password: "{{ password }}"
-      server: "{{ inventory_hostname }}"
-      ntp_servers:
-          - "{{ ntp_server }}"
-      validate_certs: "no"
-  delegate_to: localhost

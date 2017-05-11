@@ -1,0 +1,5 @@
+---
+  vlan_name: "net1"
+  tagged_interface: "1.1"
+  tag: "1234"
+...

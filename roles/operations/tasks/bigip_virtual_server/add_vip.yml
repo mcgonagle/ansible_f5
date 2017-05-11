@@ -1,0 +1,17 @@
+- name: Add a VIP
+  bigip_virtual_server:
+    server: "{{ inventory_hostname }}"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    description: "foo-vip"
+    destination: "10.0.2.183"
+    name: "vip-1"
+    pool: "pool1"
+    port: "80"
+    snat: "Automap"
+    all_profiles:
+      - "http"
+    all_rules:
+      - "Bodgeit_Rewrite"
+    validate_certs: "no"
+  delegate_to: localhost

@@ -1,8 +1,0 @@
-- name: Set the hostname of the BIG-IP
-  bigip_hostname:
-      user: "{{ username }}"
-      password: "{{ password }}"
-      server: "{{ inventory_hostname }}"
-      hostname: "{{ hostname }}"
-      validate_certs: "no"
-  delegate_to: localhost

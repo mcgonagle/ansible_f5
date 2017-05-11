@@ -1,0 +1,7 @@
+---
+- include: bigip_node/add_node.yml
+- include: bigip_pool/create_pool.yml
+- include: bigip_pool_member/add_members.yml
+- include: bigip_irule/add_irule.yml
+- include: bigip_virtual_server/add_vip.yml
+...

@@ -1,0 +1,15 @@
+---
+- include_vars: bigip_user_vars.yml
+
+- name: Add the user 
+  bigip_user:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    username_credential: "{{ username_credential }}"
+    password_credential: "{{ password_credential }}"
+    full_name: "{{ full_name }}"
+    partition_access: "{{ partition_access }}"
+    update_password: "{{ update_password }}"
+    state: "present"
+  delegate_to: localhost

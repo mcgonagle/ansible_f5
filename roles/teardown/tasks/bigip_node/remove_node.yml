@@ -1,0 +1,11 @@
+- name: remove a node member1
+  bigip_node:
+    server: "{{ inventory_hostname }}"
+    user: "{{username}}"
+    password: "{{password}}"
+    name: "member1"
+    validate_certs: "false"
+    state: "absent"
+    monitors:
+      - /Common/icmp
+  delegate_to: localhost

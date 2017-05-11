@@ -1,0 +1,7 @@
+---
+- include: bigip_virtual_server/remove_vip.yml
+- include: bigip_irule/remove_irule.yml
+#- include: bigip_pool_member/remove_members.yml
+- include: bigip_pool/remove_pool.yml
+- include: bigip_node/remove_node.yml
+...
