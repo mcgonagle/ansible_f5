@@ -23,7 +23,5 @@ ansible-vault edit password.yml
 ```
 The password for the password file is *password*
 
-
-
-
-
+## Infrastructure as Code Principles, Practices and Patterns
+[To Do](docs/IAC.md)
