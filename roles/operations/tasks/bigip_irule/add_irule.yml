@@ -5,7 +5,6 @@
     password: "{{ password }}"
     module: "ltm"
     name: "Bodgeit_Rewrite"
-    #src: "roles/operations/files/irules/bodgeit-rewrite.tcl"
     content: "{{ lookup('file', '../files/irules/bodgeit-rewrite.tcl') }}"
     validate_certs: "no"
   delegate_to: localhost
