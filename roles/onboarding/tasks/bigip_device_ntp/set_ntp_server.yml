@@ -1,4 +1,4 @@
-= include_vars: bigip_device_ntp_vars.yml
+- include_vars: bigip_device_ntp_vars.yml
 
 - name: Set NTP server
   bigip_device_ntp:
