@@ -6,6 +6,11 @@
 
 [To Do](docs/MODULES.md)
 
+## Useful vimrc macro for editing YaML files
+```
+autocmd FileType yaml setlocal ai ts=2 sw=2 et colorcolumn=1,3,5,7,9,11,13 nu
+```
+
 ## Running the Ansible Code
 This Ansible code base comes with a shell helper script that runs the playbooks. 
 ```
