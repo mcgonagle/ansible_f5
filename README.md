@@ -29,5 +29,11 @@ and variables. Tasks are organized based on the particular module they are imple
 the bigip_device_ntp module is a subdirectory under the onboarding role and has a task 
 set_ntp.yml (*roles/tasks/bigip_device_ntp/set_ntp.yml*).
 
+## Ansible Playbooks
+The playbooks in in the ansible playbook directory include the roles.
+
+## Ansible Library
+Includes the BigIP Modules and distributes them for use. 
+
 ## Infrastructure as Code Principles, Practices and Patterns
 [Infrastructure as Code Benefits](docs/IAC.md)
