@@ -23,5 +23,11 @@ ansible-vault edit password.yml
 ```
 The password for the password file is *password*
 
+## Ansible Roles
+This ansible repository is organized into roles. Roles are collections of templates, files, tasks,
+and variables. Tasks are organized based on the particular module they are implementing. For example,
+the bigip_device_ntp module is a subdirectory under the onboarding role and has a task 
+set_ntp.yml (*roles/tasks/bigip_device_ntp/set_ntp.yml*).
+
 ## Infrastructure as Code Principles, Practices and Patterns
 [Infrastructure as Code Benefits](docs/IAC.md)
