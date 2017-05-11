@@ -1,3 +1,5 @@
+= include_vars: bigip_device_ntp_vars.yml
+
 - name: Set timezone
   bigip_device_ntp:
     user: "{{ username }}"

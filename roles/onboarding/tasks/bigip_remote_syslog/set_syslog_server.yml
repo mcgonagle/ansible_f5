@@ -1,3 +1,5 @@
+= include_vars: bigip_remote_syslog.yml
+
 - name: add a remote syslog server to log to
   bigip_remote_syslog:
     user: "{{ username }}"

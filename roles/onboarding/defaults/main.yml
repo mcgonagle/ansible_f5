@@ -1,9 +1,0 @@
----
-  ntp_server: "time.apple.com"
-  time_zone: "America/New_York"
-  hostname: "bigip.localhost.localdomain"
-#  syslog_servers: [ "10.10.10.10", "10.10.10.11" ]
-  syslog_servers: "10.10.10.10"
-  name_servers: [ '8.8.8.8', '8.8.4.4' ]
-  search_domains: [ 'localdomain', 'lab.local' ]
-...

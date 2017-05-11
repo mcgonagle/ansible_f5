@@ -1,3 +1,5 @@
+= include_vars: bigip_hostname_vars.yml
+
 - name: Set the hostname of the BIG-IP
   bigip_hostname:
     user: "{{ username }}"
