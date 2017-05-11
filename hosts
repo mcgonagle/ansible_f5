@@ -1,2 +1,9 @@
+<<<<<<< HEAD
 [aws]
 54.226.107.199
+=======
+[hosts]
+54.226.107.199
+[bigip1]
+10.0.0.245 ansible_user=root ansible_ssh_pass=default
+>>>>>>> 2cf983fef6270e4cec026a94f9f1149ad0adabf6
