@@ -10,7 +10,7 @@
     validate_certs: "false"
     state: "present"
     monitors:
-      - "{{ item[3] }}"
+      - "{{ item[2] }}"
   with_nested:
     - "{{ host | default(['member1']) }}"
     - "{{ name | default(['10.0.2.167']) }}"
