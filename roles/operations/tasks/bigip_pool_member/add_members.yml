@@ -6,14 +6,13 @@
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
     password: "{{ password }}"
-    host: "{{ item }}"
-    pool: "{{ item[0] | default('pool1') }}"
-    port: "{{ item[1] | default('8080') }}"
+    host: "{{ item[0] | default('member1') }}"
+    pool: "{{ item[1] | default('pool1') }}"
+    port: "{{ item[2] | default('8080') }}"
     state: "present"
     validate_certs: "false"
-  with_items:
-    - member1
   with_nested:
+    - "{{ host | default([]) }}"
     - "{{ pool | default([]) }}"
     - "{{ port | default([]) }}"
   delegate_to: localhost
