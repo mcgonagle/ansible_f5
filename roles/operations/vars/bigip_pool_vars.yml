@@ -1,4 +1,2 @@
 ---
-  name: "pool1"
-  monitors: "/Common/http_head_f5"
 ...

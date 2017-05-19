@@ -1,5 +1,2 @@
 ---
-  host: "member1"
-  pool: "pool1"
-  port: "8080"
 ...
