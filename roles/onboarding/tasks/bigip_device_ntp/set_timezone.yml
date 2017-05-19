@@ -7,4 +7,6 @@
     server: "{{ inventory_hostname }}"
     timezone: "{{ time_zone }}"
     validate_certs: "no"
+  with_nested:
+    - "{{ time_zone | default(['America/New_York') }}"
   delegate_to: localhost

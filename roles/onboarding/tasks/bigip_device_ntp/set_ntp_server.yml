@@ -6,6 +6,8 @@
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     ntp_servers:
-        - "{{ ntp_server }}"
+        - "{{ item[0] }}"
     validate_certs: "no"
+  with_nested:
+    - "{{ ntp_servers | default(['time.apple.com') }}"
   delegate_to: localhost

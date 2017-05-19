@@ -5,6 +5,6 @@
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    hostname: "{{ hostname }}"
+    hostname: "{{ hostname | default(['bigip.localhost.localdomain') }}"
     validate_certs: "no"
   delegate_to: localhost
