@@ -8,7 +8,7 @@
     name: "{{ item[0] | default('pool1') }}"
     validate_certs: "false"
     monitors:
-      - {{ item[1] | default('/Common/http_head_f5') }}"
+      - "{{ item[1] | default('/Common/http_head_f5') }}"
     with_nested:
       - "{{ name | default([]) }}"
       - "{{ monitors | default([]) }}"
