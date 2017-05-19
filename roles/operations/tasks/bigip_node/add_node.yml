@@ -12,7 +12,7 @@
     monitors:
       - "{{ item[2] }}"
   with_nested:
-    - "{{ host | default(['member1']) }}"
-    - "{{ name | default(['10.0.2.167']) }}"
+    - "{{ host | default(['10.0.2.167']) }}"
+    - "{{ name | default(['member1']) }}"
     - "{{ monitors | default(['/Common/icmp']) }}"
   delegate_to: localhost
