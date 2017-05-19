@@ -5,4 +5,6 @@
   pool: "pool1"
   port: "80"
   snat: "Automap"
+  all_profiles: "http"
+  all_rules: "Bodgeit_Rewrite"
 ...

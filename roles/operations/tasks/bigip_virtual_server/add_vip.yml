@@ -6,15 +6,15 @@
     user: "{{ username }}"
     password: "{{ password }}"
     description: "{{ item[0] | default('foo-vip') }}"
-    destination:  "{{ item[1] | default('10.0.2.183') }}"
+    destination: "{{ item[1] | default('10.0.2.183') }}"
     name: "{{ item[2] | default('vip-1') }}"
     pool: "{{ item[3] | default('pool1') }}"
     port: "{{ item[4] | default('80') }}"
     snat: "{{ item[5] | default('Automap') }}"
     all_profiles:
-      - "http"
+      - "{{ item[6] | default('http') }}"
     all_rules:
-      - "Bodgeit_Rewrite"
+      - "{{ item[7] | default('Bodgeit_Rewrite') }}"
     validate_certs: "no"
   delegate_to: localhost
   with_nested:
@@ -24,3 +24,5 @@
     - "{{ pool | default([]) }}"
     - "{{ port | default([]) }}"
     - "{{ snat | default([]) }}"
+    - "{{ all_profiles | default([]) }}"
+    - "{{ all_rules | default([]) }}"
