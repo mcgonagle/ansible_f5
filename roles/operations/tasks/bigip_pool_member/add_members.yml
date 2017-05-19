@@ -1,13 +1,19 @@
-- name: Add members into pool1
+- include_vars: "bigip_pool_member_vars.yml"
+
+
+- name: Add members into a pool
   bigip_pool_member:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
     password: "{{ password }}"
-    state: "present"
     host: "{{ item }}"
-    pool: "pool1"
-    port: "8080"
+    pool: "{{ item[0] | default('pool1') }}"
+    port: "{{ item[1] | default('8080') }}"
+    state: "present"
     validate_certs: "false"
   with_items:
     - member1
+  with_nested:
+    - "{{ pool | default([]) }}"
+    - "{{ port | default([]) }}"
   delegate_to: localhost
