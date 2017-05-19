@@ -1,17 +1,26 @@
+- include_vars: "bigip_virtual_server_vars.yml"
+
 - name: Add a VIP
   bigip_virtual_server:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
     password: "{{ password }}"
-    description: "foo-vip"
-    destination: "10.0.2.183"
-    name: "vip-1"
-    pool: "pool1"
-    port: "80"
-    snat: "Automap"
+    description: "{{ item[0] | default("foo-vip") }}"
+    destination:  "{{ item[1] | default("10.0.2.183") }}"
+    name: "{{ item[2] | default("vip-1") }}
+    pool: "{{ item[3] | default("pool1") }}
+    port: "{{ item[4] | default("80") }}
+    snat: "{{ item[5] | default("Automap") }}
     all_profiles:
       - "http"
     all_rules:
       - "Bodgeit_Rewrite"
     validate_certs: "no"
   delegate_to: localhost
+  with_nested:
+    - "{{ description | default([]) }}"
+    - "{{ destination | default([]) }}"
+    - "{{ name | default([]) }}"
+    - "{{ pool | default([]) }}"
+    - "{{ port | default([]) }}"
+    - "{{ snat | default([]) }}"
