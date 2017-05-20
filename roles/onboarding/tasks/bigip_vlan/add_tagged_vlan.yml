@@ -11,4 +11,4 @@
     tag: "{{ tag }}"
     validate_certs: "no"
   delegate_to: localhost
-
+...

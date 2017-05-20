@@ -4,9 +4,10 @@
       user: "{{ username }}"
       password: "{{ password }}"
       server: "{{ inventory_hostname }}"
-      name: "test"
+      name: "domain"
       cert_content: "{{ lookup('file', 'domain.crt') }}"
       key_content: "{{ lookup('file', 'domain.key') }}"
+      validate_certs: "no"
       state: "present"
   delegate_to: localhost
 ...
