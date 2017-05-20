@@ -1,10 +1,12 @@
+---
 - include_vars: bigip_hostname_vars.yml
 
-- name: Set the hostname of the BIG-IP
+- name: Set the hostname 
   bigip_hostname:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    hostname: "{{ hostname }}"
+    hostname: "{{ hostname | default(['bigip.localhost.localdomain']) }}"
     validate_certs: "no"
   delegate_to: localhost
+...

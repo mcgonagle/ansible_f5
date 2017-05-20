@@ -9,3 +9,4 @@
       name: "{{ username_credential }}"
       state: "absent"
   delegate_to: localhost
+...

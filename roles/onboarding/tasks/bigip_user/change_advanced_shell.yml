@@ -1,7 +1,7 @@
 ---
 - include_vars: bigip_user_vars.yml
 
-- name: Add the user
+- name: Change the user to the advanced bash shell
   bigip_user:
     user: "{{ username }}"
     password: "{{ password }}"
@@ -13,3 +13,4 @@
     shell: "bash"
     state: "present"
   delegate_to: localhost
+...

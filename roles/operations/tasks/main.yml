@@ -4,4 +4,6 @@
 - include: bigip_pool_member/add_members.yml
 - include: bigip_irule/add_irule.yml
 - include: bigip_virtual_server/add_vip.yml
+- include: bigip_iapp_template/appsvcs.yml
+- include: bigip_iapp_service/appsvcs.yml
 ...

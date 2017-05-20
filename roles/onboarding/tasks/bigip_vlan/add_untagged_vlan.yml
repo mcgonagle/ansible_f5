@@ -1,42 +1,23 @@
-- name: Create VLAN
+---
+- include_vars: bigip_vlan_vars.yml
+
+- name: Add untagged VLAN to interface external 
   bigip_vlan:
-      user: "{{ username }}"
-      password: "{{ password }}"
-      server: "{{ inventory_hostname }}"
-      name: "net1"
-      validate_certs: "no"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    name: "external"
+    untagged_interface: "1.1" 
+    validate_certs: "no"
   delegate_to: localhost
 
-- name: Set VLAN tag
+- name: Add untagged VLAN to interface internal 
   bigip_vlan:
-      user: "{{ username }}"
-      password: "{{ password }}"
-      server: "{{ inventory_hostname }}"
-      name: "net1"
-      tag: "2345"
-      validate_certs: "no"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    name: "internal"
+    untagged_interface: "1.2" 
+    validate_certs: "no"
   delegate_to: localhost
-
-- name: Add VLAN 2345 as tagged to interface 1.1
-  bigip_vlan:
-      user: "{{ username }}"
-      password: "{{ password }}"
-      server: "{{ inventory_hostname }}"
-      name: "net1"
-      tagged_interface: 1.1
-      tag: "2345"
-      validate_certs: "no"
-  delegate_to: localhost
-
-- name: Add VLAN 1234 as tagged to interfaces 1.1 and 1.2
-  bigip_vlan:
-      user: "{{ username }}"
-      password: "{{ password }}"
-      server: "{{ inventory_hostname }}"
-      name: "net1"
-      tagged_interfaces:
-          - 1.1
-          - 1.2
-      tag: "1234"
-      validate_certs: "no"
-  delegate_to: localhost
+...

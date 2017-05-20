@@ -4,4 +4,6 @@
 #- include: bigip_pool_member/remove_members.yml
 - include: bigip_pool/remove_pool.yml
 - include: bigip_node/remove_node.yml
+- include: bigip_iapp_service/appsvcs.yml
+- include: bigip_iapp_template/appsvcs.yml
 ...
