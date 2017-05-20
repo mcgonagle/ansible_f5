@@ -1,10 +1,12 @@
+---
 - name: Import PEM Certificate from local disk
   bigip_ssl_certificate:
       user: "{{ username }}"
       password: "{{ password }}"
       server: "{{ inventory_hostname }}"
-      name: "certificate-name"
-      state: "present"
+      name: "test"
       cert_content: "{{ lookup('file', 'domain.crt') }}"
       key_content: "{{ lookup('file', 'domain.key') }}"
+      state: "present"
   delegate_to: localhost
+...

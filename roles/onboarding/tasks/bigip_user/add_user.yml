@@ -1,6 +1,7 @@
+---
 - include_vars: bigip_user_vars.yml
 
-- name: Add the user 
+- name: Add the user "{{ username_credential }}"
   bigip_user:
     user: "{{ username }}"
     password: "{{ password }}"
@@ -12,3 +13,4 @@
     update_password: "{{ update_password }}"
     state: "present"
   delegate_to: localhost
+...
