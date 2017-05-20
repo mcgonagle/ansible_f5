@@ -1,0 +1,15 @@
+---
+- name: Create TCP Monitor
+  bigip_monitor_tcp:
+    name: "my_tcp_monitor"
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    type: "tcp"
+    parent: "tcp"
+    send: ""
+    receive: ""
+    validate_certs: "false"
+    state: "present"
+  delegate_to: localhost
+...
