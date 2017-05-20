@@ -7,4 +7,5 @@
 #- include: bigip_vlan/add_untagged_vlan.yml
 #- include: bigip_ssl_certificate/import_certificate.yml
 #- include: bigip_ssl_certificate/import_certificate.yml
-- include: bigip_partition/add_partition.yml
+#- include: bigip_partition/add_partition.yml
+- include: bigip_selfip/add_selfip.yml
