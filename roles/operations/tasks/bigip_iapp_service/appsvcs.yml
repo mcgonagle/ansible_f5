@@ -17,7 +17,7 @@
           - name: "iapp__routeDomain"
             value: "auto"
           - name: "pool__addr"
-            value: "1.1.1.1"
+            value: "10.0.2.184"
           - name: "pool__mask"
             value: "255.255.255.255"
           - name: "pool__port"
@@ -32,4 +32,8 @@
             value: "0"
           - name: "vs__ProfileClientProtocol"
             value: "/Common/tcp"
+          - name: "vs__ProfileHTTP"
+            value: "/Common/http"
+          - name: "vs__SNATConfig"
+            value: "automap"
   delegate_to: localhost
