@@ -1,0 +1,13 @@
+- name: Configure BigIP
+  hosts: aws_hosts
+  connection: local
+
+  tasks:
+      - name: Add the iApp contained in template appsvcs_integration_v2.0.002.tmpl
+        bigip_iapp_template:
+            user: "{{username}}"
+            password: "{{password}}"
+            server: "{{ inventory_hostname }}"
+            content: "{{ lookup('template', 'appsvcs_integration_v2.0.002.tmpl') }}"
+            state: "present"
+        delegate_to: localhost
