@@ -10,6 +10,7 @@
         - "{{ item[0] }}"
     search:
         - "{{ item[1] }}"
+    ip_version: "4"
     validate_certs: "no"
   with_nested:
     - "{{ name_servers | default(['8.8.8.8', '8.8.4.4']) }}"
