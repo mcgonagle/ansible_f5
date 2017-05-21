@@ -42,6 +42,14 @@ while test $# -gt 0; do
                         ansible-playbook playbooks/today.yml --ask-vault-pass -e @password.yml -vvv 
                         shift
                         ;;
+                -d)
+                        ansible-galaxy init roles/$(date +%m%d%Y) && cd roles; ln -sfn $(date +%m%d%Y) today;cd .. 
+                        shift
+                        ;;
+                --date*)
+                        ansible-galaxy init roles/$(date +%m%d%Y) && cd roles; ln -sfn $(date +%m%d%Y) today;cd .. 
+                        shift
+                        ;;
                 -a)
                         ansible-playbook site.yml --ask-vault-pass -e @password.yml -vvv 
                         shift
