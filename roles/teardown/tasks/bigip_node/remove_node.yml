@@ -1,11 +1,16 @@
-- name: remove a node member1
+- include_vars: "bigip_node_vars.yml"
+
+- name: Add a new node
   bigip_node:
     server: "{{ inventory_hostname }}"
     user: "{{username}}"
     password: "{{password}}"
-    name: "member1"
+    name: "{{ item[0] }}"
     validate_certs: "false"
     state: "absent"
     monitors:
-      - /Common/icmp
+      - "{{ item[1] }}"
+  with_nested:
+    - "{{ name | default(['member1']) }}"
+    - "{{ monitors | default(['/Common/icmp']) }}"
   delegate_to: localhost

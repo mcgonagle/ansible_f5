@@ -1,5 +1,5 @@
 ---
-- name: Create TCP Monitor
+- name: Remove TCP Monitor
   bigip_monitor_tcp:
     name: "my_tcp_monitor"
     user: "{{ username }}"
