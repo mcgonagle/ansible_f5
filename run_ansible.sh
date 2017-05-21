@@ -10,6 +10,7 @@ while test $# -gt 0; do
                         echo "-n, --onboarding          run the onboarding playbook"
                         echo "-o, --operation           run the operation playbook"
                         echo "-t, --teardown            run the teardown playbook"
+                        echo "--today                   run the today playbook"
                         exit 0
                         ;;
                 -n)
