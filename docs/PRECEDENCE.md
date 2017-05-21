@@ -1,4 +1,4 @@
-##Ansible 2.x Order of Variable Precedence
+## Ansible 2.x Order of Variable Precedence
 
 * role defaults
 * inventory INI or script group vars
