@@ -1,0 +1,11 @@
+{
+	"repos": [
+		{
+			"name":"mcgonagle-ansible_f5",
+			"repo":"https://github.com/mcgonagle/ansible_f5.git",
+			"branch":"master",
+			"skip":false,
+			"skipinstall":true
+		}
+	]
+}
