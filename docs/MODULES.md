@@ -1,28 +1,28 @@
 ### Onboarding Module Documentation
-[bigip_device_dns](../roles/onboarding/tasks/bigip_device_dns)
+[bigip_device_dns](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_device_dns_module.html)
 
-[bigip_device_ntp](../tasks/bigip_device_ntp)
+[bigip_device_ntp](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_device_ntp_module.html)
 
-[bigip_hostname](../tasks/bigip_hostname)
+[bigip_hostname](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_hostname_module.html)
 
-[bigip_remote_syslog](../tasks/bigip_remote_syslog)
+[bigip_remote_syslog](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_remote_syslog_module.html)
 
-[bigip_selfip](../tasks/bigip_selfip)
+[bigip_selfip](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_selfip_module.html)
 
-[bigip_ssl_certificate](../tasks/bigip_ssl_certificate)
+[bigip_ssl_certificate](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_ssl_certificate_module.html)
 
-[bigip_user](../tasks/bigip_user)
+[bigip_user](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_user_module.html)
 
-[bigip_vlan](../tasks/bigip_vlan)
+[bigip_vlan](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_vlan_module.html)
 
 
 ### Operations Module Documentation
-[bigip_node](../tasks/bigip_node)
+[bigip_node](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_node_module.html)
 
-[bigip_pool](../tasks/bigip_pool)
+[bigip_pool](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_pool_module.html)
 
-[bigip_pool_member](../tasks/bigip_pool_member)
+[bigip_pool_member](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_pool_member_module.html)
 
-[bigip_irule](../tasks/bigip_irule)
+[bigip_irule](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_irule_module.html)
 
-[bigip_virtual_server](../tasks/bigip_virtual_server)
+[bigip_virtual_server](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_virtual_server_module.html)
