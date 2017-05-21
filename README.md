@@ -61,6 +61,14 @@ set_ntp.yml (*roles/tasks/bigip_device_ntp/set_ntp.yml*).
 ## Ansible Playbooks
 The playbooks in in the ansible playbook directory include the roles.
 
+```
+$ANSIBLE_HOME_DIRECTORY/site.yml
+$ANSIBLE_HOME_DIRECTORY/playbooks/onboarding.yml
+$ANSIBLE_HOME_DIRECTORY/playbooks/operation.yml
+$ANSIBLE_HOME_DIRECTORY/playbooks/teardown.yml
+$ANSIBLE_HOME_DIRECTORY/playbooks/today.yml
+```
+
 ## Ansible Library
 Includes the BigIP Modules and distributes them for use. 
 
