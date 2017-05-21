@@ -37,6 +37,10 @@ while test $# -gt 0; do
                         ansible-playbook playbooks/teardown.yml --ask-vault-pass -e @password.yml -vvv 
                         shift
                         ;;
+                --today*)
+                        ansible-playbook playbooks/today.yml --ask-vault-pass -e @password.yml -vvv 
+                        shift
+                        ;;
                 -a)
                         ansible-playbook site.yml --ask-vault-pass -e @password.yml -vvv 
                         shift

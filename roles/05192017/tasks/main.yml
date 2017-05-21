@@ -4,7 +4,7 @@
       server: "{{ inventory_hostname }}"
       user: "{{ username }}"
       password: "{{ password }}"
-      include: "system_info,software,self_ip"
+      include: "address_class,certificate,client_ssl_profile,device,device_group,interface,key,node,pool,provision,rule,self_ip,software,system_info,traffic_group,trunk,virtual_address,virtual_server,vlan"
       validate_certs: "false"
 
   - name: Mention the Self IP
