@@ -1,5 +1,5 @@
 ### Onboarding Module Documentation
-[bigip_device_dns](../roles/onboarding/tasks/bigip_device_dns/set_dns.yml)
+[bigip_device_dns](https://f5-ansible.readthedocs.io/en/devel/modules/bigip_device_dns_module.html)
 
 [bigip_device_ntp](../tasks/bigip_device_ntp)
 
