@@ -64,5 +64,7 @@ The playbooks in in the ansible playbook directory include the roles.
 ## Ansible Library
 Includes the BigIP Modules and distributes them for use. 
 
+[F5 Network's Ansible Modules](https://github.com/F5Networks/f5-ansible/tree/devel/library)
+
 ## Infrastructure as Code Principles, Practices and Patterns
 [Infrastructure as Code Benefits](docs/IAC.md)
