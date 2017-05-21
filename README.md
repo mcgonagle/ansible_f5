@@ -11,6 +11,21 @@
 autocmd FileType yaml setlocal ai ts=2 sw=2 et colorcolumn=1,3,5,7,9,11,13 nu
 ```
 
+## user_repos.json 
+```
+{
+  "repos": [
+    {
+      "name":"mcgonagle-ansible_f5",
+      "repo":"https://github.com/mcgonagle/ansible_f5.git",
+      "branch":"master",
+      "skip":false,
+      "skipinstall":true
+    }
+  ]
+}
+```
+
 ## Running the Ansible Code
 This Ansible code base comes with a shell helper script that runs the playbooks. 
 ```
