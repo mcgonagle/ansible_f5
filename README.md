@@ -4,7 +4,7 @@
 
 ## Module Documentation
 
-[To Do](docs/MODULES.md)
+[Ansible Module Documents Used in this Collection](docs/MODULES.md)
 
 ## Useful vimrc macro for editing YaML files
 ```
