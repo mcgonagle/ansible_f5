@@ -43,13 +43,13 @@ $ANSIBLE_HOME_DIRECTORY/run_ansible.sh --teardown
 ## Ansible Variable Precedence
 In Ansible 2.x the order of precedence is as follows:
 
-* role defaults [1]
-* inventory INI or script group vars [2]
+* role defaults 
+* inventory INI or script group vars 
 * inventory group_vars/all
 * playbook group_vars/all
 * inventory group_vars/*
 * playbook group_vars/*
-* inventory INI or script host vars [2]
+* inventory INI or script host vars 
 * inventory host_vars/*
 * playbook host_vars/*
 * host facts
