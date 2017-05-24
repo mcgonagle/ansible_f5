@@ -1,6 +1,4 @@
 ---
-- include_vars: bigip_device_ntp_vars.yml
-
 - name: Set NTP servers
   bigip_device_ntp:
     user: "{{ username }}"
