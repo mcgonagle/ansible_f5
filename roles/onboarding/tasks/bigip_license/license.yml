@@ -1,11 +1,11 @@
 ---
-- name: Add remote syslog server
-  bigip_remote_syslog:
+- name: License BIG-IP using default license options
+  bigip_license:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    remote_host: "10.10.10.10" 
-    remote_port: "514" 
+    key: "{{ key }}"
     validate_certs: "no"
+    run_once: true
   delegate_to: localhost
 ...

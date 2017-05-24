@@ -1,6 +1,4 @@
 ---
-- include_vars: "bigip_partition_vars.yml"
-
 - name: Create partition foo using the default route domain
   bigip_partition:
     name: "{{ partition_name | default(['foo']) }}"

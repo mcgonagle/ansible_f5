@@ -1,15 +1,12 @@
 ---
-- include_vars: bigip_device_ntp_vars.yml
-
 - name: Set NTP servers
   bigip_device_ntp:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     ntp_servers:
-        - "{{ item[0] }}"
+        - 'time.apple.com' 
+        - 'time.nist.gov' 
     validate_certs: "no"
-  with_nested:
-    - "{{ ntp_servers | default(['time.apple.com','time.nist.gov') }}"
   delegate_to: localhost
 ...
