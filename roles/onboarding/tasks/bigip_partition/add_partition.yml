@@ -7,4 +7,6 @@
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
+    validate_certs: "no"
+  delegate_to: localhost
 ...

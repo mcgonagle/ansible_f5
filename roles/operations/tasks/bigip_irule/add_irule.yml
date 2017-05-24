@@ -7,4 +7,5 @@
     name: "Bodgeit_Rewrite"
     content: "{{ lookup('file', 'irules/bodgeit-rewrite.tcl') }}"
     validate_certs: "false"
+    state: "present"
   delegate_to: localhost
