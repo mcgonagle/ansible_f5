@@ -5,12 +5,12 @@
       user: "{{ username }}"
       password: "{{ password }}"
       server: "{{ inventory_hostname }}"
-      name: "{{ name }}"
-      address: "{{ addresss }}"
-      netmask: "{{ netmask }}"
-      vlan: "{{ vlan_name }}"
-      route_domain: "{{ route_domain }}"
-      traffic_group: "{{ traffic_group }}"
+      name: "10.0.1.10"
+      address: "10.0.1.10"
+      netmask: "255.255.255.0"
+      vlan: "external"
+      route_domain: "0"
+      traffic_group: "traffic-group-local-only"
       validate_certs: "no"
   delegate_to: localhost
 

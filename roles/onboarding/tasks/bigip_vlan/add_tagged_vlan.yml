@@ -6,9 +6,9 @@
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name: "{{ vlan_name }}"
-    tagged_interface: "{{ tagged_interface }}" 
-    tag: "{{ tag }}"
+    name: "{{ vlan_name | default("external") }}"
+    tagged_interface: "{{ tagged_interface | default("1.1") }}" 
+    tag: "{{ tag | default("1234") }}"
     validate_certs: "no"
   delegate_to: localhost
 ...
