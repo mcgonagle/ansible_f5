@@ -1,4 +1,0 @@
----
-  name_servers: [ '8.8.8.8', '8.8.4.4' ]
-  search_domains: [ 'localdomain', 'lab.local' ]
-...

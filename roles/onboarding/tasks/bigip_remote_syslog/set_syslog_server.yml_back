@@ -5,7 +5,6 @@
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     remote_host: "10.10.10.10" 
-    remote_port: "514" 
     validate_certs: "no"
   delegate_to: localhost
 ...
