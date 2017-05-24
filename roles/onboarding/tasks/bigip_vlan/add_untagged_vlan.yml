@@ -1,23 +1,11 @@
 ---
-- include_vars: bigip_vlan_vars.yml
-
-- name: Add untagged VLAN to interface external 
+- name: Add untagged VLAN to interface "{{ tagged_interface }}" 
   bigip_vlan:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name: "external"
-    untagged_interface: "1.1" 
-    validate_certs: "no"
-  delegate_to: localhost
-
-- name: Add untagged VLAN to interface internal 
-  bigip_vlan:
-    user: "{{ username }}"
-    password: "{{ password }}"
-    server: "{{ inventory_hostname }}"
-    name: "internal"
-    untagged_interface: "1.2" 
+    name: "{{ name }}"
+    untagged_interface: "{{ untagged_interface }}" 
     validate_certs: "no"
   delegate_to: localhost
 ...
