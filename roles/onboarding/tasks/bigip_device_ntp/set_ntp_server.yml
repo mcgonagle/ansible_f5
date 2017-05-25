@@ -1,12 +1,17 @@
 ---
+- name: set fact timezone
+  set_fact:
+    ntp_server1: "time.apple.com"  
+    ntp_server2: "time.nist.gov"  
+
 - name: Set NTP servers
   bigip_device_ntp:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     ntp_servers:
-        - 'time.apple.com' 
-        - 'time.nist.gov' 
+        - "{{ ntp_server1 }}" 
+        - "{{ ntp_server2 }}" 
     validate_certs: "no"
   delegate_to: localhost
 ...
