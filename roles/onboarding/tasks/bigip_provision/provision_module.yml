@@ -1,11 +1,13 @@
 ---
-- name: Create partition foo using the default route domain
-  bigip_partition:
+- include_vars: "bigip_provision_module_vars.yml"
+
+- name: Provision Module(s)
+  bigip_provision:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name: "foo"
-    state: "present"
+    module: "asm"
+    level: "nominal"
     validate_certs: "no"
   delegate_to: localhost
 ...

@@ -1,11 +1,11 @@
 ---
-- name: Create partition foo using the default route domain
-  bigip_partition:
+- name: License BIG-IP using default license options
+  bigip_license:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name: "foo"
-    state: "present"
+    key: "{{ key }}"
     validate_certs: "no"
+    run_once: true
   delegate_to: localhost
 ...

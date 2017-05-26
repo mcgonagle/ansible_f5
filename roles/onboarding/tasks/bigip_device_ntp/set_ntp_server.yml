@@ -1,5 +1,8 @@
 ---
-- include_vars: bigip_device_ntp_vars.yml
+- name: set fact timezone
+  set_fact:
+    ntp_server1: "time.apple.com"  
+    ntp_server2: "time.nist.gov"  
 
 - name: Set NTP servers
   bigip_device_ntp:
@@ -7,9 +10,8 @@
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     ntp_servers:
-        - "{{ item[0] }}"
+        - "{{ ntp_server1 }}" 
+        - "{{ ntp_server2 }}" 
     validate_certs: "no"
-  with_nested:
-    - "{{ ntp_servers | default(['time.apple.com','time.nist.gov') }}"
   delegate_to: localhost
 ...

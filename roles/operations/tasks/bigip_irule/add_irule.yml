@@ -1,3 +1,4 @@
+---
 - name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
   bigip_irule:
     name: "Bodgeit_Rewrite"
@@ -9,3 +10,4 @@
     validate_certs: "false"
     state: "{{ state }}"
   delegate_to: localhost
+...

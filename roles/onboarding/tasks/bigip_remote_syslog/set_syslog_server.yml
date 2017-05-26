@@ -1,12 +1,12 @@
 ---
-- include_vars: bigip_remote_syslog.yml
-
-- name: Add a remote syslog server
+- name: Add remote syslog server
   bigip_remote_syslog:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    remote_host: "{{ syslog_servers |default(['10.10.10.10','10.10.10.11']}}"
+    remote_host: "10.10.10.10" 
+    remote_port: "514" 
+    local_ip: "127.0.0.1"
     validate_certs: "no"
   delegate_to: localhost
 ...

@@ -1,3 +1,4 @@
+---
 - include_vars: "bigip_pool_member_vars.yml"
 
 - name: Add members into a pool
@@ -15,3 +16,4 @@
     - "{{ pool | default(['pool1']) }}"
     - "{{ port | default(['8080']) }}"
   delegate_to: localhost
+...

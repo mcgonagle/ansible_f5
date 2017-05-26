@@ -10,6 +10,7 @@ while test $# -gt 0; do
                         echo "-n, --onboarding          run the onboarding playbook"
                         echo "-o, --operation           run the operation playbook"
                         echo "-t, --teardown            run the teardown playbook"
+                        echo "--today                   run the today playbook"
                         exit 0
                         ;;
                 -n)
@@ -35,6 +36,18 @@ while test $# -gt 0; do
                         ;;
                 --teardown*)
                         ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent" -vvv 
+                        shift
+                        ;;
+                --today*)
+                        ansible-playbook playbooks/today.yml --ask-vault-pass -e @password.yml -vvv 
+                        shift
+                        ;;
+                -d)
+                        ansible-galaxy init roles/$(date +%m%d%Y) && cd roles; ln -sfn $(date +%m%d%Y) today;cd .. 
+                        shift
+                        ;;
+                --date*)
+                        ansible-galaxy init roles/$(date +%m%d%Y) && cd roles; ln -sfn $(date +%m%d%Y) today;cd .. 
                         shift
                         ;;
                 -a)

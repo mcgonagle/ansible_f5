@@ -1,5 +1,5 @@
 ---
-- name: Configure a service using parameters in YAML
+- name: Remove a service using parameters in json document
   bigip_iapp_service:
     name: "appsvcs"
     user: "{{ username }}"
@@ -8,28 +8,5 @@
     template: "appsvcs_integration_v2.0.003"
     validate_certs: "false"
     state: "absent"
-    parameters:
-        variables:
-          - name: "iapp__mode"
-            value: "auto"
-          - name: "iapp__logLevel"
-            value: "7"
-          - name: "iapp__routeDomain"
-            value: "auto"
-          - name: "pool__addr"
-            value: "1.1.1.1"
-          - name: "pool__mask"
-            value: "255.255.255.255"
-          - name: "pool__port"
-            value: "80"
-          - name: "pool__DefaultPoolIndex"
-            value: "0"
-          - name: "pool__Pools"
-            value: "0"
-          - name: "pool__MemberDefaultPort"
-            value: "0"
-          - name: "pool__Members"
-            value: "0"
-          - name: "vs__ProfileClientProtocol"
-            value: "/Common/tcp"
+    parameters: "{{ lookup('file', 'appsvcs.json') }}"
   delegate_to: localhost

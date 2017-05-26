@@ -1,7 +1,0 @@
----
-  username_credential: "tom"
-  password_credential: "password"
-  full_name: "Thomas A. McGonagle"
-  partition_access: "all:admin"
-  update_password: "on_create"
-...

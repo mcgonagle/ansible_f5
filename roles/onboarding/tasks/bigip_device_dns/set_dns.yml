@@ -1,6 +1,4 @@
 ---
-- include_vars: "bigip_device_dns_vars.yml"
-
 - name: Set the DNS settings 
   bigip_device_dns:
     user: "{{ username }}"
