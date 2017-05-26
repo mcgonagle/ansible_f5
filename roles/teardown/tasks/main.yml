@@ -3,7 +3,6 @@
 - include: bigip_irule/remove_irule.yml
 - include: bigip_monitor_http/remove_http_monitor.yml
 - include: bigip_monitor_tcp/remove_tcp_monitor.yml
-#- include: bigip_pool_member/remove_members.yml
 - include: bigip_pool/remove_pool.yml
 - include: bigip_node/remove_node.yml
 - include: bigip_iapp_service/appsvcs.yml

@@ -1,12 +1,14 @@
 ---
+- name: set fact timezone
+  set_fact:
+    timezone: "America/New_York"
+
 - name: Set timezone
   bigip_device_ntp:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    timezone: "{{ item }}"
+    timezone: "{{ timezone }}"
     validate_certs: "no"
-  with_items:
-    - "America/New_York"
   delegate_to: localhost
 ...

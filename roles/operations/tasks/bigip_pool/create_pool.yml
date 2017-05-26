@@ -1,3 +1,4 @@
+---
 - include_vars: "bigip_pool_vars.yml"
 
 - name: Create the pool
@@ -14,3 +15,4 @@
     - "{{ name | default(['pool1']) }}"
     - "{{ monitors | default(['/Common/http_head_f5']) }}"
   delegate_to: localhost
+...

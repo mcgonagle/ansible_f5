@@ -1,6 +1,7 @@
+---
 - include_vars: "bigip_virtual_server_vars.yml"
 
-- name: Add a VIP
+- name: Remove a VIP
   bigip_virtual_server:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
@@ -27,3 +28,4 @@
     - "{{ snat | default(['Automap']) }}"
     - "{{ all_profiles | default(['http']) }}"
     - "{{ all_rules | default(['Bodgeit_Rewrite']) }}"
+...
