@@ -8,7 +8,7 @@
     host: "{{ item[0] }}"
     pool: "{{ item[1] }}"
     port: "{{ item[2] }}"
-    state: "present"
+    state: "{{ state }}"
     validate_certs: "false"
   with_nested:
     - "{{ host | default(['member1']) }}"

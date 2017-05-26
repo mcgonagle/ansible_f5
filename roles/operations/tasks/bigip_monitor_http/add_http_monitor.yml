@@ -8,6 +8,6 @@
     send: "GET /\r\n"
     receive: ""
     validate_certs: "false"
-    state: "present"
+    state: "{{ state }}"
   delegate_to: localhost
 ...

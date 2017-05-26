@@ -1,11 +1,37 @@
 ---
 - include: bigip_node/add_node.yml
+  when: state == "present"
 - include: bigip_pool/create_pool.yml
+  when: state == "present"
 - include: bigip_pool_member/add_members.yml
+  when: state == "present"
 - include: bigip_irule/add_irule.yml
+  when: state == "present"
 - include: bigip_monitor_tcp/add_tcp_monitor.yml
+  when: state == "present"
 - include: bigip_monitor_http/add_http_monitor.yml
+  when: state == "present"
 - include: bigip_virtual_server/add_vip.yml
+  when: state == "present"
 - include: bigip_iapp_template/appsvcs.yml
+  when: state == "present"
 - include: bigip_iapp_service/appsvcs.yml
+  when: state == "present"
+
+- include: bigip_virtual_server/add_vip.yml
+  when: state == "absent"
+- include: bigip_irule/add_irule.yml
+  when: state == "absent"
+- include: bigip_monitor_tcp/add_tcp_monitor.yml
+  when: state == "absent"
+- include: bigip_monitor_http/add_http_monitor.yml
+  when: state == "absent"
+- include: bigip_pool/create_pool.yml
+  when: state == "absent"
+- include: bigip_node/remove_node.yml
+  when: state == "absent" 
+- include: bigip_iapp_service/appsvcs.yml
+  when: state == "absent"
+- include: bigip_iapp_template/appsvcs.yml
+  when: state == "absent"
 ...

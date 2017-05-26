@@ -22,19 +22,19 @@ while test $# -gt 0; do
                         shift
                         ;;
                 -o)
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
                         shift
                         ;;
                 --operation*)
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
                         shift
                         ;;
                 -t)
-                        ansible-playbook playbooks/teardown.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent" -vvv 
                         shift
                         ;;
                 --teardown*)
-                        ansible-playbook playbooks/teardown.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent" -vvv 
                         shift
                         ;;
                 -a)
