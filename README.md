@@ -11,7 +11,7 @@
 autocmd FileType yaml setlocal ai ts=2 sw=2 et colorcolumn=1,3,5,7,9,11,13 nu
 ```
 
-## user_repos.json 
+## [user_repos.json](misc/user_repos.json)
 ```
 {
   "repos": [
