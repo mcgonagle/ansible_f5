@@ -51,11 +51,13 @@ while test $# -gt 0; do
                         shift
                         ;;
                 -a)
-                        ansible-playbook site.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
                         shift
                         ;;
                 --all*)
-                        ansible-playbook site.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml -vvv 
+                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
                         shift
                         ;;
                 *)

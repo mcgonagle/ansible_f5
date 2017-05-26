@@ -1,5 +1,0 @@
----
-  - include: playbooks/onboarding.yml
-  - include: playbooks/operations.yml
-  - include: playbooks/teardown.yml
-...
