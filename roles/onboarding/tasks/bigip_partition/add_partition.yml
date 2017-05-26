@@ -4,7 +4,7 @@
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name: "foo"
+    name: "{{ name }}"
     state: "present"
     validate_certs: "no"
   delegate_to: localhost

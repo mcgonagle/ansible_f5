@@ -1,13 +1,11 @@
 ---
-- include_vars: "bigip_provision_module_vars.yml"
-
 - name: Provision Module(s)
   bigip_provision:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    module: "asm"
-    level: "nominal"
+    module: "{{ module }}"
+    level: "{{ level }}"
     validate_certs: "no"
   delegate_to: localhost
 ...

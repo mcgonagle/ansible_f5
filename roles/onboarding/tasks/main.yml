@@ -9,25 +9,27 @@
 
 - include: bigip_selfip/add_selfip.yml name="10.0.2.10" address="10.0.2.10" netmask="255.255.255.0" vlan_name="internal" route_domain="0" traffic_group="traffic-group-local-only"
 
-- include: bigip_device_ntp/set_ntp_server.yml
-- include: bigip_device_ntp/set_timezone.yml
+- include: bigip_device_ntp/set_ntp_server.yml ntp_server1="time.apple.com" ntp_server2="time.nist.gov"
+- include: bigip_device_ntp/set_timezone.yml timezone="America/New_York"
 
 #bug
 ##- include: bigip_hostname/set_hostname.yml hostname="bigip.localhost.localdomain"
 
 # dhcp needs to be disabled
-#- include: bigip_device_dns/set_dns.yml
+#- include: bigip_device_dns/set_dns.yml name_server1="8.8.8.8" name_server2="8.8.4.4" search_domain1="localdomain" search_domain2="lab.local" 
 
 #got a bug
-##- include: bigip_remote_syslog/set_syslog_server.yml
+##- include: bigip_remote_syslog/set_syslog_server.yml remote_host="10.10.10.10" remote_port="514" local_ip="10.0.1.120"
 
 - include: bigip_user/add_user.yml username_credential="tom" password_credential="password" full_name="Thomas A. McGonagle" partition_access="all:admin" update_password="on_create"
 
 - include: bigip_user/add_user.yml username_credential="bob" password_credential="password" full_name="Bob Bob" partition_access="all:admin" update_password="on_create"
 
 - include: bigip_ssl_certificate/import_certificate.yml
+
 #bug
-#- include: bigip_partition/add_partition.yml
+##- include: bigip_partition/add_partition.yml name="foo"
+
 - include: bigip_snmp_trap/add_trap.yml
-#- include: bigip_provision/provision_module.yml
+#- include: bigip_provision/provision_module.yml module="asm" level="nominal"
 ...

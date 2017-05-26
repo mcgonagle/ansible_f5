@@ -5,13 +5,12 @@
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     name_servers:
-        - "{{ item[0] }}"
+        - "{{ name_server1 }}"
+        - "{{ name_server2 }}"
     search:
-        - "{{ item[1] }}"
+        - "{{ search_domain1 }}"
+        - "{{ search_domain2 }}"
     ip_version: "4"
     validate_certs: "no"
-  with_nested:
-    - "{{ name_servers | default(['8.8.8.8', '8.8.4.4']) }}"
-    - "{{ search_domains | default(['localdomain', 'lab.local']) }}"
   delegate_to: localhost
 ...
