@@ -1,7 +1,7 @@
 ---
 - include_vars: "bigip_virtual_server_vars.yml"
 
-- name: Add a VIP
+- name: Manage a VIP
   bigip_virtual_server:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"

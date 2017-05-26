@@ -1,5 +1,5 @@
 ---
-- name: Add the iApp contained in template appsvcs_integration_v2.0.003.tmpl
+- name: Manage the iApp contained in template appsvcs_integration_v2.0.003.tmpl
   bigip_iapp_template:
     user: "{{username}}"
     password: "{{password}}"

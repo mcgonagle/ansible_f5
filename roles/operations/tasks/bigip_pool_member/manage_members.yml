@@ -1,7 +1,7 @@
 ---
 - include_vars: "bigip_pool_member_vars.yml"
 
-- name: Add members into a pool
+- name: Manage members in a pool
   bigip_pool_member:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
