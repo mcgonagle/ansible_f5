@@ -1,9 +1,4 @@
 ---
-- name: set fact timezone
-  set_fact:
-    ntp_server1: "time.apple.com"  
-    ntp_server2: "time.nist.gov"  
-
 - name: Set NTP servers
   bigip_device_ntp:
     user: "{{ username }}"

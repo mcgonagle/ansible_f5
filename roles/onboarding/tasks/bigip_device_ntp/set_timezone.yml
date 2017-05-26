@@ -1,8 +1,4 @@
 ---
-- name: set fact timezone
-  set_fact:
-    timezone: "America/New_York"
-
 - name: Set timezone
   bigip_device_ntp:
     user: "{{ username }}"
