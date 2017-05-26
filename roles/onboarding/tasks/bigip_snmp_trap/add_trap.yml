@@ -1,11 +1,13 @@
 ---
-- name: Add untagged VLAN to interface "{{ untagged_interface }}" 
-  bigip_vlan:
+- name: Add a snmp trap
+  bigip_snmp_trap:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name: "{{ name }}"
-    untagged_interface: "{{ untagged_interface }}" 
+    name: "trap"
+    community: "community"
+    destination: "trap.localdomain"
+    snmp_version: "2c"
     state: "present"
     validate_certs: "no"
   delegate_to: localhost

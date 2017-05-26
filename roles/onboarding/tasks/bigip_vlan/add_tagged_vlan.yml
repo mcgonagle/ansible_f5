@@ -7,6 +7,7 @@
     name: "{{ name }}"
     tagged_interface: "{{ tagged_interface }}" 
     tag: "{{ tag }}"
+    state: "present"
     validate_certs: "no"
   delegate_to: localhost
 ...

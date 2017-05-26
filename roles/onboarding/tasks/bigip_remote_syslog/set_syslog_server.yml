@@ -6,6 +6,7 @@
     server: "{{ inventory_hostname }}"
     remote_host: "10.10.10.10" 
     remote_port: "514" 
+    local_ip: "127.0.0.1"
     validate_certs: "no"
   delegate_to: localhost
 ...

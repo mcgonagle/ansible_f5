@@ -1,10 +1,11 @@
 ---
 - name: Create partition foo using the default route domain
   bigip_partition:
-    name: "{{ partition_name | default(['foo']) }}"
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
+    name: "foo"
+    state: "present"
     validate_certs: "no"
   delegate_to: localhost
 ...
