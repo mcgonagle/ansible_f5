@@ -1,3 +1,4 @@
+---
 - include_vars: "bigip_virtual_server_vars.yml"
 
 - name: Add a VIP
@@ -27,3 +28,4 @@
     - "{{ snat | default(['Automap']) }}"
     - "{{ all_profiles | default(['http']) }}"
     - "{{ all_rules | default(['Bodgeit_Rewrite']) }}"
+...

@@ -10,3 +10,4 @@
     state: "present"
     parameters: "{{ lookup('file', 'appsvcs.json') }}"
   delegate_to: localhost
+...
