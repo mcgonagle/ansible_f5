@@ -1,5 +1,5 @@
 ---
-- name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
+- name: Manage the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
   bigip_irule:
     name: "Bodgeit_Rewrite"
     user: "{{ username }}"

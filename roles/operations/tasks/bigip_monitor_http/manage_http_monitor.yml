@@ -1,5 +1,5 @@
 ---
-- name: Create HTTP Monitor
+- name: Manage the HTTP Monitor
   bigip_monitor_http:
     name: "my_http_monitor"
     user: "{{ username }}"

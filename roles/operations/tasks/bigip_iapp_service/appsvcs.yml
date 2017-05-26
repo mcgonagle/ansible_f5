@@ -1,5 +1,5 @@
 ---
-- name: Configure a service using parameters in YAML
+- name: Configure a appsvcs iapp service using parameters in JSON document
   bigip_iapp_service:
     name: "appsvcs"
     user: "{{ username }}"
