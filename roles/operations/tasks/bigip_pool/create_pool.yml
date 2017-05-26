@@ -8,7 +8,7 @@
     password: "{{ password }}"
     name: "{{ item[0] }}"
     validate_certs: "false"
-    state: "present"
+    state: "{{ state }}"
     monitors:
       - "{{ item[1] }}"
   with_nested:

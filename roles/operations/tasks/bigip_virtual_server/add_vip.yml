@@ -17,7 +17,7 @@
     all_rules:
       - "{{ item[7] }}"
     validate_certs: "false"
-    state: "present"
+    state: "{{ state }}"
   delegate_to: localhost
   with_nested:
     - "{{ description | default(['foo-vip']) }}"
