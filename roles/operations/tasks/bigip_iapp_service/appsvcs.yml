@@ -7,7 +7,7 @@
     server: "{{ inventory_hostname }}"
     template: "appsvcs_integration_v2.0.003"
     validate_certs: "false"
-    state: "present"
+    state: "{{ state }}"
     parameters: "{{ lookup('file', 'appsvcs.json') }}"
   delegate_to: localhost
 ...
