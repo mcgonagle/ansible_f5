@@ -1,6 +1,7 @@
+---
 - include_vars: "bigip_node_vars.yml"
 
-- name: Add a new node
+- name: Remove a new node
   bigip_node:
     server: "{{ inventory_hostname }}"
     user: "{{username}}"
@@ -14,3 +15,4 @@
     - "{{ name | default(['member1']) }}"
     - "{{ monitors | default(['/Common/icmp']) }}"
   delegate_to: localhost
+...
