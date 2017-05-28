@@ -1,16 +1,13 @@
-- include_vars: "bigip_node_vars.yml"
-
-- name: Remove a node
+---
+- name: Remove a new node
   bigip_node:
     server: "{{ inventory_hostname }}"
     user: "{{username}}"
     password: "{{password}}"
-    name: "{{ item[0] }}"
+    name: "{{ name }}"
     validate_certs: "false"
     state: "{{ state }}"
     monitors:
-      - "{{ item[1] }}"
-  with_nested:
-    - "{{ name | default(['member1']) }}"
-    - "{{ monitors | default(['/Common/icmp']) }}"
+      - "{{ monitor }}"
   delegate_to: localhost
+...
