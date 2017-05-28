@@ -6,6 +6,5 @@
     server: "{{ inventory_hostname }}"
     key: "{{ key }}"
     validate_certs: "no"
-    run_once: true
   delegate_to: localhost
 ...

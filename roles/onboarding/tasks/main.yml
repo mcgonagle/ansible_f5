@@ -1,6 +1,5 @@
 ---
-##issue - https://github.com/mcgonagle/ansible_f5/issues/13
-##- include: bigip_license/license.yml key="XXX-XXXXX-XXXXX-XXXXXXX"
+- include: bigip_license/license.yml key="TNCDO-GRKLJ-HVWUT-XCGTD-EFJJFNQ"
 
 - include: bigip_vlan/add_untagged_vlan.yml name="external" untagged_interface="1.1"
 
