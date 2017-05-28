@@ -1,20 +1,14 @@
 ---
-- include_vars: "bigip_node_vars.yml"
-
 - name: Add a new node
   bigip_node:
     server: "{{ inventory_hostname }}"
     user: "{{username}}"
     password: "{{password}}"
-    host: "{{ item[0] }}"
-    name: "{{ item[1] }}"
+    host: "{{ host  }}"
+    name: "{{ name }}"
     validate_certs: "false"
     state: "{{ state }}"
     monitors:
-      - "{{ item[2] }}"
-  with_nested:
-    - "{{ host | default(['10.0.2.167']) }}"
-    - "{{ name | default(['member1']) }}"
-    - "{{ monitors | default(['/Common/icmp']) }}"
+      - "{{ monitor }}"
   delegate_to: localhost
 ...

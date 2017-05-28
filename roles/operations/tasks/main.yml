@@ -1,9 +1,9 @@
 ---
 - include: bigip_node/add_node.yml
   when: state == "present"
-- include: bigip_pool/manage_pool.yml
+- include: bigip_pool/manage_pool.yml name="pool1" monitor="/Common/http_head_f5"
   when: state == "present"
-- include: bigip_pool_member/manage_members.yml
+- include: bigip_pool_member/manage_members.yml host="member1" pool="pool1" port="8080"
   when: state == "present"
 - include: bigip_irule/manage_irule.yml
   when: state == "present"
@@ -11,14 +11,14 @@
   when: state == "present"
 - include: bigip_monitor_http/manage_http_monitor.yml
   when: state == "present"
-- include: bigip_virtual_server/manage_vip.yml
+- include: bigip_virtual_server/manage_vip.yml description="foo-vip" destination="10.0.2.183" name="foo-vip" destination="10.0.2.183" name="vip1" pool="pool1" port="80" snat="Automap" all_profiles="http" all_rules="Bodgeit_Rewrite"
   when: state == "present"
 - include: bigip_iapp_template/appsvcs.yml
   when: state == "present"
 - include: bigip_iapp_service/appsvcs.yml
   when: state == "present"
 
-- include: bigip_virtual_server/manage_vip.yml
+- include: bigip_virtual_server/manage_vip.yml description="foo-vip" destination="10.0.2.183" name="foo-vip" destination="10.0.2.183" name="vip1" pool="pool1" port="80" snat="Automap" all_profiles="http" all_rules="Bodgeit_Rewrite"
   when: state == "absent"
 - include: bigip_irule/manage_irule.yml
   when: state == "absent"
@@ -26,9 +26,8 @@
   when: state == "absent"
 - include: bigip_monitor_http/manage_http_monitor.yml
   when: state == "absent"
-- include: bigip_pool/manage_pool.yml
+- include: bigip_pool/manage_pool.yml name="pool1" monitor="/Common/http_head_f5"
   when: state == "absent"
-- include: bigip_node/remove_node.yml
   when: state == "absent" 
 - include: bigip_iapp_service/appsvcs.yml
   when: state == "absent"
