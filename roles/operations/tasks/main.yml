@@ -1,5 +1,5 @@
 ---
-- include: bigip_node/add_node.yml
+- include: bigip_node/add_node.yml host="10.0.2.167" name="member1" monitor="/Common/icmp"
   when: state == "present"
 - include: bigip_pool/manage_pool.yml name="pool1" monitor="/Common/http_head_f5"
   when: state == "present"
@@ -28,7 +28,8 @@
   when: state == "absent"
 - include: bigip_pool/manage_pool.yml name="pool1" monitor="/Common/http_head_f5"
   when: state == "absent"
-  when: state == "absent" 
+- include: bigip_node/remove_node.yml name="member1" monitor="/Common/icmp"
+  when: state == "absent"
 - include: bigip_iapp_service/appsvcs.yml
   when: state == "absent"
 - include: bigip_iapp_template/appsvcs.yml
