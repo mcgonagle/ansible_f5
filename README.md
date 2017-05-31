@@ -6,6 +6,11 @@
 
 [Ansible Module Documents Used in this Collection](docs/MODULES.md)
 
+## Social Coding with Github
+
+[![Social Coding with Github](https://img.youtube.com/vi/vTiINnsHSc4/0.jpg)](https://https://youtu.be/vTiINnsHSc4 "Social Coding with Github")
+
+
 ## Useful vimrc macro for editing YaML files
 ```
 autocmd FileType yaml setlocal ai ts=2 sw=2 et colorcolumn=1,3,5,7,9,11,13 nu
