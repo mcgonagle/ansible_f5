@@ -8,7 +8,7 @@
 
 ## Social Coding with Github
 
-[![Social Coding with Github](https://img.youtube.com/vi/vTiINnsHSc4/0.jpg)](https://https://youtu.be/vTiINnsHSc4 "Social Coding with Github")
+[![Social Coding with Github](https://img.youtube.com/vi/vTiINnsHSc4/0.jpg)](https://youtu.be/vTiINnsHSc4 "Social Coding with Github")
 
 
 ## Useful vimrc macro for editing YaML files
