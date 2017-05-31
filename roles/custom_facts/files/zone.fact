@@ -1,0 +1,15 @@
+#!/bin/bash
+
+INSTANCE_TYPE=$(curl -s http://169.254.169.254/latest/meta-data/instance-type)
+
+if [ "$INSTANCE_TYPE" == "m4.xlarge" ]; then
+  ZONE="prod"
+else
+  ZONE="dev"
+fi
+
+cat <<EOF
+{
+    "name" : "$ZONE"
+}
+EOF
