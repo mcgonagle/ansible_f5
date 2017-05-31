@@ -1,0 +1,66 @@
+---
+# tasks file for custom_facts
+    - name: "Create custom fact directory"
+      file:
+        path: "/etc/ansible/facts.d"
+        state: "directory" 
+
+    - name: "Insert datacenter custom fact"
+      copy: 
+        src: files/datacenter.fact
+        dest: /etc/ansible/facts.d/datacenter.fact
+        mode: 0755
+
+    - name: "Insert zone custom fact"
+      copy: 
+        src: files/zone.fact
+        dest: /etc/ansible/facts.d/zone.fact
+        mode: 0755
+
+    - name: "Insert domain custom fact"
+      copy: 
+        src: files/domain.fact
+        dest: /etc/ansible/facts.d/domain.fact
+        mode: 0755
+
+    - name: "Insert product custom fact"
+      copy: 
+        src: files/product.fact
+        dest: /etc/ansible/facts.d/product.fact
+        mode: 0755
+
+    - name: "Insert role custom fact"
+      copy: 
+        src: files/role.fact
+        dest: /etc/ansible/facts.d/role.fact
+        mode: 0755
+
+    - name: Get all of the facts from my BIG-IP
+      bigip_facts:
+        server: "{{ inventory_hostname }}"
+        user: "{{username}}"
+        password: "{{password}}"
+        #include: "address_class,certificate,client_ssl_profile,device,device_group,interface,key,node,pool,provision,rule,self_ip,software,system_info,traffic_group,trunk,virtual_address,virtual_server,vlan"
+        include: "self_ip"
+        validate_certs: "false"
+      delegate_to: localhost
+
+    - name: datacenter fact
+      debug:
+        msg: "{{ ansible_local.datacenter.name }}"
+    
+    - name: domain fact
+      debug:
+        msg: "{{ ansible_local.domain.name }}"
+
+    - name: zone fact 
+      debug:
+        msg: "{{ ansible_local.zone.name }}"
+
+    - name: product fact 
+      debug:
+        msg: "{{ ansible_local.product.name }}"
+
+    - name: role fact 
+      debug:
+        msg: "{{ ansible_local.role.name }}"

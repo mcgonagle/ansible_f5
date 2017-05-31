@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cat <<EOF
+{
+    "name" : "f5.com"
+}
+EOF
