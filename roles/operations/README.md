@@ -16,31 +16,31 @@ parimkiko
 
 Role Variables
 --------------
-###bigip_node
-host="10.0.2.167"
-name="member1"
-monitor="/Common/icmp"
+### bigip_node
+* host="10.0.2.167"
+* name="member1"
+* monitor="/Common/icmp"
 
-###bigip_pool
-name="pool1"
-monitor="/Common/http_head_f5"
+### bigip_pool
+* name="pool1"
+* monitor="/Common/http_head_f5"
 
-###bigip_pool_member
-host="member1"
-pool="pool1"
-port="8080"
+### bigip_pool_member
+* host="member1"
+* pool="pool1"
+* port="8080"
 
-###big_virtual_server
-description="foo-vip"
-destination="10.0.2.183"
-name="foo-vip"
-destination="10.0.2.183"
-name="vip1"
-pool="pool1"
-port="80"
-snat="Automap"
-all_profiles="http"
-all_rules="Bodgeit_Rewrite"
+### big_virtual_server
+* description="foo-vip"
+* destination="10.0.2.183"
+* name="foo-vip"
+* destination="10.0.2.183"
+* name="vip1"
+* pool="pool1"
+* port="80"
+* snat="Automap"
+* all_profiles="http"
+* all_rules="Bodgeit_Rewrite"
 
 Dependencies
 ------------
