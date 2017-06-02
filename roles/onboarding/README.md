@@ -1,38 +1,77 @@
-Role Name
+onboarding
 =========
-
-A brief description of the role goes here.
+A role for onboarding an F5 BigIP device. 
+Sets up a licensing, vlans, self-ip addresses, ntp, users, partitions, snmp, and provision ASM.
 
 Requirements
 ------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+f5-sdk
+bigsuds
+suds
+deepdiff
+requests
+netaddr
+parimkiko
 
 Role Variables
 --------------
+### bigip_license
+* key = "TNCDO-GRKLJ-HVWUT-XCGTD-EFJJFNQ"
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+### bigip_vlan
+* name = "external"
+* untagged_interface = "1.1"
+
+### bigip_selfip
+* name = "10.0.1.10"
+* address = "10.0.1.10"
+* netmask = "255.255.255.0"
+* vlan_name = "external"
+* route_domain = "0"
+* traffic_group = "traffic-group-local-only"
+
+### bigip_device_ntp
+* ntp_server1 = "time.apple.com"
+* ntp_server2 = "time.nist.gov"
+
+### bigip_device_ntp
+* timezone = "America/New_York"
+
+### bigip_user
+* username_credential = "tom"
+* password_credential = "password"
+* full_name = "Thomas A. McGonagle"
+* partition_access = "all:admin"
+* update_password = "on_create"
+
+### bigip_partition
+* name = "foo"
+
+### bigip_snmp_trap
+* name = "trap"
+* community = "community"
+* destination = "trap.localdomain"
+* snmp_version = "2c"
+
+### bigip_provision
+* module = "asm"
+* level = "nominal"
 
 Dependencies
 ------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: all
+      gather_facts: False
       roles:
-         - { role: username.rolename, x: 42 }
+        - operations
 
 License
 -------
-
-BSD
+Apache V2.0
 
 Author Information
 ------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Thomas A. McGonagle (t.mcgonagle@f5.com)
