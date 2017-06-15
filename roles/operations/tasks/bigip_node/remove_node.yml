@@ -2,8 +2,8 @@
 - name: Remove a new node
   bigip_node:
     server: "{{ inventory_hostname }}"
-    user: "{{username}}"
-    password: "{{password}}"
+    user: "{{ username }}"
+    password: "{{ password }}"
     name: "{{ name }}"
     validate_certs: "false"
     state: "{{ state }}"
