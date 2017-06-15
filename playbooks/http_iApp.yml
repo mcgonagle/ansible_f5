@@ -1,0 +1,22 @@
+---
+  - hosts: bigip
+    gather_facts: False
+    roles:
+      - iApp
+    vars:
+      - app_name: "http_app_22"
+      - f5template: "appsvcs_integration_v2.0.003"
+      - j2template: "appsvce_http"
+      - vip: "10.128.10.30" 
+      - members:
+        -
+          ip: "10.10.10.221"
+          port: "80"
+        -
+          ip: "10.10.10.222"
+          port: "80"
+        -
+          ip: "10.10.10.223"
+          port: "88"
+
+...

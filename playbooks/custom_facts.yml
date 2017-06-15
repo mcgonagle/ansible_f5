@@ -1,6 +1,6 @@
 ---
 - name: custom facts
-  hosts: all
+  hosts: bigip
   roles:
     - custom_facts
 ...
