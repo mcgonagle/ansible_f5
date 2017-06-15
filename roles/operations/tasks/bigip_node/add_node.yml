@@ -2,8 +2,8 @@
 - name: Add a new node
   bigip_node:
     server: "{{ inventory_hostname }}"
-    user: "{{username}}"
-    password: "{{password}}"
+    user: "{{ username }}"
+    password: "{{ password }}"
     host: "{{ host  }}"
     name: "{{ name }}"
     validate_certs: "false"
