@@ -1,0 +1,16 @@
+---
+  - hosts: bigip
+    gather_facts: False
+    roles:
+      - iApp
+    vars:
+      - app_name: "auction_26"
+      - f5template: "appsvcs_integration_v2.0.004_waf"
+      - j2template: "appsvce_https_waf"
+      - vip: "10.128.10.26" 
+      - members:
+        -
+          ip: "10.10.10.11"
+          port: "80"
+
+...
