@@ -1,6 +1,10 @@
-# Installing Ansible
+## Installing Ansible
 
 [Installing Ansible on a Mac Documentation](docs/INSTALL.md)
+
+## YAML Syntax Overview
+
+[YAML Syntax Overview](https://learn.getgrav.org/advanced/yaml)
 
 ## Module Documentation
 
