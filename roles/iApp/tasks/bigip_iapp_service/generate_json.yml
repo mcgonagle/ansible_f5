@@ -1,0 +1,8 @@
+---
+- name: Create iApp json file out of j2 template
+  template:
+    src: "{{ j2template }}.j2"
+    dest: "{{ role_path }}/files/{{ app_name }}_autogen.json"
+  delegate_to: localhost
+...
+

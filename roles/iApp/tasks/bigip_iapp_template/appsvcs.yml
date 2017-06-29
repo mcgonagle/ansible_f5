@@ -1,0 +1,10 @@
+---
+- name: Manage the iApp contained in template appsvcs_integration_v2.0.003.tmpl
+  bigip_iapp_template:
+    user: "{{username}}"
+    password: "{{password}}"
+    server: "{{ inventory_hostname }}"
+    content: "{{ lookup('file', 'appsvcs_integration_v2.0.003.tmpl') }}"
+    state: "{{ state }}"
+  delegate_to: localhost
+...

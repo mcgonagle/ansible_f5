@@ -1,0 +1,23 @@
+---
+############
+#Add objects
+############
+
+- include: bigip_iapp_template/appsvcs.yml
+  when: state == "present"
+
+- include: bigip_iapp_service/generate_json.yml
+
+- include: bigip_iapp_service/appsvcs.yml
+  when: state == "present"
+
+###############
+#Remove objects
+###############
+
+- include: bigip_iapp_service/appsvcs.yml
+  when: state == "absent"
+
+- include: bigip_iapp_template/appsvcs.yml
+  when: state == "absent"
+...
