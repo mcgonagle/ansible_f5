@@ -40,13 +40,13 @@
 
 - include: bigip_device_ntp/set_timezone.yml 
   vars:
-    - timezone: "America/New_York"
+    - timezone: "Europe/Berlin"
 
 ##bug - https://github.com/mcgonagle/ansible_f5/issues/22
-##- include: bigip_hostname/set_hostname.yml hostname="bigip.localhost.localdomain"
+- include: bigip_hostname/set_hostname.yml hostname="bigip.local"
 
 # Issue dhcp needs to be disabled - https://github.com/mcgonagle/ansible_f5/issues/10
-#- include: bigip_device_dns/set_dns.yml name_server1="8.8.8.8" name_server2="8.8.4.4" search_domain1="localdomain" search_domain2="lab.local" 
+- include: bigip_device_dns/set_dns.yml name_server1="10.128.10.2" name_server2="8.8.4.4" search_domain1="localdomain" search_domain2="lab.local" 
 
 ##bug -https://github.com/mcgonagle/ansible_f5/issues/11
 ##- include: bigip_remote_syslog/set_syslog_server.yml remote_host="10.10.10.10" remote_port="514" local_ip="10.0.1.120"
@@ -54,7 +54,7 @@
 - include: bigip_user/add_user.yml 
   vars:
     - username_credential: "ralf" 
-    - password_credential: "ralf" 
+    - password_credential: "{{ ralf_password }}" 
     - full_name: "ralf Bruenig" 
     - partition_access: "all:admin" 
     - update_password: "on_create"
@@ -62,9 +62,9 @@
 - include: bigip_user/add_user.yml 
   vars: 
     - username_credential: "bob" 
-    - password_credential: "password" 
+    - password_credential: "{{ bob_password }}" 
     - full_name: "Bob Bob" 
-    - partition_access: "all:admin" 
+    - partition_access: "Common:operator" 
     - update_password: "on_create"
 
 - include: bigip_ssl_certificate/import_certificate.yml
@@ -76,7 +76,7 @@
 ##- include: bigip_snmp_trap/add_trap.yml name="trap" community="community" destination="trap.localdomain" snmp_version="2c"
 - include: bigip_provision/provision_module.yml module="asm" level="nominal"
 
-- include: bigip_provision/provision_module.yml module="afm" level="nominal"
+#- include: bigip_provision/provision_module.yml module="afm" level="nominal"
 
 - include: bigip_sys_global/set_gui_setup.yml
 ...

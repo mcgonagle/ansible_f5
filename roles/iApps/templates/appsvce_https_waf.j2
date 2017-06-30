@@ -1,10 +1,18 @@
+{# https deployment with optimizations and LAMP WAF protection 
+
+vars:
+  - vip: <virtual server ip address>
+  - monitor_irequest_path: <request path of the monitor>
+  - monitor_response: <expected text response>
+  - members:
+    -
+      ip: <pool member ip>
+      port: <pool member port>
+#}
 {
   "tables": [
     {
-      "name": "feature__easyL4FirewallBlacklist",
-      "columnNames": [
-        "CIDRRange"
-      ]
+      "name": "feature__easyL4FirewallBlacklist"
     },
     {
       "name": "feature__easyL4FirewallSourceList",
@@ -25,6 +33,15 @@
         "Group",
         "Target",
         "Parameter"
+      ],
+      "rows": [
+        {
+          "row": [
+            "default",
+            "asm/request/enable/policy",
+            "bundled:LAMP_rapid_utf-8"
+          ]
+        }
       ]
     },
     {
@@ -37,6 +54,19 @@
         "Value",
         "CaseSensitive",
         "Missing"
+      ],
+      "rows": [
+        {
+          "row": [
+            "default",
+            "",
+            "no",
+            "equals",
+            "",
+            "no",
+            "no"
+          ]
+        }
       ]
     },
     {
@@ -51,9 +81,9 @@
         {
           "row": [
             "0",
-            "/Common/http",
-            "none",
-            "none"
+            "custom_http_mon",
+            "http",
+            "send=GET {{ monitor_request_path }} HTTP/1.0\\\\r\\\\n\\\\r\\\\n;recv={{ monitor_response }};interval=10;timeout=31"
           ]
         }
       ]
@@ -71,18 +101,24 @@
         "AdvOptions"
       ],
       "rows": [
+{% for member in members %}
         {
           "row": [
             "0",
-            "10.10.10.240",
-            "80",
+            "{{ member.ip }}",
+            "{{ member.port }}",
             "0",
             "1",
             "0",
             "enabled",
             "none"
           ]
+  {% if loop.last %}
         }
+  {% else%}
+        },
+  {% endif %}
+{% endfor %}
       ]
     },
     {
@@ -112,6 +148,13 @@
       "name": "vs__BundledItems",
       "columnNames": [
         "Resource"
+      ],
+      "rows": [
+        {
+          "row": [
+            "asm:LAMP_rapid_utf-8"
+          ]
+        }
       ]
     },
     {
@@ -138,7 +181,7 @@
     {
       "name": "feature__easyL4Firewall",
       "encrypted": "no",
-      "value": "auto"
+      "value": "disabled"
     },
     {
       "name": "feature__insertXForwardedFor",
@@ -207,13 +250,11 @@
     },
     {
       "name": "l7policy__defaultASM",
-      "encrypted": "no",
-      "value": "bypass"
+      "encrypted": "no"
     },
     {
       "name": "l7policy__defaultL7DOS",
-      "encrypted": "no",
-      "value": "bypass"
+      "encrypted": "no"
     },
     {
       "name": "l7policy__strategy",
@@ -227,12 +268,13 @@
     },
     {
       "name": "pool__MemberDefaultPort",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "80"
     },
     {
       "name": "pool__addr",
       "encrypted": "no",
-      "value": "10.128.10.22"
+      "value": "{{ vip }}"
     },
     {
       "name": "pool__mask",
@@ -242,7 +284,7 @@
     {
       "name": "pool__port",
       "encrypted": "no",
-      "value": "80"
+      "value": "443"
     },
     {
       "name": "vs__AdvOptions",
@@ -277,7 +319,7 @@
     {
       "name": "vs__Name",
       "encrypted": "no",
-      "value": "Test_default_vs_80"
+      "value": "auction_default_vs_443"
     },
     {
       "name": "vs__OptionConnectionMirroring",
@@ -295,12 +337,13 @@
     },
     {
       "name": "vs__ProfileAnalytics",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/analytics"
     },
     {
       "name": "vs__ProfileClientProtocol",
       "encrypted": "no",
-      "value": "/Common/tcp"
+      "value": "/Common/tcp-wan-optimized"
     },
     {
       "name": "vs__ProfileClientSSL",
@@ -312,7 +355,8 @@
     },
     {
       "name": "vs__ProfileClientSSLCert",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/default.crt"
     },
     {
       "name": "vs__ProfileClientSSLChain",
@@ -325,11 +369,13 @@
     },
     {
       "name": "vs__ProfileClientSSLKey",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/default.key"
     },
     {
       "name": "vs__ProfileCompression",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/wan-optimized-compression"
     },
     {
       "name": "vs__ProfileConnectivity",
@@ -337,7 +383,8 @@
     },
     {
       "name": "vs__ProfileDefaultPersist",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/source_addr"
     },
     {
       "name": "vs__ProfileFallbackPersist",
@@ -345,11 +392,13 @@
     },
     {
       "name": "vs__ProfileHTTP",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/http"
     },
     {
       "name": "vs__ProfileOneConnect",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/oneconnect"
     },
     {
       "name": "vs__ProfilePerRequest",
@@ -361,20 +410,22 @@
     },
     {
       "name": "vs__ProfileSecurityDoS",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/dos"
     },
     {
       "name": "vs__ProfileSecurityIPBlacklist",
-      "encrypted": "no",
-      "value": "none"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileSecurityLogProfiles",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/Log\\\\ all\\\\ requests"
     },
     {
       "name": "vs__ProfileServerProtocol",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/tcp-lan-optimized"
     },
     {
       "name": "vs__ProfileServerSSL",

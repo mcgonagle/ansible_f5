@@ -24,17 +24,23 @@
     roles:
       - iApps
     vars:
-      - app_name: "auction_26"
-      - monitor_request_path: "/index.php"
-      - monitor_response: "PHPAUCTION"
-      - vip: "10.128.10.26" 
+      - app_name: "f5_app"
+      - monitor_request_path: "/f5/index.php"
+      - monitor_response: "Welcome"
+      - vip: "10.128.10.25" 
       - members:
         -
-          ip: "10.10.10.11"
+          ip: "10.10.10.211"
+          port: "80"
+        -
+          ip: "10.10.10.212"
+          port: "80"
+        -
+          ip: "10.10.10.213"
           port: "80"
 
 ## don't touch: ##
       - f5template: "appsvcs_integration_v2.0.004_waf"
       - j2template: "appsvce_https_waf"
- 
+
 ...

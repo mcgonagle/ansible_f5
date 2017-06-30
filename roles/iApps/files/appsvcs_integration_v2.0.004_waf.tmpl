@@ -997,9 +997,20 @@ set bundler_deferred_cmds []
 
 array set bundler_objects {}
 array set bundler_data {}
+set bundler_objects(irule:sorry_page) 1
 set bundler_objects(asm:LAMP_rapid_utf-8) 1
 set bundler_objects(asm:LAMP_PolicyBuilder) 1
 
+set bundler_data(irule:sorry_page) {d2hlbiBIVFRQX1JFUVVFU1QgewogIGlmIHsgW2FjdGl2ZV9tZW1iZXJzICVQ\
+T09MX05BTUUlXSA8PSAwIH0gewogICAgIEhUVFA6OnJlc3BvbmQgMjAwIGNv\
+bnRlbnQgewogICAgICAgPGh0bWw+CiAgICAgICAgICA8aGVhZD4KICAgICAg\
+ICAgICAgIDx0aXRsZT5BcG9sb2d5IFBhZ2U8L3RpdGxlPgogICAgICAgICAg\
+PC9oZWFkPgogICAgICAgICAgPGJvZHk+CiAgICAgICAgICAgICBXZSBhcmUg\
+c29ycnksIGJ1dCB0aGUgc2l0ZSB5b3UgYXJlIGxvb2tpbmcgZm9yIGlzIHRl\
+bXBvcmFyaWx5IG91dCBvZiBzZXJ2aWNlCiAgICAgICAgICAgICBJZiB5b3Ug\
+ZmVlbCB5b3UgaGF2ZSByZWFjaGVkIHRoaXMgcGFnZSBpbiBlcnJvciwgcGxl\
+YXNlIHRyeSBhZ2Fpbi4KICAgICAgICAgIDwvYm9keT4KICAgICAgIDwvaHRt\
+bD4KIH19fQoK}
 set bundler_data(asm:LAMP_rapid_utf-8) {PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHBvbGlj\
 eSBpbnRlZ3JpdHlfY2hlY2s9ImVkZDliYzk5Y2I3NjdmOTEzMDRjNjQxZGJk\
 MGQxMzQxIiBiaWdpcF92ZXJzaW9uPSIxMi4xLjIiIG5hbWU9Ii9Db21tb24v\
@@ -2895,6 +2906,7 @@ ZmFsc2U8L2lkZW50aWZ5X2RldmljZT4KICAgIDxtYXhpbXVtX3ByZXZlbnRp\
 b25fdGltZT4wPC9tYXhpbXVtX3ByZXZlbnRpb25fdGltZT4KICAgIDxmbGdf\
 ZW5hYmxlZD5mYWxzZTwvZmxnX2VuYWJsZWQ+CiAgPC9icnV0ZV9mb3JjZT4K\
 PC9wb2xpY3k+Cg==}
+regsub -all {\s} $bundler_data(irule:sorry_page) {} bundler_data(irule:sorry_page)
 regsub -all {\s} $bundler_data(asm:LAMP_rapid_utf-8) {} bundler_data(asm:LAMP_rapid_utf-8)
 regsub -all {\s} $bundler_data(asm:LAMP_PolicyBuilder) {} bundler_data(asm:LAMP_PolicyBuilder)
 
@@ -6099,6 +6111,7 @@ section vs {
 		
 	table BundledItems {
 		editchoice Resource display "large"  {
+			"irule:sorry_page",
 			"asm:LAMP_rapid_utf-8",
 			"asm:LAMP_PolicyBuilder"
 		}

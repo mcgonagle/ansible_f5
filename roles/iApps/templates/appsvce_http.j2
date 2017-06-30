@@ -25,15 +25,6 @@
         "Group",
         "Target",
         "Parameter"
-      ],
-      "rows": [
-        {
-          "row": [
-            "default",
-            "asm/request/enable/policy",
-            "bundled:LAMP_rapid_utf-8"
-          ]
-        }
       ]
     },
     {
@@ -46,19 +37,6 @@
         "Value",
         "CaseSensitive",
         "Missing"
-      ],
-      "rows": [
-        {
-          "row": [
-            "default",
-            "",
-            "no",
-            "equals",
-            "",
-            "no",
-            "no"
-          ]
-        }
       ]
     },
     {
@@ -97,8 +75,8 @@
         {
           "row": [
             "0",
-            "10.10.10.11",
-            "80",
+            "{{ member.ip }}",
+            "{{ member.port }}",
             "0",
             "1",
             "0",
@@ -140,13 +118,6 @@
       "name": "vs__BundledItems",
       "columnNames": [
         "Resource"
-      ],
-      "rows": [
-        {
-          "row": [
-            "asm:LAMP_rapid_utf-8"
-          ]
-        }
       ]
     },
     {
@@ -242,11 +213,13 @@
     },
     {
       "name": "l7policy__defaultASM",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "bypass"
     },
     {
       "name": "l7policy__defaultL7DOS",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "bypass"
     },
     {
       "name": "l7policy__strategy",
@@ -260,8 +233,7 @@
     },
     {
       "name": "pool__MemberDefaultPort",
-      "encrypted": "no",
-      "value": "80"
+      "encrypted": "no"
     },
     {
       "name": "pool__addr",
@@ -276,7 +248,7 @@
     {
       "name": "pool__port",
       "encrypted": "no",
-      "value": "443"
+      "value": "80"
     },
     {
       "name": "vs__AdvOptions",
@@ -309,11 +281,6 @@
       "encrypted": "no"
     },
     {
-      "name": "vs__Name",
-      "encrypted": "no",
-      "value": "auction_default_vs_443"
-    },
-    {
       "name": "vs__OptionConnectionMirroring",
       "encrypted": "no",
       "value": "disabled"
@@ -329,13 +296,12 @@
     },
     {
       "name": "vs__ProfileAnalytics",
-      "encrypted": "no",
-      "value": "/Common/analytics"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileClientProtocol",
       "encrypted": "no",
-      "value": "/Common/tcp-wan-optimized"
+      "value": "/Common/tcp"
     },
     {
       "name": "vs__ProfileClientSSL",
@@ -347,8 +313,7 @@
     },
     {
       "name": "vs__ProfileClientSSLCert",
-      "encrypted": "no",
-      "value": "/Common/default.crt"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileClientSSLChain",
@@ -361,13 +326,11 @@
     },
     {
       "name": "vs__ProfileClientSSLKey",
-      "encrypted": "no",
-      "value": "/Common/default.key"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileCompression",
-      "encrypted": "no",
-      "value": "/Common/wan-optimized-compression"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileConnectivity",
@@ -375,8 +338,7 @@
     },
     {
       "name": "vs__ProfileDefaultPersist",
-      "encrypted": "no",
-      "value": "/Common/source_addr"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileFallbackPersist",
@@ -384,13 +346,11 @@
     },
     {
       "name": "vs__ProfileHTTP",
-      "encrypted": "no",
-      "value": "/Common/http"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileOneConnect",
-      "encrypted": "no",
-      "value": "/Common/oneconnect"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfilePerRequest",
@@ -402,22 +362,20 @@
     },
     {
       "name": "vs__ProfileSecurityDoS",
-      "encrypted": "no",
-      "value": "/Common/dos"
-    },
-    {
-      "name": "vs__ProfileSecurityIPBlacklist",
       "encrypted": "no"
     },
     {
-      "name": "vs__ProfileSecurityLogProfiles",
+      "name": "vs__ProfileSecurityIPBlacklist",
       "encrypted": "no",
-      "value": "/Common/Log\\\\ all\\\\ requests"
+      "value": "none"
+    },
+    {
+      "name": "vs__ProfileSecurityLogProfiles",
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileServerProtocol",
-      "encrypted": "no",
-      "value": "/Common/tcp-lan-optimized"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileServerSSL",
