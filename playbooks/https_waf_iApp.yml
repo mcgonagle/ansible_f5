@@ -7,11 +7,17 @@
 # - TCP full proxy
 # - increased tcp buffer for larger packages
 #
+# SSL:
+# - SSL offloading
+#
+#
 # http feature:
 # - X-forwarded-For header
 # - http static caching
 # - Internal connection reuse
 # - port 80 redirect
+# - sorry page
+# - customisable http monitor
 # 
 # WAF:
 # - Blacklisting for LAMP
@@ -25,6 +31,8 @@
       - iApps
     vars:
       - app_name: "auction_26"
+      - redirect: true
+      - sorry: true 
       - monitor_request_path: "/index.php"
       - monitor_response: "PHPAUCTION"
       - vip: "10.128.10.26" 

@@ -1,42 +1,30 @@
-{# https deployment with optimizations and LAMP WAF protection 
+{# scp deployment with longer tcp timeout
 
-network:
-- SNAT
-- TCP full proxy
-- Increased tcp buffer for larger packages
+iApp required: appsvcs_integration_v2.0.004_waf
 
-SSL:
-- SSL offloading
-
-http feature:
-- X-forwarded-For header
-- http static caching
-- Internal connection reuse
-- port 80 redirect (optional)
-- sorry page
-- customisable http monitor
-
-WAF:
-- Blacklisting for LAMP
-- Log all requests
+Feature:
+- ideltimeout = 3600s
+- nagle algorithm = disabled
+- Connection Limit per PoolMember
+- Load balancing: least connection ration
+- Ports static at 22
 
 vars:
   - vip: <virtual server ip address>
-  - redirect: <port 80 redirect (boolean)>
-  - sorry: <enable sorry page (boolean)>
-  - monitor_irequest_path: <request path of the monitor>
-  - monitor_response: <expected text response>
   - members:
     -
       ip: <pool member ip>
-      port: <pool member port>
+      conn_limit: <max connections>
 
 ############################################################
 #}
 {
   "tables": [
     {
-      "name": "feature__easyL4FirewallBlacklist"
+      "name": "feature__easyL4FirewallBlacklist",
+      "columnNames": [
+        "CIDRRange"
+      ]
     },
     {
       "name": "feature__easyL4FirewallSourceList",
@@ -57,15 +45,6 @@ vars:
         "Group",
         "Target",
         "Parameter"
-      ],
-      "rows": [
-        {
-          "row": [
-            "default",
-            "asm/request/enable/policy",
-            "bundled:LAMP_rapid_utf-8"
-          ]
-        }
       ]
     },
     {
@@ -82,7 +61,7 @@ vars:
       "rows": [
         {
           "row": [
-            "default",
+            "",
             "",
             "no",
             "equals",
@@ -105,9 +84,9 @@ vars:
         {
           "row": [
             "0",
-            "custom_http_mon",
-            "http",
-            "send=GET {{ monitor_request_path }} HTTP/1.0\\\\r\\\\n\\\\r\\\\n;recv={{ monitor_response }};interval=10;timeout=31"
+            "/Common/tcp",
+            "tcp",
+            "none"
           ]
         }
       ]
@@ -130,8 +109,8 @@ vars:
           "row": [
             "0",
             "{{ member.ip }}",
-            "{{ member.port }}",
-            "0",
+            "22",
+            "{{ member.conn_limit }}",
             "1",
             "0",
             "enabled",
@@ -161,7 +140,7 @@ vars:
             "0",
             "",
             "",
-            "round-robin",
+            "ratio-least-connections-member",
             "0",
             "none"
           ]
@@ -172,20 +151,6 @@ vars:
       "name": "vs__BundledItems",
       "columnNames": [
         "Resource"
-      ],
-      "rows": [
-        {
-          "row": [
-            "asm:LAMP_rapid_utf-8"
-          ]
-{% if sorry %}
-        },
-        {
-          "row": [
-            "irule:sorry_page"
-          ]
-{% endif %}
-        }
       ]
     },
     {
@@ -217,16 +182,12 @@ vars:
     {
       "name": "feature__insertXForwardedFor",
       "encrypted": "no",
-      "value": "auto"
+      "value": "disabled"
     },
     {
       "name": "feature__redirectToHTTPS",
       "encrypted": "no",
-{% if redirect %}
-      "value": "enabled"
-{% else %}
       "value": "disabled"
-{% endif %}
     },
     {
       "name": "feature__securityEnableHSTS",
@@ -241,12 +202,12 @@ vars:
     {
       "name": "feature__statsHTTP",
       "encrypted": "no",
-      "value": "auto"
+      "value": "disabled"
     },
     {
       "name": "feature__statsTLS",
       "encrypted": "no",
-      "value": "auto"
+      "value": "disabled"
     },
     {
       "name": "iapp__apmDeployMode",
@@ -285,11 +246,13 @@ vars:
     },
     {
       "name": "l7policy__defaultASM",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "bypass"
     },
     {
       "name": "l7policy__defaultL7DOS",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "bypass"
     },
     {
       "name": "l7policy__strategy",
@@ -303,8 +266,7 @@ vars:
     },
     {
       "name": "pool__MemberDefaultPort",
-      "encrypted": "no",
-      "value": "80"
+      "encrypted": "no"
     },
     {
       "name": "pool__addr",
@@ -319,7 +281,7 @@ vars:
     {
       "name": "pool__port",
       "encrypted": "no",
-      "value": "443"
+      "value": "22"
     },
     {
       "name": "vs__AdvOptions",
@@ -353,7 +315,8 @@ vars:
     },
     {
       "name": "vs__Name",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "scp_app_default_vs_22"
     },
     {
       "name": "vs__OptionConnectionMirroring",
@@ -371,13 +334,12 @@ vars:
     },
     {
       "name": "vs__ProfileAnalytics",
-      "encrypted": "no",
-      "value": "/Common/analytics"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileClientProtocol",
       "encrypted": "no",
-      "value": "create:type=tcp;proxy-buffer-high=262144;proxy-buffer-low=196608;receive-window-size=131072;send-buffer-size=262144;defaults-from=/Common/tcp-wan-optimized"
+      "value": "create:type=tcp;nagle=disabled;idle-timeout=3600;defaults-from=/Common/tcp-wan-optimized"
     },
     {
       "name": "vs__ProfileClientSSL",
@@ -389,8 +351,7 @@ vars:
     },
     {
       "name": "vs__ProfileClientSSLCert",
-      "encrypted": "no",
-      "value": "/Common/default.crt"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileClientSSLChain",
@@ -403,13 +364,11 @@ vars:
     },
     {
       "name": "vs__ProfileClientSSLKey",
-      "encrypted": "no",
-      "value": "/Common/default.key"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileCompression",
-      "encrypted": "no",
-      "value": "/Common/wan-optimized-compression"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileConnectivity",
@@ -417,23 +376,19 @@ vars:
     },
     {
       "name": "vs__ProfileDefaultPersist",
-      "encrypted": "no",
-      "value": "/Common/cookie"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileFallbackPersist",
-      "encrypted": "no",
-      "value": "/Common/source_addr"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileHTTP",
-      "encrypted": "no",
-      "value": "/Common/http"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileOneConnect",
-      "encrypted": "no",
-      "value": "/Common/oneconnect"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfilePerRequest",
@@ -445,22 +400,21 @@ vars:
     },
     {
       "name": "vs__ProfileSecurityDoS",
-      "encrypted": "no",
-      "value": "/Common/dos"
-    },
-    {
-      "name": "vs__ProfileSecurityIPBlacklist",
       "encrypted": "no"
     },
     {
-      "name": "vs__ProfileSecurityLogProfiles",
+      "name": "vs__ProfileSecurityIPBlacklist",
       "encrypted": "no",
-      "value": "/Common/Log\\\\ all\\\\ requests"
+      "value": "none"
+    },
+    {
+      "name": "vs__ProfileSecurityLogProfiles",
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileServerProtocol",
       "encrypted": "no",
-      "value": "/Common/tcp-lan-optimized"
+      "value": "create:type=tcp;nagle=disabled;idle-timeout=3600;defaults-from=/Common/tcp-lan-optimized"
     },
     {
       "name": "vs__ProfileServerSSL",

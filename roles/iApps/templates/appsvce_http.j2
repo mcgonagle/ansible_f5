@@ -1,10 +1,29 @@
+{# http deployment with additional IP for Dual-Stack deployments
+
+network:
+- SNAT
+- TCP full proxy
+- Additional IPv4/IPv6 address (optional)
+
+http feature:
+- X-Forwarded-For header
+- Default http monitor
+
+vars:
+  - vip: <virtual server ip address>
+  - vip_2: <optional virtual server ip address>
+  - redirect: <port 80 redirect>
+  - members:
+    -
+      ip: <pool member ip>
+      port: <pool member port>
+
+############################################################
+#}
 {
   "tables": [
     {
-      "name": "feature__easyL4FirewallBlacklist",
-      "columnNames": [
-        "CIDRRange"
-      ]
+      "name": "feature__easyL4FirewallBlacklist"
     },
     {
       "name": "feature__easyL4FirewallSourceList",
@@ -125,6 +144,16 @@
       "columnNames": [
         "Listener",
         "Destination"
+{% if vip_2 %}
+      ],
+      "rows": [
+        {
+          "row": [
+            "{{ vip_2 }}:443",
+            "0"
+          ]
+        }
+{% endif %}
       ]
     }
   ],
@@ -213,13 +242,11 @@
     },
     {
       "name": "l7policy__defaultASM",
-      "encrypted": "no",
-      "value": "bypass"
+      "encrypted": "no"
     },
     {
       "name": "l7policy__defaultL7DOS",
-      "encrypted": "no",
-      "value": "bypass"
+      "encrypted": "no"
     },
     {
       "name": "l7policy__strategy",
@@ -233,7 +260,8 @@
     },
     {
       "name": "pool__MemberDefaultPort",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "80"
     },
     {
       "name": "pool__addr",
@@ -275,6 +303,10 @@
       "name": "vs__IpProtocol",
       "encrypted": "no",
       "value": "tcp"
+    },
+    {
+      "name": "vs__Name",
+      "encrypted": "no"
     },
     {
       "name": "vs__Irules",
@@ -338,15 +370,18 @@
     },
     {
       "name": "vs__ProfileDefaultPersist",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/cookie"
     },
     {
       "name": "vs__ProfileFallbackPersist",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/source_addr"
     },
     {
       "name": "vs__ProfileHTTP",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/http"
     },
     {
       "name": "vs__ProfileOneConnect",
@@ -375,7 +410,8 @@
     },
     {
       "name": "vs__ProfileServerProtocol",
-      "encrypted": "no"
+      "encrypted": "no",
+      "value": "/Common/tcp"
     },
     {
       "name": "vs__ProfileServerSSL",
