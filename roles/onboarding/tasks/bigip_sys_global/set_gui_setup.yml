@@ -5,6 +5,5 @@
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     gui_setup: "disabled"
-    state: "present"
   delegate_to: localhost
 ...

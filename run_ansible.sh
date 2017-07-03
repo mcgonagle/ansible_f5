@@ -6,11 +6,11 @@ while test $# -gt 0; do
                         echo " "
                         echo "options:"
                         echo "-h, --help                show brief help"
-                        echo "-a, --all                 run the site playbook"
+                        echo "-a, --all                 run the all playbooks"
                         echo "-n, --onboarding          run the onboarding playbook"
                         echo "-o, --operation           run the operation playbook"
                         echo "-t, --teardown            teardown the operation playbook"
-                        echo "--t-all           	teardown all playbooks"
+                        echo "--t-all                   teardown all playbooks"
                         echo "--ihttp                   run the http_iApp playbook"
                         echo "--iwaf                    run the https_waf_iApp playbook"
                         echo "--iscp                    run the scp_iApp playbook"
@@ -42,6 +42,7 @@ while test $# -gt 0; do
                         shift
                         ;;
 		--t-all)
+			ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml
 			ansible-playbook playbooks/http_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
 			ansible-playbook playbooks/https_waf_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
 			ansible-playbook playbooks/scp_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
@@ -67,11 +68,7 @@ while test $# -gt 0; do
                 -a)
                         ;&
                 --all*)
-                        ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml 
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present"  
-                        ansible-playbook playbooks/http_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
-                        ansible-playbook playbooks/https_waf_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
-                        ansible-playbook playbooks/scp_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
+                        ansible-playbook playbooks/all.yml --ask-vault-pass -e @password.yml -e state="present"  
                         shift
                         ;;
                 *)

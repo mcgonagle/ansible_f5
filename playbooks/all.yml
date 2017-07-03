@@ -1,0 +1,6 @@
+# Collect all playbooks
+- include: onboarding.yml
+- include: operations.yml
+- include: http_iApp.yml
+- include: https_waf_iApp.yml
+- include: scp_iApp.yml

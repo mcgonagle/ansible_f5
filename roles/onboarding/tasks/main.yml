@@ -69,14 +69,18 @@
 
 - include: bigip_ssl_certificate/import_certificate.yml
 
-##bug - https://github.com/mcgonagle/ansible_f5/issues/23
-##- include: bigip_partition/add_partition.yml name="foo"
-
 ##bug - https://github.com/mcgonagle/ansible_f5/issues/21
 ##- include: bigip_snmp_trap/add_trap.yml name="trap" community="community" destination="trap.localdomain" snmp_version="2c"
 - include: bigip_provision/provision_module.yml module="asm" level="nominal"
-
 #- include: bigip_provision/provision_module.yml module="afm" level="nominal"
+
+- include: bigip_command/set_gui_idle-timeout.yml
+  vars:
+    - gui_idle_timeout: 7200
+
+- include: bigip_sys_db/set_records-per-screen.yml
+  vars:
+    - records_per_screen: 100
 
 - include: bigip_sys_global/set_gui_setup.yml
 ...

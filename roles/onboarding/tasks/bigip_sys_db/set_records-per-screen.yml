@@ -1,0 +1,10 @@
+---
+- name: Set records per screen to {{ records_per_screen }}
+  bigip_sys_db:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    key: "ui.system.preferences.recordsperscreen"
+    value: "{{ records_per_screen }}"
+  delegate_to: localhost
+...
