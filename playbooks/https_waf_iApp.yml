@@ -10,6 +10,9 @@
 # SSL:
 # - SSL offloading
 #
+# LB:
+# - Method: least connections
+# - Persistence: cookie, fallback is source address
 #
 # http feature:
 # - X-forwarded-For header

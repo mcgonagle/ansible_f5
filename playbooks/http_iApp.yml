@@ -7,6 +7,10 @@
 # - TCP full proxy
 # - Additional IPv4/IPv6 address (optional)
 # 
+# LB:
+# - Method: least connections
+# - Persistence: cookie, fallback is source address
+#
 # http feature:
 # - X-Forwarded-For header
 # - Default http monitor

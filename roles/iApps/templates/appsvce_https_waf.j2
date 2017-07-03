@@ -5,8 +5,12 @@ network:
 - TCP full proxy
 - Increased tcp buffer for larger packages
 
+loadbalancing:
+- methode: lease connection
+
 SSL:
 - SSL offloading
+- Persistence: cookie, fallback is source address
 
 http feature:
 - X-forwarded-For header
@@ -15,6 +19,7 @@ http feature:
 - port 80 redirect (optional)
 - sorry page
 - customisable http monitor
+- http analytics
 
 WAF:
 - Blacklisting for LAMP
@@ -161,7 +166,7 @@ vars:
             "0",
             "",
             "",
-            "round-robin",
+            "least-connections-member",
             "0",
             "none"
           ]
