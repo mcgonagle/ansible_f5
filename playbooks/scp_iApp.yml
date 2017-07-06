@@ -1,0 +1,39 @@
+############################################
+# scp deployment with longer tcp timeout   #
+############################################
+#
+# iApp required: appsvcs_integration_v2.0.004_waf
+#
+# Feature:
+# - ideltimeout = 3600s
+# - nagle algorithm = disabled
+# - Connection Limit per PoolMember
+# - Load balancing: least connection ration
+# - Ports static at 22
+# 
+# vars:
+#   - vip: <virtual server ip address>
+#   - members:
+#     -
+#       ip: <pool member ip>
+#       conn_limit: <max connection>
+---
+  - hosts: bigip
+    gather_facts: False
+    roles:
+      - iApps
+    vars:
+      - app_name: "scp_server"
+      - vip: "10.128.10.21" 
+      - members:
+        -
+          ip: "10.10.10.212"
+          conn_limit: "20"
+        -
+          ip: "10.10.10.213"
+          conn_limit: "20"
+
+## don't touch: ##
+      - f5template: "appsvcs_integration_v2.0.004_waf"
+      - j2template: "appsvce_scp"
+...

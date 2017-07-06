@@ -25,9 +25,9 @@ autocmd FileType yaml setlocal ai ts=2 sw=2 et colorcolumn=1,3,5,7,9,11,13 nu
 {
   "repos": [
     {
-      "name":"mcgonagle-ansible_f5",
-      "repo":"https://github.com/mcgonagle/ansible_f5.git",
-      "branch":"master",
+      "name":"munich-ansible_f5",
+      "repo":"https://github.com/rabru/ansible_f5.git",
+      "branch":"munich",
       "skip":false,
       "skipinstall":true
     }

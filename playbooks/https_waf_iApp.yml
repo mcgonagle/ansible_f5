@@ -1,0 +1,51 @@
+###############################################################
+# https deployment with optimizations and LAMP WAF protection #
+###############################################################
+#
+# network:
+# - SNAT
+# - TCP full proxy
+# - increased tcp buffer for larger packages
+#
+# SSL:
+# - SSL offloading
+#
+# LB:
+# - Method: least connections
+# - Persistence: cookie, fallback is source address
+#
+# http feature:
+# - X-forwarded-For header
+# - http static caching
+# - Internal connection reuse
+# - port 80 redirect
+# - sorry page
+# - customisable http monitor
+# 
+# WAF:
+# - Blacklisting for LAMP
+# - Log all requests
+
+
+---
+  - hosts: bigip
+    gather_facts: False
+    roles:
+      - iApps
+    vars:
+      - app_name: "auction_26"
+      - redirect: true
+      - sorry: true 
+      - monitor_request_path: "/index.php"
+      - monitor_response: "PHPAUCTION"
+      - vip: "10.128.10.26" 
+      - members:
+        -
+          ip: "10.10.10.11"
+          port: "80"
+
+## don't touch: ##
+      - f5template: "appsvcs_integration_v2.0.004_waf"
+      - j2template: "appsvce_https_waf"
+ 
+...

@@ -1,6 +1,0 @@
----
-- name: custom facts
-  hosts: all
-  roles:
-    - custom_facts
-...
