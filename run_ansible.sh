@@ -6,35 +6,52 @@ while test $# -gt 0; do
                         echo " "
                         echo "options:"
                         echo "-h, --help                show brief help"
-                        echo "-a, --all                 run the site playbook"
+                        echo "-a, --all                 run the all playbooks"
                         echo "-n, --onboarding          run the onboarding playbook"
                         echo "-o, --operation           run the operation playbook"
-                        echo "-t, --teardown            run the teardown playbook"
+                        echo "-t, --teardown            teardown the operation playbook"
+                        echo "--t-all                   teardown all playbooks"
+                        echo "--ihttp                   run the http_iApp playbook"
+                        echo "--iwaf                    run the https_waf_iApp playbook"
+                        echo "--iscp                    run the scp_iApp playbook"
                         echo "--today                   run the today playbook"
                         exit 0
                         ;;
                 -n)
-                        shift
-                        ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml -vvv 
-                        shift
-                        ;;
-                --onboarding*)
+                        ;&
+                --onboarding)
                         ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml -vvv 
                         shift
                         ;;
                 -o)
+                        ;&
+                --operation)
                         ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
                         shift
                         ;;
-                --operation*)
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
+                --ihttp)
+                        ansible-playbook playbooks/http_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
+                        shift
+                        ;;
+                --iwaf)
+                        ansible-playbook playbooks/https_waf_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
+                        shift
+                        ;;
+                --iscp)
+                        ansible-playbook playbooks/scp_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
+                        shift
+                        ;;
+		--t-all)
+			ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml
+			ansible-playbook playbooks/http_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
+			ansible-playbook playbooks/https_waf_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
+			ansible-playbook playbooks/scp_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
+			ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent"
                         shift
                         ;;
                 -t)
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent" -vvv 
-                        shift
-                        ;;
-                --teardown*)
+                        ;&
+                --teardown)
                         ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent" -vvv 
                         shift
                         ;;
@@ -43,21 +60,15 @@ while test $# -gt 0; do
                         shift
                         ;;
                 -d)
-                        ansible-galaxy init roles/$(date +%m%d%Y) && cd roles; ln -sfn $(date +%m%d%Y) today;cd .. 
-                        shift
-                        ;;
+                        ;&
                 --date*)
                         ansible-galaxy init roles/$(date +%m%d%Y) && cd roles; ln -sfn $(date +%m%d%Y) today;cd .. 
                         shift
                         ;;
                 -a)
-                        ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml -vvv 
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
-                        shift
-                        ;;
+                        ;&
                 --all*)
-                        ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml -vvv 
-                        ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
+                        ansible-playbook playbooks/all.yml --ask-vault-pass -e @password.yml -e state="present"  
                         shift
                         ;;
                 *)

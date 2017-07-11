@@ -1,10 +1,10 @@
 ---
-- name: Manage the iApp contained in template appsvcs_integration_v2.0.003.tmpl
+- name: Manage the iApp contained in template {{ f5template }}.tmpl
   bigip_iapp_template:
     user: "{{username}}"
     password: "{{password}}"
     server: "{{ inventory_hostname }}"
-    content: "{{ lookup('file', 'appsvcs_integration_v2.0.003.tmpl') }}"
+    content: "{{ lookup('file', '{{ f5template }}.tmpl') }}"
     state: "{{ state }}"
   delegate_to: localhost
 ...

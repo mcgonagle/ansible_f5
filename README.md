@@ -29,9 +29,9 @@ set cc=
 {
   "repos": [
     {
-      "name":"mcgonagle-ansible_f5",
-      "repo":"https://github.com/mcgonagle/ansible_f5.git",
-      "branch":"master",
+      "name":"munich-ansible_f5",
+      "repo":"https://github.com/rabru/ansible_f5.git",
+      "branch":"munich",
       "skip":false,
       "skipinstall":true
     }

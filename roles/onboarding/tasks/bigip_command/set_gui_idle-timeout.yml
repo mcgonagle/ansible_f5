@@ -1,0 +1,9 @@
+---
+- name: set GUI idle timeout to {{ gui_idle_timeout}}
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands: modify sys httpd auth-pam-idle-timeout {{ gui_idle_timeout}}
+  delegate_to: localhost
+...
