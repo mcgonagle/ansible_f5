@@ -11,6 +11,7 @@ while test $# -gt 0; do
                         echo "-o, --operation           run the operation playbook"
                         echo "-t, --teardown            teardown the operation playbook"
                         echo "--t-all                   teardown all playbooks"
+                        echo "--itemp                   run the iApptemplate playbook"
                         echo "--ihttp                   run the http_iApp playbook"
                         echo "--iwaf                    run the https_waf_iApp playbook"
                         echo "--iscp                    run the scp_iApp playbook"
@@ -27,6 +28,10 @@ while test $# -gt 0; do
                         ;&
                 --operation)
                         ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="present" -vvv 
+                        shift
+                        ;;
+                --itemp)
+                        ansible-playbook playbooks/iAppTemplate.yml --ask-vault-pass -e @password.yml -e state="present"
                         shift
                         ;;
                 --ihttp)
