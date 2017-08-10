@@ -5,5 +5,5 @@
 
 - include: bigip_iapp_template/appsvcs.yml
   vars:
-  - f5template: "appsvcs_integration_v2.0.004_waf"
+  - f5template: "appsvcs_integration_v2.0.002_waf"
 ...

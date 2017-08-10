@@ -34,6 +34,6 @@
           conn_limit: "20"
 
 ## don't touch: ##
-      - f5template: "appsvcs_integration_v2.0.004_waf"
+      - f5template: "appsvcs_integration_v2.0.002_waf"
       - j2template: "appsvce_scp"
 ...
