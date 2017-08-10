@@ -1,6 +1,6 @@
 ---
 - name: Remove a new node
-  bigip_node:
+  _bigip_node:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
     password: "{{ password }}"

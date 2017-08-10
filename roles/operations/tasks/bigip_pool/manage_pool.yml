@@ -1,6 +1,6 @@
 ---
 - name: Manage a pool
-  bigip_pool:
+  _bigip_pool:
     server: "{{ inventory_hostname }}"
     user: "{{ username }}"
     password: "{{ password }}"

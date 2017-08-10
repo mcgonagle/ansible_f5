@@ -26,27 +26,52 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
-module: bigip_partition
-short_description: Manage BIG-IP partitions.
-description:
-  - Manage BIG-IP partitions.
-version_added: "2.5"
+module: bigip_monitor_tcp_echo
+short_description: Manages F5 BIG-IP LTM tcp monitors.
+description: Manages F5 BIG-IP LTM tcp monitors via iControl SOAP API.
+version_added: "2.4"
 options:
-  description:
+  name:
     description:
-      - The description to attach to the Partition.
-  route_domain:
+      - Monitor name.
+    required: True
+    aliases:
+      - monitor
+  parent:
     description:
-      - The default Route Domain to assign to the Partition. If no route domain
-        is specified, then the default route domain for the system (typically
-        zero) will be used only when creating a new partition.
-  state:
+      - The parent template of this monitor template. Once this value has
+        been set, it cannot be changed. By default, this value is the C(tcp)
+        parent on the C(Common) partition.
+    default: "/Common/tcp"
+  ip:
     description:
-      - Whether the partition should exist or not.
-    default: present
-    choices:
-      - present
-      - absent
+      - IP address part of the IP/port definition. If this parameter is not
+        provided when creating a new monitor, then the default value will be
+        '*'.
+      - If this value is an IP address, and the C(type) is C(tcp) (the default),
+        then a C(port) number must be specified.
+  interval:
+    description:
+      - The interval specifying how frequently the monitor instance of this
+        template will run. If this parameter is not provided when creating
+        a new monitor, then the default value will be 5. This value B(must)
+        be less than the C(timeout) value.
+  timeout:
+    description:
+      - The number of seconds in which the node or service must respond to
+        the monitor request. If the target responds within the set time
+        period, it is considered up. If the target does not respond within
+        the set time period, it is considered down. You can change this
+        number to any number you want, however, it should be 3 times the
+        interval number of seconds plus 1 second. If this parameter is not
+        provided when creating a new monitor, then the default value will be 16.
+  time_until_up:
+    description:
+      - Specifies the amount of time in seconds after the first successful
+        response before a node will be marked up. A value of 0 will cause a
+        node to be marked up immediately after a valid response is received
+        from the node. If this parameter is not provided when creating
+        a new monitor, then the default value will be 0.
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
@@ -59,72 +84,70 @@ author:
 '''
 
 EXAMPLES = '''
-- name: Create partition "foo" using the default route domain
-  bigip_partition:
-      name: "foo"
-      password: "secret"
+- name: Create TCP Echo Monitor
+  bigip_monitor_tcp_echo:
+      state: "present"
       server: "lb.mydomain.com"
       user: "admin"
+      ip: 10.10.10.10
+      password: "secret"
+      name: "my_tcp_monitor"
   delegate_to: localhost
 
-- name: Create partition "bar" using a custom route domain
-  bigip_partition:
-      name: "bar"
-      route_domain: 3
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
-  delegate_to: localhost
-
-- name: Change route domain of partition "foo"
-  bigip_partition:
-      name: "foo"
-      route_domain: 8
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
-  delegate_to: localhost
-
-- name: Set a description for partition "foo"
-  bigip_partition:
-      name: "foo"
-      description: "Tenant CompanyA"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
-  delegate_to: localhost
-
-- name: Delete the "foo" partition
-  bigip_partition:
-      name: "foo"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
+- name: Remove TCP Echo Monitor
+  bigip_monitor_tcp_echo:
       state: "absent"
+      server: "lb.mydomain.com"
+      user: "admin"
+      password: "secret"
+      name: "my_tcp_monitor"
   delegate_to: localhost
 '''
 
 RETURN = '''
-route_domain:
-    description: Name of the route domain associated with the partition.
-    returned: changed and success
-    type: int
-    sample: 0
-description:
-    description: The description of the partition.
-    returned: changed and success
+parent:
+    description: New parent template of the monitor.
+    returned: changed
     type: string
-    sample: "Example partition"
+    sample: "tcp"
+ip:
+    description: The new IP of IP/port definition.
+    returned: changed
+    type: string
+    sample: "10.12.13.14"
+interval:
+    description: The new interval in which to run the monitor check.
+    returned: changed
+    type: int
+    sample: 2
+timeout:
+    description: The new timeout in which the remote system must respond to the monitor.
+    returned: changed
+    type: int
+    sample: 10
+time_until_up:
+    description: The new time in which to mark a system as up after first successful response.
+    returned: changed
+    type: int
+    sample: 2
 '''
+
+import os
+
+try:
+    import netaddr
+    HAS_NETADDR = True
+except ImportError:
+    HAS_NETADDR = False
 
 from ansible.module_utils.f5_utils import AnsibleF5Client
 from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
 from ansible.module_utils.f5_utils import F5ModuleError
 from ansible.module_utils.f5_utils import iteritems
 from ansible.module_utils.f5_utils import defaultdict
 
 try:
-    from ansible.module_utils.f5_utils import HAS_F5SDK
     from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
 except ImportError:
     HAS_F5SDK = False
@@ -132,19 +155,20 @@ except ImportError:
 
 class Parameters(AnsibleF5Parameters):
     api_map = {
-        'defaultRouteDomain': 'route_domain',
+        'timeUntilUp': 'time_until_up',
+        'defaultsFrom': 'parent'
     }
 
     api_attributes = [
-        'description', 'defaultRouteDomain'
+        'timeUntilUp', 'defaultsFrom', 'interval', 'timeout', 'destination'
     ]
 
     returnables = [
-        'description', 'route_domain'
+        'parent', 'ip', 'interval', 'timeout', 'time_until_up'
     ]
 
     updatables = [
-        'description', 'route_domain'
+        'ip', 'interval', 'timeout', 'time_until_up'
     ]
 
     def __init__(self, params=None):
@@ -198,15 +222,63 @@ class Parameters(AnsibleF5Parameters):
         return result
 
     @property
-    def partition(self):
-        # Cannot create a partition in a partition, so nullify this
-        return None
+    def interval(self):
+        if self._values['interval'] is None:
+            return None
+        if 1 > int(self._values['interval']) > 86400:
+            raise F5ModuleError(
+                "Interval value must be between 1 and 86400"
+            )
+        return int(self._values['interval'])
 
     @property
-    def route_domain(self):
-        if self._values['route_domain'] is None:
+    def timeout(self):
+        if self._values['timeout'] is None:
             return None
-        return int(self._values['route_domain'])
+        return int(self._values['timeout'])
+
+    @property
+    def ip(self):
+        if self._values['ip'] is None:
+            return None
+        try:
+            if self._values['ip'] in ['*', '0.0.0.0']:
+                return '*'
+            result = str(netaddr.IPAddress(self._values['ip']))
+            return result
+        except netaddr.core.AddrFormatError:
+            raise F5ModuleError(
+                "The provided 'ip' parameter is not an IP address."
+            )
+
+    @property
+    def destination(self):
+        return self.ip
+
+    @destination.setter
+    def destination(self, value):
+        self._values['ip'] = value
+
+    @property
+    def time_until_up(self):
+        if self._values['time_until_up'] is None:
+            return None
+        return int(self._values['time_until_up'])
+
+    @property
+    def parent(self):
+        if self._values['parent'] is None:
+            return None
+        if self._values['parent'].startswith('/'):
+            parent = os.path.basename(self._values['parent'])
+            result = '/{0}/{1}'.format(self.partition, parent)
+        else:
+            result = '/{0}/{1}'.format(self.partition, self._values['parent'])
+        return result
+
+    @property
+    def type(self):
+        return 'tcp_echo'
 
 
 class Difference(object):
@@ -221,6 +293,40 @@ class Difference(object):
         except AttributeError:
             result = self.__default(param)
             return result
+
+    @property
+    def parent(self):
+        if self.want.parent != self.want.parent:
+            raise F5ModuleError(
+                "The parent monitor cannot be changed"
+            )
+
+    @property
+    def destination(self):
+        if self.want.ip is None:
+            return None
+        if self.want.destination != self.have.destination:
+            return self.want.destination
+
+    @property
+    def interval(self):
+        if self.want.timeout is not None and self.want.interval is not None:
+            if self.want.interval >= self.want.timeout:
+                raise F5ModuleError(
+                    "Parameter 'interval' must be less than 'timeout'."
+                )
+        elif self.want.timeout is not None:
+            if self.have.interval >= self.want.timeout:
+                raise F5ModuleError(
+                    "Parameter 'interval' must be less than 'timeout'."
+                )
+        elif self.want.interval is not None:
+            if self.want.interval >= self.have.timeout:
+                raise F5ModuleError(
+                    "Parameter 'interval' must be less than 'timeout'."
+                )
+        if self.want.interval != self.have.interval:
+            return self.want.interval
 
     def __default(self, param):
         attr1 = getattr(self.want, param)
@@ -262,6 +368,18 @@ class ModuleManager(object):
             return True
         return False
 
+    def _announce_deprecations(self):
+        warnings = []
+        if self.want:
+            warnings += self.want._values.get('__warnings', [])
+        if self.have:
+            warnings += self.have._values.get('__warnings', [])
+        for warning in warnings:
+            self.client.module.deprecate(
+                msg=warning['msg'],
+                version=warning['version']
+            )
+
     def exec_module(self):
         changed = False
         result = dict()
@@ -278,6 +396,7 @@ class ModuleManager(object):
         changes = self.changes.to_return()
         result.update(**changes)
         result.update(dict(changed=changed))
+        self._announce_deprecations()
         return result
 
     def present(self):
@@ -287,11 +406,18 @@ class ModuleManager(object):
             return self.create()
 
     def create(self):
+        self._set_changed_options()
+        if self.want.timeout is None:
+            self.want.update({'timeout': 16})
+        if self.want.interval is None:
+            self.want.update({'interval': 5})
+        if self.want.time_until_up is None:
+            self.want.update({'time_until_up': 0})
+        if self.want.ip is None:
+            self.want.update({'ip': '*'})
         if self.client.check_mode:
             return True
         self.create_on_device()
-        if not self.exists():
-            raise F5ModuleError("Failed to create the partition.")
         return True
 
     def should_update(self):
@@ -319,39 +445,44 @@ class ModuleManager(object):
             return True
         self.remove_from_device()
         if self.exists():
-            raise F5ModuleError("Failed to delete the partition.")
+            raise F5ModuleError("Failed to delete the monitor.")
         return True
 
     def read_current_from_device(self):
-        resource = self.client.api.tm.auth.partitions.partition.load(
-            name=self.want.name
+        resource = self.client.api.tm.ltm.monitor.tcp_echos.tcp_echo.load(
+            name=self.want.name,
+            partition=self.want.partition
         )
         result = resource.attrs
         return Parameters(result)
 
     def exists(self):
-        result = self.client.api.tm.auth.partitions.partition.exists(
-            name=self.want.name
+        result = self.client.api.tm.ltm.monitor.tcp_echos.tcp_echo.exists(
+            name=self.want.name,
+            partition=self.want.partition
         )
         return result
 
     def update_on_device(self):
         params = self.want.api_params()
-        result = self.client.api.tm.auth.partitions.partition.load(
-            name=self.want.name
+        result = self.client.api.tm.ltm.monitor.tcp_echos.tcp_echo.load(
+            name=self.want.name,
+            partition=self.want.partition
         )
         result.modify(**params)
 
     def create_on_device(self):
         params = self.want.api_params()
-        self.client.api.tm.auth.partitions.partition.create(
+        self.client.api.tm.ltm.monitor.tcp_echos.tcp_echo.create(
             name=self.want.name,
+            partition=self.want.partition,
             **params
         )
 
     def remove_from_device(self):
-        result = self.client.api.tm.auth.partitions.partition.load(
-            name=self.want.name
+        result = self.client.api.tm.ltm.monitor.tcp_echos.tcp_echo.load(
+            name=self.want.name,
+            partition=self.want.partition
         )
         if result:
             result.delete()
@@ -362,8 +493,11 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             name=dict(required=True),
-            description=dict(),
-            route_domain=dict(type='int'),
+            parent=dict(),
+            ip=dict(),
+            interval=dict(type='int'),
+            timeout=dict(type='int'),
+            time_until_up=dict(type='int')
         )
         self.f5_product_name = 'bigip'
 
@@ -380,6 +514,9 @@ def main():
 
         if not HAS_F5SDK:
             raise F5ModuleError("The python f5-sdk module is required")
+
+        if not HAS_NETADDR:
+            raise F5ModuleError("The python netaddr module is required")
 
         mm = ModuleManager(client)
         results = mm.exec_module()

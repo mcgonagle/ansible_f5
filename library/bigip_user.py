@@ -30,29 +30,24 @@ module: bigip_user
 short_description: Manage user accounts and user attributes on a BIG-IP.
 description:
   - Manage user accounts and user attributes on a BIG-IP.
-version_added: "2.2"
+version_added: "2.4"
 options:
   full_name:
     description:
       - Full name of the user.
-    required: false
   username_credential:
     description:
       - Name of the user to create, remove or modify.
-    required: true
+    required: True
     aliases:
       - name
   password_credential:
     description:
       - Set the users password to this unencrypted value.
         C(password_credential) is required when creating a new account.
-    default: None
-    required: false
   shell:
     description:
       - Optionally set the users shell.
-    required: false
-    default: None
     choices:
       - bash
       - none
@@ -67,14 +62,10 @@ options:
         C(operator), C(resource-admin), C(user-manager), C(web-application-security-administrator),
         and C(web-application-security-editor). Partition portion of tuple should
         be an existing partition or the value 'all'.
-    required: false
-    default: None
-    type: list
   state:
     description:
       - Whether the account should exist or not, taking action if the state is
         different from what is stated.
-    required: false
     default: present
     choices:
       - present
@@ -83,14 +74,13 @@ options:
     description:
       - C(always) will allow to update passwords if the user chooses to do so.
         C(on_create) will only set the password for newly created users.
-    required: false
     default: on_create
     choices:
       - always
       - on_create
 notes:
-   - Requires the requests Python package on the host. This is as easy as
-     pip install requests
+   - Requires the f5-sdk Python package on the host. This is as easy as
+     pip install f5-sdk.
    - Requires BIG-IP versions >= 12.0.0
 extends_documentation_fragment: f5
 requirements:
@@ -193,8 +183,14 @@ shell:
     sample: "tmsh"
 '''
 
-from ansible.module_utils.f5_utils import *
 from distutils.version import LooseVersion
+from ansible.module_utils.f5_utils import (
+    AnsibleF5Client,
+    AnsibleF5Parameters,
+    HAS_F5SDK,
+    F5ModuleError,
+    iControlUnexpectedHTTPError
+)
 
 
 class Parameters(AnsibleF5Parameters):
@@ -204,13 +200,11 @@ class Parameters(AnsibleF5Parameters):
     }
 
     updatables = [
-        'partition_access', 'full_name',
-        'shell', 'password_credential'
+        'partition_access', 'full_name', 'shell', 'password_credential'
     ]
 
     returnables = [
-        'shell', 'partition_access', 'full_name', 'password_credential',
-        'username_credential'
+        'shell', 'partition_access', 'full_name', 'username_credential'
     ]
 
     api_attributes = [
@@ -249,7 +243,7 @@ class Parameters(AnsibleF5Parameters):
                     result.append(access)
                 else:
                     result.append(access)
-            if isinstance(access, basestring):
+            if isinstance(access, str):
                 acl = access.split(':')
                 if acl[0].lower() == 'all':
                     acl[0] = 'all-partitions'
@@ -489,31 +483,63 @@ class PartitionedManager(BaseManager):
             partition=self.want.partition, **params
         )
 
+    def _read_one_resource_from_collection(self):
+        collection = self.client.api.tm.auth.users.get_collection(
+            requests_params=dict(
+                params="$filter=partition+eq+'{0}'".format(self.want.partition)
+            )
+        )
+        collection = [x for x in collection if x.name == self.want.name]
+        if len(collection) == 1:
+            resource = collection.pop()
+            return resource
+        elif len(collection) == 0:
+            raise F5ModuleError(
+                "No accounts with the provided name were found"
+            )
+        else:
+            raise F5ModuleError(
+                "Multiple users with the provided name were found!"
+            )
+
     def update_on_device(self):
         params = self.want.api_params()
-        result = self.client.api.tm.auth.users.user.load(
-            name=self.want.name, partition=self.want.partition
-        )
-        result.modify(**params)
+        try:
+            resource = self._read_one_resource_from_collection()
+            resource.modify(**params)
+        except iControlUnexpectedHTTPError as ex:
+            # TODO: Patch this in the F5 SDK so that I dont need this check
+            if 'updated successfully' not in str(ex):
+                raise F5ModuleError(
+                    "Failed to update the specified user"
+                )
 
     def read_current_from_device(self):
-        tmp_res = self.client.api.tm.auth.users.user.load(
-            name=self.want.name, partition=self.want.partition
-        )
-        result = tmp_res.attrs
+        resource = self._read_one_resource_from_collection()
+        result = resource.attrs
         return Parameters(result)
 
     def exists(self):
-        return self.client.api.tm.auth.users.user.exists(
-            name=self.want.name, partition=self.want.partition
+        collection = self.client.api.tm.auth.users.get_collection(
+            requests_params=dict(
+                params="$filter=partition+eq+'{0}'".format(self.want.partition)
+            )
         )
+        collection = [x for x in collection if x.name == self.want.name]
+        if len(collection) == 1:
+            result = True
+        elif len(collection) == 0:
+            result = False
+        else:
+            raise F5ModuleError(
+                "Multiple users with the provided name were found!"
+            )
+        return result
 
     def remove_from_device(self):
-        result = self.client.api.tm.auth.users.user.load(
-            name=self.want.name, partition=self.want.partition
-        )
-        if result:
-            result.delete()
+        resource = self._read_one_resource_from_collection()
+        if resource:
+            resource.delete()
 
 
 class ArgumentSpec(object):
@@ -525,26 +551,16 @@ class ArgumentSpec(object):
                 aliases=['username_credential']
             ),
             password_credential=dict(
-                required=False,
-                default=None,
                 no_log=True,
             ),
             partition_access=dict(
-                required=False,
-                default=None,
                 type='list'
             ),
-            full_name=dict(
-                required=False,
-                default=None
-            ),
+            full_name=dict(),
             shell=dict(
-                required=False,
-                default=None,
                 choices=['none', 'bash', 'tmsh']
             ),
             update_password=dict(
-                required=False,
                 default='always',
                 choices=['always', 'on_create']
             )
@@ -570,6 +586,7 @@ def main():
         client.module.exit_json(**results)
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()

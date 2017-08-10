@@ -91,7 +91,7 @@ notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
   - Requires the netaddr Python package on the host. This is as easy as pip
-    install netaddr
+    install netaddr.
 extends_documentation_fragment: f5
 requirements:
     - f5-sdk >= 2.2.3
@@ -152,8 +152,14 @@ try:
 except ImportError:
     HAS_NETADDR = False
 
-from ansible.module_utils.basic import *
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.parsing.convert_bool import BOOLEANS_TRUE
+from ansible.module_utils.f5_utils import (
+    AnsibleF5Client,
+    AnsibleF5Parameters,
+    HAS_F5SDK,
+    F5ModuleError,
+    iControlUnexpectedHTTPError
+)
 
 
 class Parameters(AnsibleF5Parameters):
@@ -199,7 +205,7 @@ class Parameters(AnsibleF5Parameters):
     def vlan(self):
         if self._values['vlan'] is None:
             return None
-        if self._values['vlan'].startswith(self.partition):
+        if self._values['vlan'].startswith('/' + self.partition):
             return self._values['vlan']
         else:
             return '/{0}/{1}'.format(self.partition, self._values['vlan'])
@@ -308,8 +314,7 @@ class ModuleManager(object):
             )
         if all(getattr(self.want, v) is None for v in required_resources):
             raise F5ModuleError(
-                "You must specify at least one of "
-                + ', '.join(required_resources)
+                "You must specify at least one of " + ', '.join(required_resources)
             )
         if self.client.check_mode:
             return True
@@ -391,37 +396,16 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             name=dict(required=True),
-            description=dict(
-                required=False,
-                default=None
-            ),
-            destination=dict(
-                required=False,
-                default=None
-            ),
-            gateway_address=dict(
-                required=False,
-                default=None
-            ),
-            vlan=dict(
-                required=False,
-                default=None
-            ),
-            pool=dict(
-                required=False,
-                default=None
-            ),
-            mtu=dict(
-                required=False,
-                default=None
-            ),
+            description=dict(),
+            destination=dict(),
+            gateway_address=dict(),
+            vlan=dict(),
+            pool=dict(),
+            mtu=dict(),
             reject=dict(
-                required=False,
-                default=None,
-                choices=BOOLEANS_TRUE
+                type='bool'
             ),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )
