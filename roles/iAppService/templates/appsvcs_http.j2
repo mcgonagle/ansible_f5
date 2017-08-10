@@ -16,7 +16,6 @@ http feature:
 vars:
   - vip: <virtual server ip address>
   - vip_2: <optional virtual server ip address>
-  - redirect: <port 80 redirect>
   - members:
     -
       ip: <pool member ip>
@@ -153,7 +152,7 @@ vars:
       "rows": [
         {
           "row": [
-            "{{ vip_2 }}:443",
+            "{{ vip_2 }}:80",
             "0"
           ]
         }

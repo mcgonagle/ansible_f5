@@ -46,6 +46,6 @@
 
 ## don't touch: ##
       - f5template: "appsvcs_integration_v2.0.002_waf"
-      - j2template: "appsvce_https_waf"
+      - j2template: "appsvcs_https_waf"
  
 ...
