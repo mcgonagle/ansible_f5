@@ -74,6 +74,8 @@
 - include: bigip_provision/provision_module.yml module="asm" level="nominal"
 - include: bigip_provision/provision_module.yml module="afm" level="nominal"
 
+- include: bigip_provision/provision_module.yml module="avr" level="nominal"
+
 - include: bigip_command/set_gui_idle-timeout.yml
   vars:
     - gui_idle_timeout: 7200

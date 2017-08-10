@@ -45,7 +45,7 @@
           port: "80"
 
 ## don't touch: ##
-      - f5template: "appsvcs_integration_v2.0.002_waf"
+      - f5template: "appsvcs_integration_v2.0.004_waf"
       - j2template: "appsvcs_https_waf"
  
 ...
