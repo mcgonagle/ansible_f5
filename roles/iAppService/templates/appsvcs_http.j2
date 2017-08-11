@@ -1,36 +1,21 @@
-{# https deployment with optimizations and LAMP WAF protection 
+{# http deployment with additional IP for Dual-Stack deployments
 
 network:
 - SNAT
 - TCP full proxy
-- Increased tcp buffer for larger packages
+- Additional IPv4/IPv6 address (optional)
 
-loadbalancing:
-- methode: lease connection
-
-SSL:
-- SSL offloading
+LB:
+- Method: least connections
 - Persistence: cookie, fallback is source address
 
 http feature:
-- X-forwarded-For header
-- http static caching
-- Internal connection reuse
-- port 80 redirect (optional)
-- sorry page
-- customisable http monitor
-- http analytics
-
-WAF:
-- Blacklisting for LAMP
-- Log all requests
+- X-Forwarded-For header
+- Default http monitor
 
 vars:
   - vip: <virtual server ip address>
-  - redirect: <port 80 redirect (boolean)>
-  - sorry: <enable sorry page (boolean)>
-  - monitor_irequest_path: <request path of the monitor>
-  - monitor_response: <expected text response>
+  - vip_2: <optional virtual server ip address>
   - members:
     -
       ip: <pool member ip>
@@ -62,15 +47,6 @@ vars:
         "Group",
         "Target",
         "Parameter"
-      ],
-      "rows": [
-        {
-          "row": [
-            "default",
-            "asm/request/enable/policy",
-            "bundled:LAMP_rapid_utf-8"
-          ]
-        }
       ]
     },
     {
@@ -83,19 +59,6 @@ vars:
         "Value",
         "CaseSensitive",
         "Missing"
-      ],
-      "rows": [
-        {
-          "row": [
-            "default",
-            "",
-            "no",
-            "equals",
-            "",
-            "no",
-            "no"
-          ]
-        }
       ]
     },
     {
@@ -110,9 +73,9 @@ vars:
         {
           "row": [
             "0",
-            "custom_http_mon",
-            "http",
-            "send=GET {{ monitor_request_path }} HTTP/1.0\\\\r\\\\n\\\\r\\\\n;recv={{ monitor_response }};interval=10;timeout=31"
+            "/Common/http",
+            "none",
+            "none"
           ]
         }
       ]
@@ -177,20 +140,6 @@ vars:
       "name": "vs__BundledItems",
       "columnNames": [
         "Resource"
-      ],
-      "rows": [
-        {
-          "row": [
-            "asm:LAMP_rapid_utf-8"
-          ]
-{% if sorry %}
-        },
-        {
-          "row": [
-            "irule:sorry_page"
-          ]
-{% endif %}
-        }
       ]
     },
     {
@@ -198,6 +147,16 @@ vars:
       "columnNames": [
         "Listener",
         "Destination"
+{% if vip_2 %}
+      ],
+      "rows": [
+        {
+          "row": [
+            "{{ vip_2 }}:80",
+            "0"
+          ]
+        }
+{% endif %}
       ]
     }
   ],
@@ -227,11 +186,7 @@ vars:
     {
       "name": "feature__redirectToHTTPS",
       "encrypted": "no",
-{% if redirect %}
-      "value": "enabled"
-{% else %}
-      "value": "disabled"
-{% endif %}
+      "value": "auto"
     },
     {
       "name": "feature__securityEnableHSTS",
@@ -324,7 +279,7 @@ vars:
     {
       "name": "pool__port",
       "encrypted": "no",
-      "value": "443"
+      "value": "80"
     },
     {
       "name": "vs__AdvOptions",
@@ -353,11 +308,11 @@ vars:
       "value": "tcp"
     },
     {
-      "name": "vs__Irules",
+      "name": "vs__Name",
       "encrypted": "no"
     },
     {
-      "name": "vs__Name",
+      "name": "vs__Irules",
       "encrypted": "no"
     },
     {
@@ -376,13 +331,12 @@ vars:
     },
     {
       "name": "vs__ProfileAnalytics",
-      "encrypted": "no",
-      "value": "/Common/analytics"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileClientProtocol",
       "encrypted": "no",
-      "value": "create:type=tcp;proxy-buffer-high=262144;proxy-buffer-low=196608;receive-window-size=131072;send-buffer-size=262144;defaults-from=/Common/tcp-wan-optimized"
+      "value": "/Common/tcp"
     },
     {
       "name": "vs__ProfileClientSSL",
@@ -394,8 +348,7 @@ vars:
     },
     {
       "name": "vs__ProfileClientSSLCert",
-      "encrypted": "no",
-      "value": "/Common/default.crt"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileClientSSLChain",
@@ -408,13 +361,11 @@ vars:
     },
     {
       "name": "vs__ProfileClientSSLKey",
-      "encrypted": "no",
-      "value": "/Common/default.key"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileCompression",
-      "encrypted": "no",
-      "value": "/Common/wan-optimized-compression"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileConnectivity",
@@ -437,8 +388,7 @@ vars:
     },
     {
       "name": "vs__ProfileOneConnect",
-      "encrypted": "no",
-      "value": "/Common/oneconnect"
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfilePerRequest",
@@ -450,22 +400,21 @@ vars:
     },
     {
       "name": "vs__ProfileSecurityDoS",
-      "encrypted": "no",
-      "value": "/Common/dos"
-    },
-    {
-      "name": "vs__ProfileSecurityIPBlacklist",
       "encrypted": "no"
     },
     {
-      "name": "vs__ProfileSecurityLogProfiles",
+      "name": "vs__ProfileSecurityIPBlacklist",
       "encrypted": "no",
-      "value": "/Common/Log\\\\ all\\\\ requests"
+      "value": "none"
+    },
+    {
+      "name": "vs__ProfileSecurityLogProfiles",
+      "encrypted": "no"
     },
     {
       "name": "vs__ProfileServerProtocol",
       "encrypted": "no",
-      "value": "/Common/tcp-lan-optimized"
+      "value": "/Common/tcp"
     },
     {
       "name": "vs__ProfileServerSSL",

@@ -155,7 +155,15 @@ tag:
     sample: 2345
 '''
 
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.f5_utils import (
+    AnsibleF5Client,
+    AnsibleF5Parameters,
+    HAS_F5SDK,
+    F5ModuleError,
+    iControlUnexpectedHTTPError,
+    iteritems,
+    defaultdict
+)
 
 
 class Parameters(AnsibleF5Parameters):
@@ -409,24 +417,15 @@ class ArgumentSpec(object):
                 required=True,
             ),
             tagged_interfaces=dict(
-                required=False,
-                default=None,
                 type='list',
                 aliases=['tagged_interface']
             ),
             untagged_interfaces=dict(
-                required=False,
-                default=None,
                 type='list',
                 aliases=['untagged_interface']
             ),
-            description=dict(
-                required=False,
-                default=None
-            ),
+            description=dict(),
             tag=dict(
-                required=False,
-                default=None,
                 type='int'
             )
         )

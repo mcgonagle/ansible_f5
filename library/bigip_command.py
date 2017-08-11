@@ -27,7 +27,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = '''
 ---
 module: bigip_command
-short_description: Run arbitrary command on F5 devices
+short_description: Run arbitrary command on F5 devices.
 description:
   - Sends an arbitrary command to an BIG-IP node and returns the results
     read from the device. This module includes an argument that will cause
@@ -41,14 +41,14 @@ options:
         configured provider. The resulting output from the command
         is returned. If the I(wait_for) argument is provided, the
         module is not returned until the condition is satisfied or
-        the number of retires as expired.
+        the number of retries as expired.
       - The I(commands) argument also accepts an alternative form
         that allows for complex values that specify the command
         to run and the output format to return. This can be done
         on a command by command basis. The complex argument supports
         the keywords C(command) and C(output) where C(command) is the
         command to run and C(output) is 'text' or 'one-line'.
-    required: true
+    required: True
   wait_for:
     description:
       - Specifies what to evaluate from the output of the command
@@ -56,10 +56,7 @@ options:
         the task to wait for a particular conditional to be true
         before moving forward. If the conditional is not true
         by the configured retries, the task fails. See examples.
-    required: false
-    default: null
     aliases: ['waitfor']
-    version_added: "2.2"
   match:
     description:
       - The I(match) argument is used in conjunction with the
@@ -68,16 +65,13 @@ options:
         then all conditionals in the I(wait_for) must be satisfied. If
         the value is set to C(any) then only one of the values must be
         satisfied.
-    required: false
     default: all
-    version_added: "2.2"
   retries:
     description:
       - Specifies the number of retries a command should by tried
         before it is considered failed. The command is run on the
         target device every retry and evaluated against the I(wait_for)
         conditionals.
-    required: false
     default: 10
   interval:
     description:
@@ -85,12 +79,10 @@ options:
         of the command. If the command does not pass the specified
         conditional, the interval indicates how to long to wait before
         trying the command again.
-    required: false
     default: 1
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
-  - Requires Ansible >= 2.3.
 requirements:
   - f5-sdk >= 2.2.3
 extends_documentation_fragment: f5
@@ -119,7 +111,7 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - name: run multiple commands on remote nodes
-   bigip_command:
+  bigip_command:
     commands:
       - show sys version
       - list ltm virtual
@@ -177,8 +169,12 @@ failed_conditions:
 
 import time
 
-from ansible.module_utils.f5_utils import *
-from ansible.module_utils.netcli import AddCommandError, FailedConditionsError
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+from ansible.module_utils.netcli import FailedConditionsError
 from ansible.module_utils.six import string_types
 from ansible.module_utils.netcli import Conditional
 from ansible.module_utils.network_common import ComplexList
@@ -203,7 +199,7 @@ class Parameters(AnsibleF5Parameters):
             'tmsh modify cli preference pager disabled'
         )
         commands = map(self._ensure_tmsh_prefix, list(commands))
-        return commands
+        return list(commands)
 
     def _ensure_tmsh_prefix(self, cmd):
         cmd = cmd.strip()
@@ -217,14 +213,6 @@ class ModuleManager(object):
         self.client = client
         self.want = Parameters(self.client.module.params)
         self.changes = Parameters()
-
-    def _set_changed_options(self):
-        changed = {}
-        for key in Parameters.returnables:
-            if getattr(self.want, key) is not None:
-                changed[key] = getattr(self.want, key)
-        if changed:
-            self.changes = Parameters(changed)
 
     def _to_lines(self, stdout):
         lines = list()
@@ -252,7 +240,7 @@ class ModuleManager(object):
             raise F5ModuleError(str(e))
 
         result.update(**self.changes.to_return())
-        result.update(dict(changed=False))
+        result.update(dict(changed=True))
         return result
 
     def execute(self):
@@ -264,6 +252,9 @@ class ModuleManager(object):
         retries = self.want.retries
 
         conditionals = [Conditional(c) for c in wait_for]
+
+        if self.client.check_mode:
+            return
 
         while retries > 0:
             responses = self.execute_on_device(commands)
@@ -378,6 +369,6 @@ def main():
     except (FailedConditionsError, AttributeError) as e:
         client.module.fail_json(msg=str(e))
 
+
 if __name__ == '__main__':
     main()
-

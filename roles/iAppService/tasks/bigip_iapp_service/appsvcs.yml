@@ -8,7 +8,6 @@
     template: "{{ f5template }}"
     validate_certs: "false"
     state: "{{ state }}"
-#    parameters: "{{ lookup('file', '{{ app_name }}_autogen.json') }}" 
     parameters: "{{ lookup('template', '{{ j2template }}.j2') }}"
   delegate_to: localhost
 ...

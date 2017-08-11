@@ -43,7 +43,7 @@
     - timezone: "Europe/Berlin"
 
 ##bug - https://github.com/mcgonagle/ansible_f5/issues/22
-- include: bigip_hostname/set_hostname.yml hostname="bigip.local"
+- include: bigip_hostname/set_hostname.yml hostname="bigip.demo.local"
 
 # Issue dhcp needs to be disabled - https://github.com/mcgonagle/ansible_f5/issues/10
 - include: bigip_device_dns/set_dns.yml name_server1="10.128.10.2" name_server2="8.8.4.4" search_domain1="localdomain" search_domain2="lab.local" 
@@ -72,7 +72,9 @@
 ##bug - https://github.com/mcgonagle/ansible_f5/issues/21
 ##- include: bigip_snmp_trap/add_trap.yml name="trap" community="community" destination="trap.localdomain" snmp_version="2c"
 - include: bigip_provision/provision_module.yml module="asm" level="nominal"
-#- include: bigip_provision/provision_module.yml module="afm" level="nominal"
+- include: bigip_provision/provision_module.yml module="afm" level="nominal"
+
+- include: bigip_provision/provision_module.yml module="avr" level="nominal"
 
 - include: bigip_command/set_gui_idle-timeout.yml
   vars:

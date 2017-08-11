@@ -50,24 +50,18 @@ options:
         large, the recommended practice is to put it in an external file
         and include it with the Ansible C(file) or C(template) lookup plugins.
         This option is required when C(state) is C(present).
-    required: False
-    default: None
   connector:
     description:
       - The cloud connector associated with this Service Template. If you want
         to have this Service Template associated with all clouds, then specify
         a C(connector) of C(all). When creating a new Service Template, if no
         connector is specified, then C(all) clouds will be the default.
-    required: False
-    default: None
   base_template:
     description:
       - The iApp template that you want to base this Service Template off
         of. Note that, while iWorkflow's UI also allows you to specify another
         Service Template for the C(base_template), this module does not yet
         let you do that. This option is required when C(state) is C(present).
-    required: False
-    default: None
 notes:
   - Requires the f5-sdk Python package on the remote host. This is as easy as
     pip install f5-sdk
@@ -90,6 +84,7 @@ RETURN = '''
 
 from ansible.module_utils.f5_utils import *
 from deepdiff import DeepDiff
+import copy
 
 
 class Parameters(AnsibleF5Parameters):
@@ -114,7 +109,7 @@ class Parameters(AnsibleF5Parameters):
 
     def update(self, params=None):
         if params:
-            for k,v in iteritems(params):
+            for k, v in iteritems(params):
                 if self.api_map is not None and k in self.api_map:
                     map_key = self.api_map[k]
                 else:
@@ -169,30 +164,33 @@ class Parameters(AnsibleF5Parameters):
         result = []
         if not self._values['tables']:
             return None
-        tables = self._values['tables']
+        tables = copy.deepcopy(self._values['tables'])
         for table in tables:
             tmp = dict()
-            name = table.get('name', None)
+            name = table.pop('name', None)
             if name is None:
                 raise F5ModuleError(
                     "One of the provided tables does not have a name"
                 )
             tmp['name'] = str(name)
-            columns = table.get('columns', None)
+            columns = table.pop('columns', None)
             if columns:
                 tmp['columns'] = []
                 for column in columns:
                     tmp['columns'].append(
-                        dict((str(k),str(v)) for k,v in iteritems(column))
+                        dict((str(k), str(v)) for k, v in iteritems(column))
                     )
                 # You cannot have rows without columns
-                rows = table.get('rows', None)
+                rows = table.pop('rows', None)
                 if rows:
                     tmp['rows'] = []
                     for row in rows:
                         tmp['rows'].append([str(x) for x in row])
-            description = table.get('description', None)
-            tmp['description'] = str(description)
+
+            # For the remaining items in the table dict, add them to the tmp
+            # dictionary
+            tmp.update(table)
+
             result.append(tmp)
         result = sorted(result, key=lambda k: k['name'])
         return result
@@ -273,6 +271,12 @@ class Parameters(AnsibleF5Parameters):
 
     @property
     def parentReference(self):
+        if not self._parent_template_exists():
+            raise F5ModuleError(
+                "The specified base_template '{0}' not not exist".format(
+                    self.base_template
+                )
+            )
         return dict(
             link="https://localhost/mgmt/cm/cloud/templates/iapp/{0}".format(
                 self._values['base_template']
@@ -282,6 +286,12 @@ class Parameters(AnsibleF5Parameters):
     @parentReference.setter
     def parentReference(self, value):
         self._values['base_template'] = value['link']
+
+    def _parent_template_exists(self):
+        result = self.client.api.cm.cloud.templates.iapps.iapp.exists(
+            name=self.base_template
+        )
+        return result
 
 
 class ModuleManager(object):
@@ -310,7 +320,7 @@ class ModuleManager(object):
                 attr1 = getattr(self.want, key)
                 attr2 = getattr(self.have, key)
                 if attr1 != attr2:
-                    changed[key] = str(DeepDiff(attr1,attr2))
+                    changed[key] = str(DeepDiff(attr1, attr2))
         if changed:
             self.changes = Parameters()
             self.changes.client = self.client
@@ -429,21 +439,12 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             name=dict(required=True),
-            base_template=dict(
-                required=False,
-                default=None
-            ),
+            base_template=dict(),
             parameters=dict(
-                required=False,
-                default=None,
                 type='dict'
             ),
-            connector=dict(
-                required=False,
-                default=None
-            ),
+            connector=dict(),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )

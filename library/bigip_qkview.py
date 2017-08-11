@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
+# Copyright 2017 F5 Networks Inc.
 #
 # This file is part of Ansible
 #
@@ -27,7 +27,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = '''
 ---
 module: bigip_qkview
-short_description: Manage qkviews on the device
+short_description: Manage qkviews on the device.
 description:
   - Manages creating and downloading qkviews from a BIG-IP. Various
     options can be provided when creating qkviews. The qkview is important
@@ -39,18 +39,16 @@ options:
   filename:
     description:
       - Name of the qkview to create on the remote BIG-IP.
-    required: False
     default: "localhost.localdomain.qkview"
   dest:
     description:
       - Destination on your local filesystem when you want to save the qkview.
-    required: true
+    required: True
   asm_request_log:
     description:
       - When C(True), includes the ASM request log data. When C(False),
         excludes the ASM request log data.
-    required: False
-    default: False
+    default: no
     choices:
       - yes
       - no
@@ -58,29 +56,24 @@ options:
     description:
       - Max file size, in bytes, of the qkview to create. By default, no max
         file size is specified.
-    required: False
     default: 0
   complete_information:
     description:
-      - Include complete information in the qkview
-    required: False
-    default: True
+      - Include complete information in the qkview.
+    default: yes
     choices:
       - yes
       - no
   exclude_core:
     description:
-      - Exclude core files from the qkview
-    required: False
-    default: False
+      - Exclude core files from the qkview.
+    default: no
     choices:
       - yes
       - no
   exclude:
     description:
       - Exclude various file from the qkview.
-    required: False
-    default: None
     choices:
       - all
       - audit
@@ -91,7 +84,6 @@ options:
       - If C(no), the file will only be transferred if the destination does not
         exist.
     default: yes
-    required: False
     choices:
       - yes
       - no
@@ -99,7 +91,6 @@ notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
   - This module does not include the "max time" or "restrict to blade" options.
-  - Requires Ansible >= 2.3.
 requirements:
   - f5-sdk >= 2.2.3
 extends_documentation_fragment: f5
@@ -108,12 +99,13 @@ author:
 '''
 
 EXAMPLES = '''
-- name: The whole enchilada
+- name: Fetch a qkview from the remote device
   bigip_qkview:
       asm_request_log: "yes"
       exclude:
-          - all|audit|secure|bash_history|or a list of them, for example, [audit,secure]
-      dest: "/tmp/localhost.localdomain.qkview
+          - audit
+          - secure
+      dest: "/tmp/localhost.localdomain.qkview"
   delegate_to: localhost
 '''
 
@@ -123,7 +115,6 @@ stdout:
     returned: always
     type: list
     sample: ['...', '...']
-
 stdout_lines:
     description: The value of stdout split into a list
     returned: always
@@ -137,7 +128,6 @@ import os
 from distutils.version import LooseVersion
 
 from ansible.module_utils.six import string_types
-from ansible.module_utils.basic import BOOLEANS
 from ansible.module_utils.f5_utils import (
     AnsibleF5Client,
     AnsibleF5Parameters,
@@ -161,6 +151,10 @@ class Parameters(AnsibleF5Parameters):
             return None
         exclude = ' '.join(self._values['exclude'])
         return "--exclude='{0}'".format(exclude)
+
+    @property
+    def exclude_raw(self):
+        return self._values['exclude']
 
     @property
     def exclude_core(self):
@@ -228,23 +222,31 @@ class ModuleManager(object):
         self.client = client
 
     def exec_module(self):
-        version = self.client.api.tmos_version
-        if LooseVersion(version) <= LooseVersion('13.0.0'):
+        if self.is_version_less_than_14():
             manager = self.get_manager('madm')
         else:
             manager = self.get_manager('bulk')
         return manager.exec_module()
 
     def get_manager(self, type):
-        if type == 'bulk':
-            return BulkLocationManager(self.client)
-        elif type =='madm':
+        if type == 'madm':
             return MadmLocationManager(self.client)
+        elif type == 'bulk':
+            return BulkLocationManager(self.client)
+
+    def is_version_less_than_14(self):
+        """Checks to see if the TMOS version is less than 14
+
+        Anything less than BIG-IP 13.x does not support users
+        on different partitions.
+
+        :return: Bool
+        """
+        version = self.client.api.tmos_version
+        if LooseVersion(version) < LooseVersion('14.0.0'):
+            return True
         else:
-            raise F5ModuleError(
-                "The version of BIG-IP in use is not supported "
-                "by this module."
-            )
+            return False
 
 
 class BaseManager(object):
@@ -284,6 +286,13 @@ class BaseManager(object):
             raise F5ModuleError(
                 "The specified 'dest' file already exists"
             )
+        if self.want.exclude:
+            choices = ['all', 'audit', 'secure', 'bash_history']
+            if not all(x in choices for x in self.want.exclude_raw):
+                raise F5ModuleError(
+                    "The specified excludes must be in the following list: "
+                    "{0}".format(','.join(choices))
+                )
         self.execute()
 
     def exists(self):
@@ -400,43 +409,29 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             filename=dict(
-                required=False,
                 default='localhost.localdomain.qkview'
             ),
             asm_request_log=dict(
                 type='bool',
-                required=False,
-                default=False,
-                choices=BOOLEANS
+                default='no',
             ),
             max_file_size=dict(
                 type='int',
-                required=False,
-                default=None
             ),
             complete_information=dict(
-                required=False,
-                default=False,
-                type='bool',
-                choices=BOOLEANS
+                default='no',
+                type='bool'
             ),
             exclude_core=dict(
-                required=False,
-                default=False,
-                type='bool',
-                choices=BOOLEANS
+                default="no",
+                type='bool'
             ),
             force=dict(
-                required=False,
                 default=True,
-                type='bool',
-                choices=BOOLEANS
+                type='bool'
             ),
             exclude=dict(
-                type='list',
-                required=False,
-                default=None,
-                choices=['all', 'audit', 'secure', 'bash_history']
+                type='list'
             ),
             dest=dict(
                 type='path',
@@ -465,6 +460,6 @@ def main():
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
 
+
 if __name__ == '__main__':
     main()
-

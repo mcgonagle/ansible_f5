@@ -25,7 +25,7 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 module: bigip_ssl_certificate
-short_description: Import/Delete certificates from BIG-IP
+short_description: Import/Delete certificates from BIG-IP.
 description:
   - This module will import/delete SSL certificates on BIG-IP LTM.
     Certificates can be imported from certificate and key files on the local
@@ -39,7 +39,6 @@ options:
         with formatting or templating. Either one of C(key_src),
         C(key_content), C(cert_src) or C(cert_content) must be provided when
         C(state) is C(present).
-    required: false
   key_content:
     description:
       - When used instead of 'key_src', sets the contents of a certificate key
@@ -47,44 +46,34 @@ options:
         anything with formatting or templating. Either one of C(key_src),
         C(key_content), C(cert_src) or C(cert_content) must be provided when
         C(state) is C(present).
-    required: false
   state:
     description:
       - Certificate and key state. This determines if the provided certificate
         and key is to be made C(present) on the device or C(absent).
-    required: true
     default: present
     choices:
       - present
       - absent
-  partition:
-    description:
-      - BIG-IP partition to use when adding/deleting certificate.
-    required: false
-    default: Common
   name:
     description:
-      - SSL Certificate Name.  This is the cert/key pair name used
+      - SSL Certificate Name. This is the cert/key pair name used
         when importing a certificate/key into the F5. It also
         determines the filenames of the objects on the LTM
         (:Partition:name.cer_11111_1 and :Partition_name.key_11111_1).
-    required: true
+    required: True
   cert_src:
     description:
       - This is the local filename of the certificate. Either one of C(key_src),
         C(key_content), C(cert_src) or C(cert_content) must be provided when
         C(state) is C(present).
-    required: false
   key_src:
     description:
       - This is the local filename of the private key. Either one of C(key_src),
         C(key_content), C(cert_src) or C(cert_content) must be provided when
         C(state) is C(present).
-    required: false
   passphrase:
     description:
       - Passphrase on certificate private key
-    required: false
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
@@ -124,6 +113,16 @@ EXAMPLES = '''
       key_content: "{{ lookup('file', '/path/to/key.key') }}"
   delegate_to: localhost
 
+- name: Use a file lookup to import CA certificate chain
+  bigip_ssl_certificate:
+      name: "ca-chain-name"
+      server: "lb.mydomain.com"
+      user: "admin"
+      password: "secret"
+      state: "present"
+      cert_content: "{{ lookup('file', '/path/to/ca-chain.crt') }}"
+  delegate_to: localhost
+
 - name: "Delete Certificate"
   bigip_ssl_certificate:
       name: "certificate-name"
@@ -137,8 +136,7 @@ EXAMPLES = '''
 RETURN = '''
 cert_name:
     description: The name of the certificate that the user provided
-    returned:
-        - created
+    returned: created
     type: string
     sample: "cert1"
 key_filename:
@@ -146,20 +144,17 @@ key_filename:
         - The name of the SSL certificate key. The C(key_filename) and
           C(cert_filename) will be similar to each other, however the
           C(key_filename) will have a C(.key) extension.
-    returned:
-        - created
+    returned: created
     type: string
     sample: "cert1.key"
 key_checksum:
     description: SHA1 checksum of the key that was provided.
-    return:
-        - changed
-        - created
+    returned: changed and created
     type: string
     sample: "cf23df2207d99a74fbe169e3eba035e633b65d94"
 key_source_path:
     description: Path on BIG-IP where the source of the key is stored
-    return: created
+    returned: created
     type: string
     sample: "/var/config/rest/downloads/cert1.key"
 cert_filename:
@@ -167,34 +162,44 @@ cert_filename:
         - The name of the SSL certificate. The C(cert_filename) and
           C(key_filename) will be similar to each other, however the
           C(cert_filename) will have a C(.crt) extension.
-    returned:
-        - created
+    returned: created
     type: string
     sample: "cert1.crt"
 cert_checksum:
     description: SHA1 checksum of the cert that was provided.
-    return:
-        - changed
-        - created
+    returned: changed and created
     type: string
     sample: "f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0"
 cert_source_path:
     description: Path on BIG-IP where the source of the certificate is stored.
-    return: created
+    returned: created
     type: string
     sample: "/var/config/rest/downloads/cert1.crt"
 '''
 
 
 import hashlib
-import StringIO
 import os
 import re
 
-from ansible.module_utils.f5_utils import *
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+from ansible.module_utils.f5_utils import iteritems
 
 
 class Parameters(AnsibleF5Parameters):
+    def __init__(self, params=None):
+        super(Parameters, self).__init__(params)
+        self._values['__warnings'] = []
+
     def to_return(self):
         result = {}
         try:
@@ -217,12 +222,12 @@ class Parameters(AnsibleF5Parameters):
 
     def _get_hash(self, content):
         k = hashlib.sha1()
-        s = StringIO.StringIO(content)
+        s = StringIO(content)
         while True:
             data = s.read(1024)
             if not data:
                 break
-            k.update(data)
+            k.update(data.encode('utf-8'))
         return k.hexdigest()
 
     @property
@@ -263,9 +268,19 @@ class KeyParameters(Parameters):
         return self._get_hash(self.key_content)
 
     @property
-    def key_src(self, value):
+    def key_src(self):
+        if self._values['key_src'] is None:
+            return None
+
+        self._values['__warnings'].append(
+            dict(
+                msg="The key_src param is deprecated",
+                version='2.4'
+            )
+        )
+
         try:
-            with open(value) as fh:
+            with open(self._values['key_src']) as fh:
                 self.key_content = fh.read()
         except IOError:
             raise F5ModuleError(
@@ -307,6 +322,26 @@ class CertParameters(Parameters):
             return self.name
 
     @property
+    def cert_src(self):
+        if self._values['cert_src'] is None:
+            return None
+
+        self._values['__warnings'].append(
+            dict(
+                msg="The cert_src param is deprecated",
+                version='2.4'
+            )
+        )
+
+        try:
+            with open(self._value['cert_src']) as fh:
+                self.cert_content = fh.read()
+        except IOError:
+            raise F5ModuleError(
+                "The specified 'cert_src' does not exist"
+            )
+
+    @property
     def cert_source_path(self):
         result = 'file://' + os.path.join(
             BaseManager.download_path,
@@ -322,13 +357,14 @@ class ModuleManager(object):
     def exec_module(self):
         manager1 = self.get_manager('certificate')
         manager2 = self.get_manager('key')
-        return self.execute_managers([manager1, manager2])
+        result = self.execute_managers([manager1, manager2])
+        return result
 
     def execute_managers(self, managers):
-        results = {}
+        results = dict(changed=False)
         for manager in managers:
             result = manager.exec_module()
-            for k,v in iteritems(result):
+            for k, v in iteritems(result):
                 if k == 'changed':
                     if v is True:
                         results['changed'] = True
@@ -339,7 +375,7 @@ class ModuleManager(object):
     def get_manager(self, type):
         if type == 'certificate':
             return CertificateManager(self.client)
-        elif type =='key':
+        elif type == 'key':
             return KeyManager(self.client)
 
 
@@ -366,11 +402,15 @@ class BaseManager(object):
         changes = self.changes.to_return()
         result.update(**changes)
         result.update(dict(changed=changed))
-        self._announce_deprecations(result)
+        self._announce_deprecations()
         return result
 
-    def _announce_deprecations(self, result):
-        warnings = result.pop('__warnings', [])
+    def _announce_deprecations(self):
+        warnings = []
+        if self.want:
+            warnings += self.want._values.get('__warnings', [])
+        if self.have:
+            warnings += self.have._values.get('__warnings', [])
         for warning in warnings:
             self.client.module.deprecate(
                 msg=warning['msg'],
@@ -414,8 +454,6 @@ class BaseManager(object):
         if self.client.check_mode:
             return True
         self.remove_from_device()
-        if self.exists():
-            raise F5ModuleError("Failed to delete the Wide IP")
         return True
 
 
@@ -473,9 +511,9 @@ class CertificateManager(BaseManager):
         return False
 
     def update_on_device(self):
-        cstring = StringIO.StringIO(self.want.cert_content)
+        content = StringIO(self.want.cert_content)
         self.client.api.shared.file_transfer.uploads.upload_stringio(
-            cstring, self.want.cert_filename
+            content, self.want.cert_filename
         )
         resource = self.client.api.tm.sys.file.ssl_certs.ssl_cert.load(
             name=self.want.cert_filename,
@@ -484,9 +522,9 @@ class CertificateManager(BaseManager):
         resource.update()
 
     def create_on_device(self):
-        cstring = StringIO.StringIO(self.want.cert_content)
+        content = StringIO(self.want.cert_content)
         self.client.api.shared.file_transfer.uploads.upload_stringio(
-            cstring, self.want.cert_filename
+            content, self.want.cert_filename
         )
         self.client.api.tm.sys.file.ssl_certs.ssl_cert.create(
             sourcePath=self.want.cert_source_path,
@@ -509,6 +547,12 @@ class CertificateManager(BaseManager):
         )
         resource.delete()
 
+    def remove(self):
+        result = super(CertificateManager, self).remove()
+        if self.exists() and not self.client.check_mode:
+            raise F5ModuleError("Failed to delete the certificate")
+        return result
+
 
 class KeyManager(BaseManager):
     def __init__(self, client):
@@ -523,14 +567,14 @@ class KeyManager(BaseManager):
                 if getattr(self.want, key) is not None:
                     changed[key] = getattr(self.want, key)
             if changed:
-                self.changes = Parameters(changed)
+                self.changes = KeyParameters(changed)
         except Exception:
             pass
 
     def _update_changed_options(self):
         changed = {}
         try:
-            for key in CertParameters.updatables:
+            for key in KeyParameters.updatables:
                 if getattr(self.want, key) is not None:
                     attr1 = getattr(self.want, key)
                     attr2 = getattr(self.have, key)
@@ -539,7 +583,7 @@ class KeyManager(BaseManager):
                 if self.want.key_checksum != self.have.checksum:
                     changed['key_checksum'] = self.want.key_checksum
             if changed:
-                self.changes = CertParameters(changed)
+                self.changes = KeyParameters(changed)
                 return True
         except Exception:
             pass
@@ -552,9 +596,9 @@ class KeyManager(BaseManager):
         return False
 
     def update_on_device(self):
-        kstring = StringIO.StringIO(self.want.key_content)
+        content = StringIO(self.want.key_content)
         self.client.api.shared.file_transfer.uploads.upload_stringio(
-            kstring, self.want.key_filename
+            content, self.want.key_filename
         )
         resource = self.client.api.tm.sys.file.ssl_keys.ssl_key.load(
             name=self.want.key_filename,
@@ -583,9 +627,9 @@ class KeyManager(BaseManager):
         return KeyParameters(result)
 
     def create_on_device(self):
-        kstring = StringIO.StringIO(self.want.key_content)
+        content = StringIO(self.want.key_content)
         self.client.api.shared.file_transfer.uploads.upload_stringio(
-            kstring, self.want.key_filename
+            content, self.want.key_filename
         )
         self.client.api.tm.sys.file.ssl_keys.ssl_key.create(
             sourcePath=self.want.key_source_path,
@@ -600,39 +644,34 @@ class KeyManager(BaseManager):
         )
         resource.delete()
 
+    def remove(self):
+        result = super(KeyManager, self).remove()
+        if self.exists() and not self.client.check_mode:
+            raise F5ModuleError("Failed to delete the key")
+        return result
+
 
 class ArgumentSpec(object):
     def __init__(self):
-        deprecated = ['key_src', 'cert_src']
         self.supports_check_mode = True
         self.argument_spec = dict(
             name=dict(
-                type='str',
                 required=True
             ),
-            cert_content=dict(
-                type='str',
-                default=None
-            ),
+            cert_content=dict(),
             cert_src=dict(
                 type='path',
-                default=None
+                removed_in_version='2.4'
             ),
-            key_content=dict(
-                type='str',
-                default=None
-            ),
+            key_content=dict(),
             key_src=dict(
                 type='path',
-                default=None
+                removed_in_version='2.4'
             ),
             passphrase=dict(
-                type='str',
-                default=None,
                 no_log=True
             ),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )
@@ -663,6 +702,7 @@ def main():
         client.module.exit_json(**results)
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()

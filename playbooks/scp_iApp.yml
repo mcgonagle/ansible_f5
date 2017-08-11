@@ -21,7 +21,7 @@
   - hosts: bigip
     gather_facts: False
     roles:
-      - iApps
+      - iAppService
     vars:
       - app_name: "scp_server"
       - vip: "10.128.10.21" 
@@ -35,5 +35,5 @@
 
 ## don't touch: ##
       - f5template: "appsvcs_integration_v2.0.004_waf"
-      - j2template: "appsvce_scp"
+      - j2template: "appsvcs_scp"
 ...

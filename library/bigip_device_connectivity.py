@@ -38,20 +38,14 @@ options:
   config_sync_ip:
     description:
       - Local IP address that the system uses for ConfigSync operations.
-    default: None
-    required: False
   mirror_primary_address:
     description:
       - Specifies the primary IP address for the system to use to mirror
         connections.
-    required: False
-    default: None
   mirror_secondary_address:
     description:
       - Specifies the secondary IP address for the system to use to mirror
         connections.
-    required: False
-    default: None
   unicast_failover:
     description:
       - Desired addresses to use for failover operations. Options C(address)
@@ -59,8 +53,6 @@ options:
         local IP address that the system uses for failover operations. Port
         specifies the port that the system uses for failover operations. If C(port)
         is not specified, the default value C(1026) will be used.
-    required: False
-    default: None
   failover_multicast:
     description:
       - When C(yes), ensures that the Failover Multicast configuration is enabled
@@ -68,36 +60,31 @@ options:
         C(multicast_interface), C(multicast_address) and C(multicast_port) are
         the defaults specified in each option's description. When C(no), ensures
         that Failover Multicast configuration is disabled.
-    required: False
-    default: None
+    choices:
+      - yes
+      - no
   multicast_interface:
     description:
       - Interface over which the system sends multicast messages associated
         with failover. When C(failover_multicast) is C(yes) and this option is
         not provided, a default of C(eth0) will be used.
-    required: False
-    default: None
   multicast_address:
     description:
       - IP address for the system to send multicast messages associated with
         failover. When C(failover_multicast) is C(yes) and this option is not
         provided, a default of C(224.0.0.245) will be used.
-    required: False
-    default: None
   multicast_port:
     description:
       - Port for the system to send multicast messages associated with
         failover. When C(failover_multicast) is C(yes) and this option is not
-        provided, a default of C(62960) will be used.
-    required: False
-    default: None
+        provided, a default of C(62960) will be used. This value must be between
+        0 and 65535.
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
   - This module is primarily used as a component of configuring HA pairs of
     BIG-IP devices.
   - Requires BIG-IP >= 12.1.x.
-  - Requires Ansible >= 2.3.
 requirements:
   - f5-sdk >= 2.2.3
 extends_documentation_fragment: f5
@@ -106,15 +93,65 @@ author:
 '''
 
 EXAMPLES = '''
-
+- name: Configure device connectivity for standard HA pair
+  bigip_device_connectivity:
+      config_sync_ip: "10.1.30.1"
+      mirror_primary_address: "10.1.30.1"
+      unicast_failover:
+          - address: "10.1.30.1"
+      server: "lb.mydomain.com"
+      user: "admin"
+      password: "secret"
+  delegate_to: localhost
 '''
 
 RETURN = '''
-
+changed:
+    description: Denotes if the F5 configuration was updated.
+    returned: always
+    type: bool
+config_sync_ip:
+    description: The new value of the C(config_sync_ip) setting.
+    returned: changed
+    type: string
+    sample: "10.1.1.1"
+mirror_primary_address:
+    description: The new value of the C(mirror_primary_address) setting.
+    returned: changed
+    type: string
+    sample: "10.1.1.2"
+mirror_secondary_address:
+    description: The new value of the C(mirror_secondary_address) setting.
+    return: changed
+    type: string
+    sample: "10.1.1.3"
+unicast_failover:
+    description: The new value of the C(unicast_failover) setting.
+    return: changed
+    type: list
+    sample: [{'address': '10.1.1.2', 'port': 1026}]
+failover_multicast:
+    description: Whether a failover multicast attribute has been changed or not.
+    return: changed
+    type: bool
+multicast_interface:
+    description: The new value of the C(multicast_interface) setting.
+    return: changed
+    type: string
+    sample: "eth0"
+multicast_address:
+    description: The new value of the C(multicast_address) setting.
+    return: changed
+    type: string
+    sample: "224.0.0.245"
+multicast_port:
+    description: The new value of the C(multicast_port) setting.
+    return: changed
+    type: string
+    sample: 1026
 '''
 
 from netaddr import IPAddress, AddrFormatError
-from ansible.module_utils.basic import BOOLEANS
 from ansible.module_utils.f5_utils import (
     AnsibleF5Client,
     AnsibleF5Parameters,
@@ -148,26 +185,41 @@ class Parameters(AnsibleF5Parameters):
         'failover_multicast', 'unicast_failover'
     ]
 
-    DEFAULT_UNICAST_FAILOVER_PORT=1026
-
     @property
     def multicast_port(self):
         if self._values['multicast_port'] is None:
             return None
-        return int(self._values['multicast_port'])
+        result = int(self._values['multicast_port'])
+        if result < 0 or result > 65535:
+            raise F5ModuleError(
+                "The specified 'multicast_port' must be between 0 and 65535."
+            )
+        return result
 
     @property
     def multicast_address(self):
+        if self._values['multicast_address'] is None:
+            return None
+        elif self._values['multicast_address'] in ["none", "any6", '']:
+            return "any6"
         result = self._get_validated_ip_address('multicast_address')
         return result
 
     @property
     def mirror_primary_address(self):
+        if self._values['mirror_primary_address'] is None:
+            return None
+        elif self._values['mirror_primary_address'] in ["none", "any6", '']:
+            return "any6"
         result = self._get_validated_ip_address('mirror_primary_address')
         return result
 
     @property
     def mirror_secondary_address(self):
+        if self._values['mirror_secondary_address'] is None:
+            return None
+        elif self._values['mirror_secondary_address'] in ["none", "any6", '']:
+            return "any6"
         result = self._get_validated_ip_address('mirror_secondary_address')
         return result
 
@@ -182,9 +234,11 @@ class Parameters(AnsibleF5Parameters):
 
     @property
     def config_sync_ip(self):
+        if self._values['config_sync_ip'] is None:
+            return None
+        elif self._values['config_sync_ip'] in ["none", '']:
+            return "none"
         result = self._get_validated_ip_address('config_sync_ip')
-        if result == 'any6':
-            result = "none"
         return result
 
     @property
@@ -237,7 +291,7 @@ class Parameters(AnsibleF5Parameters):
                 "The provided 'port' for unicast failover is not a valid number"
             )
         except TypeError:
-            result = self.DEFAULT_UNICAST_FAILOVER_PORT
+            result = 1026
         return result
 
     def _validate_unicast_failover_address(self, address):
@@ -254,10 +308,6 @@ class Parameters(AnsibleF5Parameters):
             )
 
     def _get_validated_ip_address(self, address):
-        if self._values[address] is None:
-            return None
-        elif self._values[address] in ["none", "any6", '']:
-            return "any6"
         try:
             IPAddress(self._values[address])
             return self._values[address]
@@ -385,11 +435,14 @@ class ModuleManager(object):
 
     def update_on_device(self):
         params = self.want.api_params()
-        resource = self.client.api.tm.cm.device_groups.device_group.load(
-            name=self.want.name,
-            partition=self.want.partition
+        collection = self.client.api.tm.cm.devices.get_collection()
+        for resource in collection:
+            if resource.selfDevice == 'true':
+                resource.modify(**params)
+                return
+        raise F5ModuleError(
+            "The host device was not found."
         )
-        resource.modify(**params)
 
     def read_current_from_device(self):
         collection = self.client.api.tm.cm.devices.get_collection()
@@ -407,42 +460,20 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             multicast_port=dict(
-                required=False,
-                default=None,
                 type='int'
             ),
-            multicast_address=dict(
-                required=False,
-                default=None
-            ),
-            multicast_interface=dict(
-                required=False,
-                default=None
-            ),
+            multicast_address=dict(),
+            multicast_interface=dict(),
             failover_multicast=dict(
-                required=False,
-                default=None,
-                choices=BOOLEANS
+                type='bool'
             ),
             unicast_failover=dict(
-                required=False,
-                default=None,
                 type='list'
             ),
-            mirror_primary_address=dict(
-                required=False,
-                default=None
-            ),
-            mirror_secondary_address=dict(
-                required=False,
-                default=None
-            ),
-            config_sync_ip=dict(
-                required=False,
-                default=None
-            ),
+            mirror_primary_address=dict(),
+            mirror_secondary_address=dict(),
+            config_sync_ip=dict(),
             state=dict(
-                required=False,
                 default='present',
                 choices=['present']
             )
