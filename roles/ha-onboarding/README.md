@@ -32,23 +32,23 @@ Example::
   10.10.86.31
   [master]
   10.10.86.30
-´´´
+```
 
 Variable setup of the Group
 ---------------------------
-Example (group_vars/bigip-ha)::
-´´´json
+Example (group_vars/bigip-ha):
+```json
   ---
   ext_floating_self_ip: "10.128.10.32"
   int_floating_self_ip: "10.10.10.32"
   device_group_name: "main_dg"
   ...
-´´´
+```
 
 Variable setup of the master
 ----------------------------
 Example (host_vars/10.10.86.30):
-
+```
   ---
   mgmt_ip: 10.10.86.30
 
@@ -67,11 +67,12 @@ Example (host_vars/10.10.86.30):
   peer_host: "10.10.86.31"
   peer_hostname: "bigip-ha-b.demo.local"
   ...
+```
 
 Variable setup of the other BIG-IP in the cluster
 -------------------------------------------------
 Example (host_vars/10.10.86.31):
-
+```
   ---
   mgmt_ip: 10.10.86.31
 
@@ -87,14 +88,16 @@ Example (host_vars/10.10.86.31):
 
   hostname: "bigip-ha-b.demo.local"
   ...
-
+```
 
 Example Playbook
 ----------------
+```
     - hosts: all
       gather_facts: False
       roles:
         - ha-operations
+```
 
 License
 -------
