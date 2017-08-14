@@ -100,8 +100,8 @@
     - update_password: "on_create"
 
 - include: bigip_provision/provision_module.yml module="asm" level="nominal"
-#- include: bigip_provision/provision_module.yml module="afm" level="nominal"
-#- include: bigip_provision/provision_module.yml module="avr" level="nominal"
+- include: bigip_provision/provision_module.yml module="afm" level="nominal"
+- include: bigip_provision/provision_module.yml module="avr" level="nominal"
 
 
 - include: bigip_ssl_certificate/import_certificate.yml
