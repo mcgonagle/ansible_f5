@@ -21,11 +21,11 @@ Interface setup (all untagged):
 3. intrnal vlan
 4. ha vlan
 
-Setup
------
+hosts setup
+-----------
 Setup a group of BIG-IPs in the hosts file and add one of the BIG-IPs in the master group list. this one will be handled as the master to build up the trust over it:
 
-Example:
+Example::
 
   [bigip-ha]
   10.10.86.30
@@ -34,7 +34,7 @@ Example:
   10.10.86.30
 
 Variable setup of the Group
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 Example (group_vars/bigip-ha)::
 
   ---
@@ -45,8 +45,8 @@ Example (group_vars/bigip-ha)::
 
 
 Variable setup of the master
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Example (host_vars/10.10.86.30)::
+----------------------------
+Example (host_vars/10.10.86.30):
 
   ---
   mgmt_ip: 10.10.86.30
@@ -68,8 +68,8 @@ Example (host_vars/10.10.86.30)::
   ...
 
 Variable setup of the other BIG-IP in the cluster
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Example (host_vars/10.10.86.31)::
+-------------------------------------------------
+Example (host_vars/10.10.86.31):
 
   ---
   mgmt_ip: 10.10.86.31
