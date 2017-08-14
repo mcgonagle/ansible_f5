@@ -26,23 +26,24 @@ hosts setup
 Setup a group of BIG-IPs in the hosts file and add one of the BIG-IPs in the master group list. this one will be handled as the master to build up the trust over it:
 
 Example::
-
+```
   [bigip-ha]
   10.10.86.30
   10.10.86.31
   [master]
   10.10.86.30
+´´´
 
 Variable setup of the Group
 ---------------------------
 Example (group_vars/bigip-ha)::
-
+´´´json
   ---
   ext_floating_self_ip: "10.128.10.32"
   int_floating_self_ip: "10.10.10.32"
   device_group_name: "main_dg"
   ...
-
+´´´
 
 Variable setup of the master
 ----------------------------
