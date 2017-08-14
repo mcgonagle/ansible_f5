@@ -1,0 +1,12 @@
+---
+- include_vars: bigip_user_vars.yml
+
+- name: Remove the user "{{ username_credential }}"
+  bigip_user:
+      user: "{{ username }}"
+      password: "{{ password }}"
+      server: "{{ inventory_hostname }}"
+      name: "{{ username_credential }}"
+      state: "absent"
+  delegate_to: localhost
+...

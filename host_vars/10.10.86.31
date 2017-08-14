@@ -1,0 +1,15 @@
+---
+mgmt_ip: 10.10.86.31
+
+license_key: "KIMDP-WTWAP-RXTXE-CZNAZ-PISRPAG"
+ext_self_ip: "10.128.10.31"
+ext_netmask: "255.255.255.0"
+
+int_self_ip: "10.10.10.31"
+int_netmask: "255.255.255.0"
+
+ha_self_ip: "1.1.1.31"
+ha_netmask: "255.255.255.0"
+
+hostname: "bigip-ha-b.demo.local"
+...

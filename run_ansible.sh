@@ -15,6 +15,7 @@ while test $# -gt 0; do
                         echo "--ihttp                   run the http_iApp playbook"
                         echo "--iwaf                    run the https_waf_iApp playbook"
                         echo "--iscp                    run the scp_iApp playbook"
+                        echo "--ha                      run the ha-onboarding playbook"
                         echo "--today                   run the today playbook"
                         exit 0
                         ;;
@@ -46,12 +47,12 @@ while test $# -gt 0; do
                         ansible-playbook playbooks/scp_iApp.yml --ask-vault-pass -e @password.yml -e state="present"
                         shift
                         ;;
+                --ha)
+                        ansible-playbook playbooks/ha-onboarding.yml --ask-vault-pass -e @password.yml -e state="present"
+                        shift
+                        ;;
 		--t-all)
-			ansible-playbook playbooks/onboarding.yml --ask-vault-pass -e @password.yml
-			ansible-playbook playbooks/http_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
-			ansible-playbook playbooks/https_waf_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
-			ansible-playbook playbooks/scp_iApp.yml --ask-vault-pass -e @password.yml -e state="absent"
-			ansible-playbook playbooks/operations.yml --ask-vault-pass -e @password.yml -e state="absent"
+			ansible-playbook playbooks/all.yml --ask-vault-pass -e @password.yml -e state="absent"
                         shift
                         ;;
                 -t)

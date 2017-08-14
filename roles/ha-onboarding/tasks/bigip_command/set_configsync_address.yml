@@ -1,0 +1,11 @@
+---
+- name: Set config sync address 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - modify cm device {{ hostname }} configsync-ip {{ address }}
+  delegate_to: localhost
+...
+

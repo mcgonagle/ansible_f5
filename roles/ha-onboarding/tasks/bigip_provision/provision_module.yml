@@ -1,0 +1,11 @@
+---
+- name: Provision Module(s)
+  bigip_provision:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    module: "{{ module }}"
+    level: "{{ level }}"
+    validate_certs: "no"
+  delegate_to: localhost
+...

@@ -1,0 +1,11 @@
+---
+- name: Create device group of type sync-failover
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - create cm device-group {{ device_group_name }}  devices add { {{ hostname }} {{ peer_hostname }} } type sync-failover network-failover enabled
+  when: inventory_hostname in groups['master']
+  delegate_to: localhost
+...

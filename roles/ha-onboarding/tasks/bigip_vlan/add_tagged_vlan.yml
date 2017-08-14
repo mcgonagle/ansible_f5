@@ -1,0 +1,13 @@
+---
+- name: Add VLAN "{{ tag }}" as tagged to interface "{{ tagged_interface }}" 
+  bigip_vlan:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    name: "{{ name }}"
+    tagged_interface: "{{ tagged_interface }}" 
+    tag: "{{ tag }}"
+    state: "present"
+    validate_certs: "no"
+  delegate_to: localhost
+...

@@ -1,0 +1,15 @@
+---
+- name: Check sync and failover status 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - show cm sync-status
+    wait_for:
+      - result[0] contains "green"
+    match: all
+    interval: 2
+    retries: 10
+  delegate_to: localhost
+...

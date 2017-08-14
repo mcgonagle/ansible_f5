@@ -1,0 +1,16 @@
+---
+- include_vars: bigip_user_vars.yml
+
+- name: Change the user to the advanced bash shell
+  bigip_user:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    username_credential: "{{ username_credential }}"
+    password_credential: "{{ password_credential }}"
+    full_name: "{{ full_name }}"
+    partition_access: "{{ partition_access }}"
+    shell: "bash"
+    state: "present"
+  delegate_to: localhost
+...
