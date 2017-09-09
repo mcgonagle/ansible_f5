@@ -1,0 +1,6 @@
+---
+  - hosts: bigip-ha
+    gather_facts: False
+    roles:
+      - iAppTemplate 
+...

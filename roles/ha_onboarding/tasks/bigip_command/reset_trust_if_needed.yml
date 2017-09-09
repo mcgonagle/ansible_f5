@@ -1,0 +1,72 @@
+---
+- name: Get sync and failover status, peer 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ peer_host }}"
+    commands:
+      - show cm sync-status
+  register: ha_status_start_peer
+  delegate_to: localhost
+
+- name: Output of the Result
+  debug:
+    msg:
+      - "Position: {{ha_status_start_peer.stdout[0].find('Standalone')}}"
+      - "Standalone: {{ha_status_start_peer.stdout[0].find('Standalone') != -1 }}"
+
+- name: Get sync and failover status 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - show cm sync-status
+  when:
+    - ha_status_start_peer.stdout[0].find('Standalone') != "-1"
+  register: ha_status_start
+  delegate_to: localhost
+
+- name: Output of the Result
+  debug:
+    msg:
+      - "Position: {{ha_status_start.stdout[0].find('blue')}}"
+      - "Blue: {{ha_status_start.stdout[0].find('blue') != -1 }}"
+
+- name: remove member from device-group {{ device_group_name }}
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - modify cm device-group {{ device_group_name }}  devices delete { {{ hostname }} {{ peer_hostname }} } 
+  when: ha_status_start_peer.stdout[0].find('Standalone') != -1 and ha_status_start.stdout[0].find('blue') != -1
+  delegate_to: localhost
+
+- name: remove device-group {{ device_group_name }}
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - delete cm device-group {{ device_group_name }} 
+  when: ha_status_start_peer.stdout[0].find('Standalone') != -1 and ha_status_start.stdout[0].find('blue') != -1
+  delegate_to: localhost
+
+- name: remove master from trusted peer list
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - modify cm trust-domain Root ca-devices delete { {{ peer_hostname }} }
+  when: ha_status_start_peer.stdout[0].find('Standalone') != -1 and ha_status_start.stdout[0].find('blue') != -1
+  register: peer_recovered
+  delegate_to: localhost
+
+- name: Output of the Result
+  debug:
+    msg:
+      - "Recovered: {{ peer_recovered }}"
+  when: peer_recovered is defined
+...

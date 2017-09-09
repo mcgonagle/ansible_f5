@@ -1,0 +1,23 @@
+---
+- name: Get sync status of master
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - show cm sync-status
+  when: inventory_hostname == master
+  register: sync_status
+  delegate_to: localhost
+
+- name: Perform initial sync of device-group {{ device_group_name }}
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - run cm config-sync force-full-load-push to-group {{ device_group_name }}
+  when: inventory_hostname == master and sync_status.stdout[0].find('green') == -1
+  delegate_to: localhost
+  register: sync_result
+...

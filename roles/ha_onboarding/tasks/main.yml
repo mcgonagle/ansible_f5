@@ -17,7 +17,7 @@
     - route_domain: "0" 
     - traffic_group: "traffic-group-local-only"
 
-- include: bigip_selfip/add_selfip_master.yml
+- include: bigip_selfip/add_selfip.yml
   vars:
     - name: "ext_self_floating_v4"
     - address: "{{ ext_floating_self_ip }}"
@@ -25,6 +25,7 @@
     - vlan_name: "external"
     - route_domain: "0"
     - traffic_group: "traffic-group-1"
+  when: inventory_hostname != master
 
 - include: bigip_vlan/add_untagged_vlan.yml 
   vars: 
@@ -40,7 +41,7 @@
     - route_domain: "0" 
     - traffic_group: "traffic-group-local-only"
 
-- include: bigip_selfip/add_selfip_master.yml
+- include: bigip_selfip/add_selfip.yml
   vars:
     - name: "int_self_floating_v4"
     - address: "{{ int_floating_self_ip }}"
@@ -48,6 +49,7 @@
     - vlan_name: "internal"
     - route_domain: "0"
     - traffic_group: "traffic-group-1"
+  when: inventory_hostname != master
 
 - include: bigip_vlan/add_untagged_vlan.yml
   vars:
@@ -80,31 +82,28 @@
 # Issue dhcp needs to be disabled - https://github.com/mcgonagle/ansible_f5/issues/10
 - include: bigip_device_dns/set_dns.yml name_server1="10.128.10.2" name_server2="8.8.4.4" search_domain1="localdomain" search_domain2="lab.local" 
 
-##bug -https://github.com/mcgonagle/ansible_f5/issues/11
-##- include: bigip_remote_syslog/set_syslog_server.yml remote_host="10.10.10.10" remote_port="514" local_ip="10.0.1.120"
+#- include: bigip_user/add_user.yml 
+#  vars:
+#    - username_credential: "ralf" 
+#    - password_credential: "{{ ralf_password }}" 
+#    - full_name: "ralf Bruenig" 
+#    - partition_access: "all:admin" 
+#    - update_password: "on_create"
 
-- include: bigip_user/add_user.yml 
-  vars:
-    - username_credential: "ralf" 
-    - password_credential: "{{ ralf_password }}" 
-    - full_name: "ralf Bruenig" 
-    - partition_access: "all:admin" 
-    - update_password: "on_create"
+#- include: bigip_user/add_user.yml 
+#  vars: 
+#    - username_credential: "bob" 
+#    - password_credential: "{{ bob_password }}" 
+#    - full_name: "Bob Bob" 
+#    - partition_access: "Common:operator" 
+#    - update_password: "on_create"
 
-- include: bigip_user/add_user.yml 
-  vars: 
-    - username_credential: "bob" 
-    - password_credential: "{{ bob_password }}" 
-    - full_name: "Bob Bob" 
-    - partition_access: "Common:operator" 
-    - update_password: "on_create"
-
-- include: bigip_provision/provision_module.yml module="asm" level="nominal"
-- include: bigip_provision/provision_module.yml module="afm" level="nominal"
-- include: bigip_provision/provision_module.yml module="avr" level="nominal"
+#- include: bigip_provision/provision_module.yml module="asm" level="nominal"
+#- include: bigip_provision/provision_module.yml module="afm" level="nominal"
+#- include: bigip_provision/provision_module.yml module="avr" level="nominal"
 
 
-- include: bigip_ssl_certificate/import_certificate.yml
+#- include: bigip_ssl_certificate/import_certificate.yml
 
 - include: bigip_command/set_gui_idle-timeout.yml
   vars:
@@ -119,6 +118,9 @@
 
 ##########
 # HA Setup
+
+## Check if master need to be restored. If so, remove trust on remaining devices.
+- include: bigip_command/reset_trust_if_needed.yml
 
 - include: bigip_command/set_configsync_address.yml
   vars:
@@ -137,9 +139,19 @@
 
 - include: bigip_command/create_device_group.yml
 
-- include: bigip_command/initial_config_sync.yml
+## Sync config to peer, if the peer needs to be recovered
+- include: bigip_command/initial_config_sync_after_rebuild.yml
+  when: peer_recovered is defined and peer_recovered.changed
+- include: bigip_command/initial_config_sync_after_rebuild.yml
+  when: peer_recovered is defined and peer_recovered.changed
+  vars:
+    - device_group_name: "datasync-global-dg"
+- include: bigip_command/check_sync_status.yml
+  when: peer_recovered is defined and peer_recovered.changed
 
-- include: bigip_command/initial_config_sync.yml
+# Sync if the peer is created new
+- include: bigip_command/initial_config_sync_if_needed.yml
+- include: bigip_command/initial_config_sync_if_needed.yml
   vars:
     - device_group_name: "datasync-global-dg"
 

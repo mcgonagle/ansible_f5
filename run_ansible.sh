@@ -15,7 +15,7 @@ while test $# -gt 0; do
                         echo "--ihttp                   run the http_iApp playbook"
                         echo "--iwaf                    run the https_waf_iApp playbook"
                         echo "--iscp                    run the scp_iApp playbook"
-                        echo "--ha                      run the ha-onboarding playbook"
+                        echo "--ha                      run the ha_onboarding playbook"
                         echo "--today                   run the today playbook"
                         exit 0
                         ;;
@@ -48,7 +48,7 @@ while test $# -gt 0; do
                         shift
                         ;;
                 --ha)
-                        ansible-playbook playbooks/ha-onboarding.yml --ask-vault-pass -e @password.yml -e state="present"
+                        ansible-playbook playbooks/ha_onboarding.yml --ask-vault-pass -e @password.yml -e state="present"
                         shift
                         ;;
 		--t-all)

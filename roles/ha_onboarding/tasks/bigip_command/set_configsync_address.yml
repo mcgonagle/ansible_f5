@@ -1,5 +1,5 @@
 ---
-- name: Set config sync address 
+- name: Set config sync address  
   bigip_command:
     user: "{{ username }}"
     password: "{{ password }}"
