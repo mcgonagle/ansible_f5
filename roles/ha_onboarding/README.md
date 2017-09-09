@@ -77,7 +77,7 @@ Example Playbook
     - hosts: all
       gather_facts: False
       roles:
-        - ha-operations
+        - ha_operations
 ```
 
 License
