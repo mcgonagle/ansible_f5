@@ -1,0 +1,25 @@
+---
+hostname: "RaB-ha-a.demo.local"
+vcmp_guest_name: "RaB_ha_a"
+
+mgmt_ip: "172.29.86.64"
+mgmt_net: "24"
+mgmt_gateway: "172.29.86.1"
+
+peer_host: "172.29.86.65"
+peer_hostname: "bigip-ha-b.demo.local"
+
+# Host information
+vcmp_host: "172.29.86.240"
+trunk_name: "1.1"
+cores_per_slot: "2"
+ 
+# IP Setting for the guest
+ext_self_ip: "172.29.82.64"
+ext_netmask: "255.255.255.0"
+ext_gateway: "172.29.82.1"
+int_self_ip: "10.82.64.1"
+int_netmask: "255.0.0.0"
+ha_self_ip: "1.1.1.64"
+ha_netmask: "255.255.255.0"
+...

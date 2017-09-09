@@ -1,0 +1,19 @@
+---
+master: "172.29.86.64"
+device_group_name: "main_dg"
+
+image: "BIGIP-12.1.1.0.0.184.iso"
+hotfix: "none"
+
+# Vlans of the guest
+ext_vlan_name: "external_82"
+ext_vlan_tag: "82"
+int_vlan_name: "internal"
+int_vlan_tag: "10"
+ha_vlan_name: "ha"
+ha_vlan_tag: "112"
+
+# floating self ips
+ext_floating_self_ip: "172.29.82.60"
+int_floating_self_ip: "10.82.64.2"
+...

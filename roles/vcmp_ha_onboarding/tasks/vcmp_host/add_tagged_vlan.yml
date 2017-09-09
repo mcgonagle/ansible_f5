@@ -1,0 +1,13 @@
+---
+- name: Add VLAN {{ name }} as tagged ({{ tag }}) to interface {{ trunk_name }} 
+  bigip_vlan:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ vcmp_host }}"
+    name: "{{ name }}"
+    tagged_interface: "{{ trunk_name }}" 
+    tag: "{{ tag }}"
+    state: "present"
+    validate_certs: "no"
+  delegate_to: localhost
+...

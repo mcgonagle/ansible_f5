@@ -1,0 +1,15 @@
+---
+- name: Create vcmp guest "{{ vcmp_guest_name }}"
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ vcmp_host }}"
+    commands:
+    - create vcmp guest {{ vcmp_guest_name }} management-ip {{ mgmt_ip }}/{{ mgmt_net }} management-gw {{ mgmt_gateway }} hostname {{ hostname }} vlans add { {{ ext_vlan_name }} {{ int_vlan_name }} {{ ha_vlan_name }} } cores-per-slot {{ cores_per_slot }} initial-image {{ image }} initial-hotfix {{ hotfix }} state deployed 
+  delegate_to: localhost
+  register: resp
+
+- name: Debug Message
+  debug:
+    msg: "Response: {{ resp }}"
+...

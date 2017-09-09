@@ -1,0 +1,15 @@
+---
+- name: Check guest status 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ vcmp_host }}"
+    commands:
+      - show vcmp guest {{ vcmp_guest_name }}
+    wait_for:
+      - result[0] contains "running"
+    match: all
+    interval: 5
+    retries: 60
+  delegate_to: localhost
+...
