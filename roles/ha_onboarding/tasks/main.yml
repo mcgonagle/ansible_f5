@@ -1,7 +1,7 @@
 ---
 - include: bigip_license/license.yml 
   vars:
-    - key: "G0759-89928-41864-66754-5574207"
+    - key: "{{ license_key }}"
 
 - include: bigip_vlan/add_untagged_vlan.yml 
   vars:
