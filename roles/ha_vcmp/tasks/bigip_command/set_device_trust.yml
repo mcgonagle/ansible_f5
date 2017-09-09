@@ -1,0 +1,11 @@
+---
+- name: Discover device for trust
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - modify cm trust-domain Root ca-devices add { {{ peer_host }} } name {{ peer_hostname }} username {{ username }}  password {{ password }}
+  when: inventory_hostname != master
+  delegate_to: localhost
+...

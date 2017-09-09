@@ -1,0 +1,10 @@
+---
+- name: Perform initial sync of device-group {{ device_group_name }} after rebuild of trust 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - run cm config-sync force-full-load-push to-group {{ device_group_name }}
+  delegate_to: localhost
+...

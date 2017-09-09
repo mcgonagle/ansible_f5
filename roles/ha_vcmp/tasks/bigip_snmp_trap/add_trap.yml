@@ -1,0 +1,14 @@
+---
+- name: Add a snmp trap
+  bigip_snmp_trap:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    name: "{{ name }}"
+    community: "{{ community }}"
+    destination: "{{ destination }}"
+    snmp_version: "{{ snmp_version }}"
+    state: "present"
+    validate_certs: "no"
+  delegate_to: localhost
+...

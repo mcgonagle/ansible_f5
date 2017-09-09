@@ -1,0 +1,15 @@
+---
+- name: Add self IP
+  bigip_selfip:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    name: "{{ name }}"
+    address: "{{ address }}"
+    netmask: "{{ netmask }}"
+    vlan: "{{ vlan_name }}"
+    route_domain: "{{ route_domain }}"
+    traffic_group: "{{ traffic_group }}"
+    validate_certs: "no"
+  delegate_to: localhost
+...

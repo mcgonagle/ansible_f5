@@ -1,0 +1,17 @@
+---
+- include_vars: bigip_user_vars.yml
+
+- name: Change the user "{{ username_credential }}" role and shell
+  bigip_user:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    username_credential: "{{ username_credential }}"
+    password_credential: "{{ password_credential }}"
+    full_name: "{{ full_name }}"
+    partition_access: "{{ partition_access }}"
+    update_password: "{{ update_password }}"
+    shell: "tmsh"
+    state: "present"
+  delegate_to: localhost
+...

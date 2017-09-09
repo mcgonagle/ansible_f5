@@ -1,0 +1,12 @@
+---
+- name: Add remote syslog server
+  bigip_remote_syslog:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    remote_host: "{{ remote_host }}" 
+    remote_port: "{{ remote_port }}" 
+    local_ip: "{{ local_ip }}"
+    validate_certs: "no"
+  delegate_to: localhost
+...

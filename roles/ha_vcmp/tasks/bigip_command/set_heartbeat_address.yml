@@ -1,0 +1,10 @@
+---
+- name: Set unicast haertbeat address 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - modify cm device {{ hostname }} unicast-address { { ip {{ address }} } { ip {{ mgmt_address }} } }
+  delegate_to: localhost
+...
