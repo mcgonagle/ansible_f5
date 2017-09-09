@@ -18,35 +18,37 @@ BIG-IP VE requirements
 Interface setup (all untagged):
 1. mgmt vlan
 2. external vlan
-3. intrnal vlan
+3. internal vlan
 4. ha vlan
 
 hosts setup
 -----------
-Setup a group of BIG-IPs in the hosts file and add one of the BIG-IPs in the master group list. this one will be handled as the master to build up the trust over it:
+Setup a group of BIG-IPs in the hosts file with the mgmt IPs of the devices of the ha-pair. This one will be handled as the master to build up the trust over it:
 
 Example::
 ```
-  [bigip-ha]
-  10.10.86.30
-  10.10.86.31
-  [master]
-  10.10.86.30
+[bigip-ha]
+10.10.86.30
+10.10.86.31
 ```
 
 Variable setup of the Group
 ---------------------------
+
+In the group_vars directory we create a file for the group to specify global vars for floating self IPs and device group name. The master will define the devise from which we will create the trust and need to be the mgmt IP of this device.
+
 Example (group_vars/bigip-ha):
 ```json
   ---
+  master: "10.10.86.30"
   ext_floating_self_ip: "10.128.10.32"
   int_floating_self_ip: "10.10.10.32"
   device_group_name: "main_dg"
   ...
 ```
 
-Variable setup of the master
-----------------------------
+Variable setup of the devices
+-----------------------------
 Example (host_vars/10.10.86.30):
 ```
   ---
@@ -66,27 +68,6 @@ Example (host_vars/10.10.86.30):
 
   peer_host: "10.10.86.31"
   peer_hostname: "bigip-ha-b.demo.local"
-  ...
-```
-
-Variable setup of the other BIG-IP in the cluster
--------------------------------------------------
-Example (host_vars/10.10.86.31):
-```
-  ---
-  mgmt_ip: 10.10.86.31
-
-  license_key: "KIMDP-WTWAP-RXTXE-CZNAZ-PISRPAG"
-  ext_self_ip: "10.128.10.31"
-  ext_netmask: "255.255.255.0"
-
-  int_self_ip: "10.10.10.31"
-  int_netmask: "255.255.255.0"
-
-  ha_self_ip: "1.1.1.31"
-  ha_netmask: "255.255.255.0"
-
-  hostname: "bigip-ha-b.demo.local"
   ...
 ```
 
