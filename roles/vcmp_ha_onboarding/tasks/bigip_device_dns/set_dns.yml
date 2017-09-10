@@ -4,12 +4,8 @@
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
-    name_servers:
-        - "{{ name_server1 }}"
-        - "{{ name_server2 }}"
-    search:
-        - "{{ search_domain1 }}"
-        - "{{ search_domain2 }}"
+    name_servers: "{{ name_server }}"
+    search: "{{ search_domain }}"
     ip_version: "4"
     validate_certs: "no"
   delegate_to: localhost

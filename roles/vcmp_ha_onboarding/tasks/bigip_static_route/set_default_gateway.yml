@@ -1,0 +1,10 @@
+- name: Set default gateway
+  bigip_static_route:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ peer_host }}"
+    destination: "0.0.0.0"
+    gateway_address: "{{ ext_gateway }}"
+    name: "v4_default_gw"
+    validate_certs: "no"
+  delegate_to: localhost

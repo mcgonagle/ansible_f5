@@ -17,49 +17,104 @@
 - include: vcmp_host/create_vcmp_guest.yml
 - include: vcmp_host/check_guest_status.yml
 
-#- include: bigip_device_ntp/set_ntp_server.yml 
-#  vars: 
-#    - ntp_server1: "0.de.pool.ntp.org" 
-#    - ntp_server2: "1.de.pool.ntp.org"
+- include: bigip_device_ntp/set_ntp_server.yml 
+  vars: 
+    - ntp_server1: "0.de.pool.ntp.org" 
+    - ntp_server2: "1.de.pool.ntp.org"
 
-#- include: bigip_device_ntp/set_timezone.yml 
-#  vars:
-#    - timezone: "Europe/Berlin"
+- include: bigip_device_ntp/set_timezone.yml 
+  vars:
+    - timezone: "Europe/Berlin"
 
 # Issue dhcp needs to be disabled - https://github.com/mcgonagle/ansible_f5/issues/10
-#- include: bigip_device_dns/set_dns.yml name_server1="10.128.10.2" name_server2="8.8.4.4" search_domain1="localdomain" search_domain2="lab.local" 
+- include: bigip_device_dns/set_dns.yml
+  vars:
+    - name_server:
+      - "192.168.168.180"
+      - "192.168.168.181"
+    - search_domain:
+      - "lab.local"
 
-#- include: bigip_user/add_user.yml 
-#  vars:
-#    - username_credential: "ralf" 
-#    - password_credential: "{{ ralf_password }}" 
-#    - full_name: "ralf Bruenig" 
-#    - partition_access: "all:admin" 
-#    - update_password: "on_create"
+- include: bigip_user/add_user.yml 
+  vars:
+    - username_credential: "ralf" 
+    - password_credential: "{{ ralf_password }}" 
+    - full_name: "ralf Bruenig" 
+    - partition_access: "all:admin" 
+    - update_password: "on_create"
 
-#- include: bigip_user/add_user.yml 
-#  vars: 
-#    - username_credential: "bob" 
-#    - password_credential: "{{ bob_password }}" 
-#    - full_name: "Bob Bob" 
-#    - partition_access: "Common:operator" 
-#    - update_password: "on_create"
+- include: bigip_user/add_user.yml 
+  vars: 
+    - username_credential: "bob" 
+    - password_credential: "{{ bob_password }}" 
+    - full_name: "Bob Bob" 
+    - partition_access: "Common:operator" 
+    - update_password: "on_create"
 
 #- include: bigip_provision/provision_module.yml module="asm" level="nominal"
 #- include: bigip_provision/provision_module.yml module="afm" level="nominal"
 #- include: bigip_provision/provision_module.yml module="avr" level="nominal"
 
 
-#- include: bigip_ssl_certificate/import_certificate.yml
+- include: bigip_ssl_certificate/import_certificate.yml
 
-#- include: bigip_command/set_gui_idle-timeout.yml
-#  vars:
-#    - gui_idle_timeout: 7200
+- include: bigip_command/set_gui_idle-timeout.yml
+  vars:
+    - gui_idle_timeout: 7200
 
-#- include: bigip_sys_db/set_records-per-screen.yml
-#  vars:
-#    - records_per_screen: 100
+- include: bigip_sys_db/set_records-per-screen.yml
+  vars:
+    - records_per_screen: 100
 
-#- include: bigip_sys_global/set_gui_setup.yml
+- include: bigip_sys_global/set_gui_setup.yml
+
+- include: bigip_selfip/add_selfip.yml
+  vars:
+    - name: "ext_self_v4"
+    - address: "{{ ext_self_ip }}"
+    - netmask: "{{ ext_netmask }}"
+    - vlan_name: "{{ ext_vlan_name }}"
+    - route_domain: "0"
+    - traffic_group: "traffic-group-local-only"
+
+- include: bigip_selfip/add_selfip.yml
+  vars:
+    - name: "ext_self_floating_v4"
+    - address: "{{ ext_floating_self_ip }}"
+    - netmask: "{{ ext_netmask }}"
+    - vlan_name: "{{ ext_vlan_name }}"
+    - route_domain: "0"
+    - traffic_group: "traffic-group-1"
+  when: inventory_hostname != master
+
+#- include: bigip_static_route/set_default_gateway.yml
+
+- include: bigip_selfip/add_selfip.yml
+  vars:
+    - name: "int_self_v4"
+    - address: "{{ int_self_ip }}"
+    - netmask: "{{ int_netmask }}"
+    - vlan_name: "{{ int_vlan_name }}"
+    - route_domain: "0"
+    - traffic_group: "traffic-group-local-only"
+
+- include: bigip_selfip/add_selfip.yml
+  vars:
+    - name: "int_self_floating_v4"
+    - address: "{{ int_floating_self_ip }}"
+    - netmask: "{{ int_netmask }}"
+    - vlan_name: "{{ int_vlan_name }}"
+    - route_domain: "0"
+    - traffic_group: "traffic-group-1"
+  when: inventory_hostname != master
+
+- include: bigip_selfip/add_selfip.yml
+  vars:
+    - name: "ha_self_v4"
+    - address: "{{ ha_self_ip }}"
+    - netmask: "{{ ha_netmask }}"
+    - vlan_name: "{{ ha_vlan_name }}"
+    - route_domain: "0"
+    - traffic_group: "traffic-group-local-only"
 
 ...
