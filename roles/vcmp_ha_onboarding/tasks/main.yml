@@ -35,11 +35,14 @@
     - search_domain:
       - "lab.local"
 
+# Set hostname for HA
+#- include: bigip_hostname/set_hostname.yml
+
 - include: bigip_user/add_user.yml 
   vars:
     - username_credential: "ralf" 
     - password_credential: "{{ ralf_password }}" 
-    - full_name: "ralf Bruenig" 
+    - full_name: "Ralf Bruenig" 
     - partition_access: "all:admin" 
     - update_password: "on_create"
 
@@ -85,9 +88,11 @@
     - vlan_name: "{{ ext_vlan_name }}"
     - route_domain: "0"
     - traffic_group: "traffic-group-1"
-  when: inventory_hostname != master
+  when: inventory_hostname == master
 
+## "failed": true, "msg": "Could not find imported module support code for bigip_static_route.  Looked for either BOOLEANS_TRUE.py or convert_bool.py"
 #- include: bigip_static_route/set_default_gateway.yml
+- include: bigip_static_route/set_default_gateway_tmsh.yml
 
 - include: bigip_selfip/add_selfip.yml
   vars:
@@ -106,7 +111,7 @@
     - vlan_name: "{{ int_vlan_name }}"
     - route_domain: "0"
     - traffic_group: "traffic-group-1"
-  when: inventory_hostname != master
+  when: inventory_hostname == master
 
 - include: bigip_selfip/add_selfip.yml
   vars:
@@ -116,5 +121,54 @@
     - vlan_name: "{{ ha_vlan_name }}"
     - route_domain: "0"
     - traffic_group: "traffic-group-local-only"
+
+##########
+# HA Setup
+
+# This is needed for vcmp guests, since the device name is by default bigip1 and not the hostname.
+- include: bigip_command/modify_device_name.yml
+
+## Check if master need to be restored. If so, remove trust on remaining devices.
+- include: bigip_command/reset_trust_if_needed.yml
+
+- include: bigip_command/set_configsync_address.yml
+  vars:
+    - address: "{{ int_self_ip }}"
+
+- include: bigip_command/set_heartbeat_address.yml
+  vars:
+    - address: "{{ ha_self_ip }}"
+    - mgmt_address: "{{ mgmt_ip }}"
+
+- include: bigip_command/set_mirroring_address.yml
+  vars:
+    - address: "{{ int_self_ip }}"
+
+- include: bigip_command/set_device_trust.yml
+
+- include: bigip_command/create_device_group.yml
+
+## Sync config to peer, if the peer needs to be recovered
+- include: bigip_command/initial_config_sync_after_rebuild.yml
+  when: peer_recovered is defined and peer_recovered.changed
+- include: bigip_command/initial_config_sync_after_rebuild.yml
+  when: peer_recovered is defined and peer_recovered.changed
+  vars:
+    - device_group_name: "datasync-global-dg"
+- include: bigip_command/check_sync_status.yml
+  when: peer_recovered is defined and peer_recovered.changed
+
+# Sync if the peer is created new
+- include: bigip_command/initial_config_sync_if_needed.yml
+- include: bigip_command/initial_config_sync_if_needed.yml
+  vars:
+    - device_group_name: "datasync-global-dg"
+
+- include: bigip_command/check_sync_status.yml
+
+- include: bigip_command/check_ha_status.yml
+
+# HA setup - end
+################
 
 ...

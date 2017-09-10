@@ -1,0 +1,8 @@
+- name: Set default gateway
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - create net route v4_default_gw network 0.0.0.0/0 gw {{ ext_gateway }}
+  delegate_to: localhost

@@ -1,0 +1,6 @@
+---
+  - hosts: vcmp-ha
+    gather_facts: False
+    roles:
+      - iAppTemplate 
+...

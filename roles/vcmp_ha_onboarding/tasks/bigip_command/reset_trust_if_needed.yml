@@ -30,8 +30,9 @@
 - name: Output of the Result
   debug:
     msg:
-      - "Position: {{ha_status_start.stdout[0].find('blue')}}"
+      - "Position: {{ha_status_start.stdout[0].find('Disconnected')}}"
       - "Blue: {{ha_status_start.stdout[0].find('blue') != -1 }}"
+      - "Disconnected: {{ha_status_start.stdout[0].find('Disconnected') != -1 }}"
 
 - name: remove member from device-group {{ device_group_name }}
   bigip_command:

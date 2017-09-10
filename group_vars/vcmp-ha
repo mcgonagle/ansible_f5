@@ -2,7 +2,9 @@
 master: "172.29.86.64"
 device_group_name: "main_dg"
 
-image: "BIGIP-12.1.1.0.0.184.iso"
+#image: "BIGIP-13.0.0.0.0.1645.iso"
+image: "BIGIP-12.1.2.0.0.249.iso"
+#image: "BIGIP-12.1.1.0.0.184.iso"
 hotfix: "none"
 
 # Vlans of the guest

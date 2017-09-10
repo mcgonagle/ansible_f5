@@ -1,0 +1,14 @@
+---
+- name: Add trusts for all peer devices to Active device
+  bigip_device_trust:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    peer_server: "{{ peer_host }}"
+    peer_hostname: "{{ peer_hostname }}"
+    peer_user: "{{ username }}"
+    peer_password: "{{ password }}"
+#  validate_certs: "no"
+  when: inventory_hostname == master
+  delegate_to: localhost
+...

@@ -1,0 +1,30 @@
+---
+- name: get device name
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - show cm device field-fmt
+  delegate_to: localhost
+  register: device_list
+
+- name: set facts
+  set_fact:
+    device_name: "{{ device_list.stdout[0].split(' ')[2] }}"
+
+- name: Result output
+  debug:
+    msg:
+      - "device -> {{ device_name }}"
+
+- name: Adapt Device Name from {{ device_name }} to {{ hostname }}
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+      - mv cm device bigip1 {{ hostname }} 
+  when: device_name == "bigip1"
+  delegate_to: localhost
+...

@@ -10,5 +10,6 @@
     partition_access: "{{ partition_access }}"
     update_password: "{{ update_password }}"
     state: "present"
+    validate_certs: "no"
   delegate_to: localhost
 ...

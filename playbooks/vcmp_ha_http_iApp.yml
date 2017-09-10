@@ -1,0 +1,37 @@
+###############################################################
+# https deployment with optimizations and LAMP WAF protection #
+###############################################################
+#
+# network:
+# - SNAT
+# - TCP full proxy
+# - Additional IPv4/IPv6 address (optional)
+# 
+# LB:
+# - Method: least connections
+# - Persistence: cookie, fallback is source address
+#
+# http feature:
+# - X-Forwarded-For header
+# - Default http monitor
+---
+  - hosts: vcmp-ha
+    gather_facts: False
+    roles:
+      - iAppService
+    vars:
+      - app_name: "http_app_22"
+      - vip: "10.128.10.22"
+      - vip_2: "2011:f5::10:128:10:22"
+      - members:
+        -
+          ip: "10.10.10.211"
+          port: "80"
+        -
+          ip: "10.10.10.212"
+          port: "80"
+
+## don't touch: ##
+      - f5template: "appsvcs_integration_v2.0.004_waf"
+      - j2template: "appsvcs_http"
+...

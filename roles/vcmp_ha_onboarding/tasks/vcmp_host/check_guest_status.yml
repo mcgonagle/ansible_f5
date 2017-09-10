@@ -10,6 +10,10 @@
       - result[0] contains "running"
     match: all
     interval: 5
-    retries: 60
+    retries: 120
   delegate_to: localhost
+
+- name: Delay for 10 seconds
+  pause:
+    seconds: 10
 ...
