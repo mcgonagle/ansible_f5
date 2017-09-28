@@ -10,6 +10,7 @@
       - result[0] contains "green"
     match: all
     interval: 2
-    retries: 10
+    retries: 15
+    validate_certs: "no"
   delegate_to: localhost
 ...

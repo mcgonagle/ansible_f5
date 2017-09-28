@@ -1,0 +1,6 @@
+---
+- name: sleep for {{ delay }} seconds and continue with play
+  wait_for:
+    timeout: "{{ delay }}" 
+  delegate_to: localhost
+...

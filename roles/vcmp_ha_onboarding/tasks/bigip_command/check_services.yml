@@ -1,16 +1,17 @@
 ---
-- name: Check ha status 
+# bigd is one of the last daemon to get active
+- name: Check if services are available
   bigip_command:
     user: "{{ username }}"
     password: "{{ password }}"
     server: "{{ inventory_hostname }}"
     commands:
-      - show cm sync-status
+      - show sys service bigd
     wait_for:
-      - result[0] contains "high-availability"
+      - result[0] contains "run"
     match: all
     interval: 2
-    retries: 10
+    retries: 60
     validate_certs: "no"
   delegate_to: localhost
 ...

@@ -1,0 +1,10 @@
+---
+- name: ping peer {{ address }} for arp update 
+  bigip_command:
+    user: "{{ username }}"
+    password: "{{ password }}"
+    server: "{{ inventory_hostname }}"
+    commands:
+    - run util ping -c2 {{ address }}
+  delegate_to: localhost
+...

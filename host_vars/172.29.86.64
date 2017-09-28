@@ -10,7 +10,7 @@ peer_host: "172.29.86.65"
 peer_hostname: "RaB-ha-b.demo.local"
 
 # Host information
-vcmp_host: "172.29.86.242"
+vcmp_host: "172.29.86.240"
 trunk_name: "1.1"
 cores_per_slot: "2"
  

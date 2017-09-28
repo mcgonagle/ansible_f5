@@ -1,5 +1,5 @@
 ---
-# Create vlans
+# Create vlans on host
 - include: vcmp_host/add_tagged_vlan.yml 
   vars:
     - name: "{{ ext_vlan_name }}" 
@@ -16,6 +16,10 @@
 # Create Guest
 - include: vcmp_host/create_vcmp_guest.yml
 - include: vcmp_host/check_guest_status.yml
+- include: delay.yml
+  vars:
+    - delay: "3"
+- include: bigip_command/check_services.yml
 
 - include: bigip_device_ntp/set_ntp_server.yml 
   vars: 
@@ -26,17 +30,13 @@
   vars:
     - timezone: "Europe/Berlin"
 
-# Issue dhcp needs to be disabled - https://github.com/mcgonagle/ansible_f5/issues/10
 - include: bigip_device_dns/set_dns.yml
   vars:
     - name_server:
       - "192.168.168.180"
       - "192.168.168.181"
     - search_domain:
-      - "lab.local"
-
-# Set hostname for HA
-#- include: bigip_hostname/set_hostname.yml
+      - "lab.muc.f5net.com"
 
 - include: bigip_user/add_user.yml 
   vars:
@@ -128,7 +128,7 @@
 # This is needed for vcmp guests, since the device name is by default bigip1 and not the hostname.
 - include: bigip_command/modify_device_name.yml
 
-## Check if master need to be restored. If so, remove trust on remaining devices.
+## Check, if one system need to be restored. If so, remove trust on remaining devices.
 - include: bigip_command/reset_trust_if_needed.yml
 
 - include: bigip_command/set_configsync_address.yml
@@ -149,6 +149,9 @@
 - include: bigip_command/create_device_group.yml
 
 ## Sync config to peer, if the peer needs to be recovered
+- include: ping.yml
+  vars:
+    - address: "{{ int_self_ip }}"
 - include: bigip_command/initial_config_sync_after_rebuild.yml
   when: peer_recovered is defined and peer_recovered.changed
 - include: bigip_command/initial_config_sync_after_rebuild.yml
@@ -158,14 +161,24 @@
 - include: bigip_command/check_sync_status.yml
   when: peer_recovered is defined and peer_recovered.changed
 
-# Sync if the peer is created new
+# debug:
+#- name: Result output
+#  debug:
+#    msg:
+#      - changed: "{{ peer_recovered.changed }}"
+#  when: peer_recovered is defined
+
+
+# Sync if devices are not in sync and peer was not recovered
 - include: bigip_command/initial_config_sync_if_needed.yml
+  when: peer_recovered is not defined or ( peer_recovered is defined and not peer_recovered.changed )
 - include: bigip_command/initial_config_sync_if_needed.yml
   vars:
     - device_group_name: "datasync-global-dg"
+  when: peer_recovered is not defined or ( peer_recovered is defined and not peer_recovered.changed )
 
+# Final check of the ha status
 - include: bigip_command/check_sync_status.yml
-
 - include: bigip_command/check_ha_status.yml
 
 # HA setup - end

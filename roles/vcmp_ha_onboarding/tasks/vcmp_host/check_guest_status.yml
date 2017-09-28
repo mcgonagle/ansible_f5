@@ -11,9 +11,11 @@
     match: all
     interval: 5
     retries: 120
+    validate_certs: "no"
   delegate_to: localhost
 
-- name: Delay for 10 seconds
-  pause:
-    seconds: 10
+# Even with 10 seconds I run into issues, so I increased it to 20
+#- name: Delay for 20 seconds
+#  pause:
+#    seconds: 20
 ...
