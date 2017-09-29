@@ -1,0 +1,16 @@
+---
+- name: Poll BIG-IP READY
+  uri:
+    url: "https://{{ inventory_hostname }}//mgmt/tm/sys/ready/stats"
+    status_code: 200
+    timeout: 300
+    user: "{{ username }}"
+    password: "{{ password }}"
+    validate_certs: "no"
+    return_content: yes
+  until: bigip_ready.status == 200 and bigip_ready.json.X.X.ready == 'yes'
+  retries: 20
+  delay: 10
+  register: bigip_ready
+  tags: bigip_ready
+...
