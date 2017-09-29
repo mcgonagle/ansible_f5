@@ -35,7 +35,7 @@ Example::
 Variable setup of the Group
 ---------------------------
 
-In the group_vars directory we create a file for the group to specify global vars for floating self IPs and device group name. The master will define the devise from which we will create the trust and need to be the mgmt IP of this device.
+In the group_vars directory we create a file for the group to specify global vars for floating self IPs and device group name. The master will define the mgmt ip of the devise from which we will create the trust.
 
 Example (group_vars/bigip-ha):
 ```json
