@@ -1,7 +1,8 @@
 ---
-- include: bigip_license/license.yml 
-  vars:
-    - key: "{{ license_key }}"
+# Target is Ansible v2.5
+#- include: bigip_license/license.yml 
+#  vars:
+#    - key: "{{ license_key }}"
 
 - include: bigip_vlan/add_untagged_vlan.yml 
   vars:

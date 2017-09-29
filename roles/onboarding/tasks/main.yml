@@ -1,7 +1,8 @@
 ---
-- include: bigip_license/license.yml 
-  vars:
-    - key: "G0759-89928-41864-66754-5574207"
+# Targeted for Ansilbe v2.5
+#- include: bigip_license/license.yml 
+#  vars:
+#    - key: "G0759-89928-41864-66754-5574207"
 
 - include: bigip_vlan/add_untagged_vlan.yml 
   vars:
