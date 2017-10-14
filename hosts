@@ -1,2 +1,2 @@
 [aws]
-54.236.7.143
+34.201.120.195 ansible_python_interpreter=/var/lib/awx/venv/awx/bin/python
