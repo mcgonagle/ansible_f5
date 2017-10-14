@@ -1,30 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
-    'metadata_version': '1.0'
+    'metadata_version': '1.1'
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = r'''
 ---
 module: bigip_vlan
 short_description: Manage VLANs on a BIG-IP system
@@ -40,27 +30,24 @@ options:
       - Specifies a list of tagged interfaces and trunks that you want to
         configure for the VLAN. Use tagged interfaces or trunks when
         you want to assign a single interface or trunk to multiple VLANs.
-    required: false
     aliases:
       - tagged_interface
   untagged_interfaces:
     description:
       - Specifies a list of untagged interfaces and trunks that you want to
         configure for the VLAN.
-    required: false
     aliases:
       - untagged_interface
   name:
     description:
       - The VLAN to manage. If the special VLAN C(ALL) is specified with
         the C(state) value of C(absent) then all VLANs will be removed.
-    required: true
+    required: True
   state:
     description:
       - The state of the VLAN on the system. When C(present), guarantees
         that the VLAN exists with the provided attributes. When C(absent),
         removes the VLAN from the system.
-    required: false
     default: present
     choices:
       - absent
@@ -82,7 +69,7 @@ author:
   - Wojciech Wypior (@wojtek0806)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Create VLAN
   bigip_vlan:
       name: "net1"
@@ -127,7 +114,7 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
-RETURN = '''
+RETURN = r'''
 description:
     description: The description set on the VLAN
     returned: changed
@@ -155,7 +142,17 @@ tag:
     sample: 2345
 '''
 
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+from ansible.module_utils.six import iteritems
+from collections import defaultdict
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+except ImportError:
+    HAS_F5SDK = False
 
 
 class Parameters(AnsibleF5Parameters):
@@ -217,9 +214,9 @@ class Parameters(AnsibleF5Parameters):
         value = self._values['tagged_interfaces']
         if value is None:
             return None
-        self._parse_return_ifcs()
+        ifcs = self._parse_return_ifcs()
         for ifc in value:
-            if ifc not in self.ifcs:
+            if ifc not in ifcs:
                 err = 'The specified interface "%s" was not found' % ifc
                 raise F5ModuleError(err)
         return value
@@ -229,9 +226,9 @@ class Parameters(AnsibleF5Parameters):
         value = self._values['untagged_interfaces']
         if value is None:
             return None
-        self._parse_return_ifcs()
+        ifcs = self._parse_return_ifcs()
         for ifc in value:
-            if ifc not in self.ifcs:
+            if ifc not in ifcs:
                 err = 'The specified interface "%s" was not found' % ifc
                 raise F5ModuleError(err)
         return value
@@ -241,14 +238,12 @@ class Parameters(AnsibleF5Parameters):
         return lst
 
     def _parse_return_ifcs(self):
-        if self.ifcs is not None:
-            return
         ifclst = self._get_interfaces_from_device()
         ifcs = [str(x.name) for x in ifclst]
         if not ifcs:
             err = 'No interfaces were found'
             raise F5ModuleError(err)
-        self.ifcs = ifcs
+        return ifcs
 
     def to_return(self):
         result = {}
@@ -409,24 +404,15 @@ class ArgumentSpec(object):
                 required=True,
             ),
             tagged_interfaces=dict(
-                required=False,
-                default=None,
                 type='list',
                 aliases=['tagged_interface']
             ),
             untagged_interfaces=dict(
-                required=False,
-                default=None,
                 type='list',
                 aliases=['untagged_interface']
             ),
-            description=dict(
-                required=False,
-                default=None
-            ),
+            description=dict(),
             tag=dict(
-                required=False,
-                default=None,
                 type='int'
             )
         )
@@ -454,6 +440,7 @@ def main():
         client.module.exit_json(**results)
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()

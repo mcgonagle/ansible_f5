@@ -1,27 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
-    'metadata_version': '1.0'
+    'metadata_version': '1.1'
 }
 
 DOCUMENTATION = '''
@@ -38,8 +28,6 @@ options:
         device. This is usually included in the template itself. This
         option is typically used in cases where the template no longer
         exists on disk (to reference) and the C(state) is C(absent).
-    required: False
-    default: None
   template_content:
     description:
       - The contents of a valid iApp template in a tmpl file. This iApp
@@ -48,19 +36,14 @@ options:
         This option is only required when creating new template in iWorkflow.
         When you are deleting iApp templates, you will need to specify either
         one of C(name) or C(template_content).
-    required: False
-    default: None
   device:
     description:
       - Managed BIG-IP that you want to get template JSON from. This option
         is only required when C(state) is C(present).
-    required: False
-    default: None
   state:
     description:
       - When C(present), ensures that the iApp service is created and running.
         When C(absent), ensures that the iApp service has been removed.
-    required: False
     default: present
     choices:
       - present
@@ -141,7 +124,7 @@ class Parameters(AnsibleF5Parameters):
 
     def update(self, params=None):
         if params:
-            for k,v in iteritems(params):
+            for k, v in iteritems(params):
                 if self.api_map is not None and k in self.api_map:
                     map_key = self.api_map[k]
                 else:
@@ -356,17 +339,10 @@ class ArgumentSpec(object):
     def __init__(self):
         self.supports_check_mode = True
         self.argument_spec = dict(
-            name=dict(
-                required=False,
-                default=None
-            ),
+            name=dict(),
             template_content=dict(required=False),
-            device=dict(
-                required=False,
-                default=None
-            ),
+            device=dict(),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )

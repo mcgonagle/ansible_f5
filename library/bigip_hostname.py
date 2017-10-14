@@ -1,33 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_hostname
-short_description: Manage the hostname of a BIG-IP.
+short_description: Manage the hostname of a BIG-IP
 description:
   - Manage the hostname of a BIG-IP.
 version_added: "2.3"
@@ -35,7 +23,7 @@ options:
   hostname:
     description:
       - Hostname of the BIG-IP host.
-    required: true
+    required: True
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
@@ -47,25 +35,33 @@ author:
   - Matthew Lam (@mryanlam)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Set the hostname of the BIG-IP
   bigip_hostname:
-      hostname: "bigip.localhost.localdomain"
-      password: "admin"
-      server: "bigip.localhost.localdomain"
-      user: "admin"
+    hostname: bigip.localhost.localdomain
+    password: secret
+    server: lb.mydomain.com
+    user: admin
   delegate_to: localhost
 '''
 
-RETURN = '''
+RETURN = r'''
 hostname:
-    description: The new hostname of the device
-    returned: changed
-    type: string
-    sample: "big-ip01.internal"
+  description: The new hostname of the device
+  returned: changed
+  type: string
+  sample: big-ip01.internal
 '''
 
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+except ImportError:
+    HAS_F5SDK = False
 
 
 class Parameters(AnsibleF5Parameters):
@@ -198,6 +194,7 @@ def main():
         client.module.exit_json(**results)
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()

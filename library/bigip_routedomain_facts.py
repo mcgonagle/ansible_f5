@@ -1,30 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2016 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_routedomain_facts
 short_description: Retrieve route domain attributes from a BIG-IP
@@ -68,66 +56,62 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Get the facts for a route domain
   bigip_routedomain_facts:
-      id: "1234"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
+    id: 1234
+    password: secret
+    server: lb.mydomain.com
+    user: admin
   delegate_to: localhost
 '''
 
-RETURN = '''
+RETURN = r'''
 bwc_policy:
-    description: Bandwidth controller for the route domain
-    returned: changed
-    type: string
-    sample: "/Common/foo"
+  description: Bandwidth controller for the route domain
+  returned: changed
+  type: string
+  sample: /Common/foo
 connection_limit:
-    description: >
-        Maximum number of concurrent connections allowed for the
-        route domain
-    returned: changed
-    type: integer
-    sample: 0
+  description: Maximum number of concurrent connections allowed for the route domain
+  returned: changed
+  type: integer
+  sample: 0
 description:
-    description: Descriptive text that identifies the route domain
-    returned: changed
-    type: string
-    sample: "The foo route domain"
+  description: Descriptive text that identifies the route domain
+  returned: changed
+  type: string
+  sample: The foo route domain
 evict_policy:
-    description: Eviction policy to use with this route domain
-    returned: changed
-    type: string
-    sample: "/Common/default-eviction-policy"
+  description: Eviction policy to use with this route domain
+  returned: changed
+  type: string
+  sample: /Common/default-eviction-policy
 id:
-    description: ID of the route domain
-    returned: changed
-    type: integer
-    sample: 1234
+  description: ID of the route domain
+  returned: changed
+  type: integer
+  sample: 1234
 service_policy:
-    description: Service policy to associate with the route domain
-    returned: changed
-    type: string
-    sample: "/Common/abc"
+  description: Service policy to associate with the route domain
+  returned: changed
+  type: string
+  sample: /Common/abc
 strict:
-    description: Whether the system enforces cross-routing restrictions
-    returned: changed
-    type: string
-    sample: "enabled"
+  description: Whether the system enforces cross-routing restrictions
+  returned: changed
+  type: string
+  sample: enabled
 routing_protocol:
-    description: >
-        Dynamic routing protocols for the system to use in the route
-        domain
-    returned: changed
-    type: list
-    sample: ["BGP", "OSPFv2"]
+  description: Dynamic routing protocols for the system to use in the route domain
+  returned: changed
+  type: list
+  sample: ["BGP", "OSPFv2"]
 vlans:
-    description: VLANs for the system to use in the route domain
-    returned: changed
-    type: list
-    sample: ["/Common/abc", "/Common/xyz"]
+  description: VLANs for the system to use in the route domain
+  returned: changed
+  type: list
+  sample: ["/Common/abc", "/Common/xyz"]
 '''
 
 try:

@@ -1,32 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
-    'metadata_version': '1.0'
+    'metadata_version': '1.1'
 }
 
 DOCUMENTATION = '''
 module: iworkflow_license_pool_member
-short_description: Manages members in a license pool.
+short_description: Manages members in a license pool
 description:
   - Manages members in a license pool. By adding and removing members from
     a pool, you will implicitly be licensing and un-licensing them.
@@ -43,7 +33,6 @@ options:
     description:
       - Whether the member should exist in the pool (and therefore be licensed)
         or if it should not (and therefore be unlicensed).
-    required: false
     default: present
     choices:
       - present
@@ -91,7 +80,7 @@ class Parameters(AnsibleF5Parameters):
 
     def update(self, params=None):
         if params:
-            for k,v in iteritems(params):
+            for k, v in iteritems(params):
                 if self.api_map is not None and k in self.api_map:
                     map_key = self.api_map[k]
                 else:
@@ -342,12 +331,10 @@ class ArgumentSpec(object):
                 required=True
             ),
             devices=dict(
-                type='str',
                 required=True,
                 aliases=['device']
             ),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )

@@ -1,33 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_gtm_wide_ip
-short_description: Manages F5 BIG-IP GTM wide ip.
+short_description: Manages F5 BIG-IP GTM wide ip
 description:
   - Manages F5 BIG-IP GTM wide ip.
 version_added: "2.0"
@@ -57,7 +45,6 @@ options:
         type in addition to name, since pool members need different attributes
         depending on the response RDATA they are meant to supply. This value
         is required if you are using BIG-IP versions >= 12.0.0.
-    required: False
     choices:
       - a
       - aaaa
@@ -72,7 +59,6 @@ options:
         is enabled. When C(absent), ensures that the Wide IP has been
         removed. When C(disabled), ensures that the Wide IP exists and is
         disabled.
-    required: False
     default: present
     choices:
       - present
@@ -80,6 +66,11 @@ options:
       - disabled
       - enabled
     version_added: 2.4
+  partition:
+    description:
+      - Device partition to manage resources on.
+    default: Common
+    version_added: 2.5
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
@@ -90,24 +81,39 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Set lb method
   bigip_gtm_wide_ip:
-      server: "lb.mydomain.com"
-      user: "admin"
-      password: "secret"
-      lb_method: "round-robin"
-      name: "my-wide-ip.example.com"
+    server: lb.mydomain.com
+    user: admin
+    password: secret
+    lb_method: round-robin
+    name: my-wide-ip.example.com
   delegate_to: localhost
 '''
 
-RETURN = '''
-
+RETURN = r'''
+lb_method:
+  description: The new load balancing method used by the wide IP.
+  returned: changed
+  type: string
+  sample: topology
+state:
+  description: The new state of the wide IP.
+  returned: changed
+  type: string
+  sample: disabled
 '''
 
 import re
 
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.f5_utils import (
+    AnsibleF5Client,
+    AnsibleF5Parameters,
+    HAS_F5SDK,
+    F5ModuleError,
+    iControlUnexpectedHTTPError
+)
 from distutils.version import LooseVersion
 
 
@@ -152,24 +158,20 @@ class Parameters(AnsibleF5Parameters):
             if self._values['__warnings'] is None:
                 self._values['__warnings'] = []
             self._values['__warnings'].append(
-                [
-                    dict(
-                        msg='The provided lb_method is deprecated',
-                        version='2.4'
-                    )
-                ]
+                dict(
+                    msg='The provided lb_method is deprecated',
+                    version='2.4'
+                )
             )
             lb_method = 'global-availability'
         elif lb_method == 'round_robin':
             if self._values['__warnings'] is None:
                 self._values['__warnings'] = []
             self._values['__warnings'].append(
-                [
-                    dict(
-                        msg='The provided lb_method is deprecated',
-                        version='2.4'
-                    )
-                ]
+                dict(
+                    msg='The provided lb_method is deprecated',
+                    version='2.4'
+                )
             )
             lb_method = 'round-robin'
         return lb_method
@@ -260,7 +262,7 @@ class ModuleManager(object):
     def get_manager(self, type):
         if type == 'typed':
             return TypedManager(self.client)
-        elif type =='untyped':
+        elif type == 'untyped':
             return UntypedManager(self.client)
 
     def version_is_less_than_12(self):
@@ -321,11 +323,15 @@ class BaseManager(object):
         changes = self.changes.to_return()
         result.update(**changes)
         result.update(dict(changed=changed))
-        self._announce_deprecations(result)
+        self._announce_deprecations()
         return result
 
-    def _announce_deprecations(self, result):
-        warnings = result.pop('__warnings', [])
+    def _announce_deprecations(self):
+        warnings = []
+        if self.want:
+            warnings += self.want._values.get('__warnings', [])
+        if self.have:
+            warnings += self.have._values.get('__warnings', [])
         for warning in warnings:
             self.client.module.deprecate(
                 msg=warning['msg'],
@@ -341,6 +347,13 @@ class BaseManager(object):
             return self.update()
         else:
             return self.create()
+
+    def create(self):
+        self._set_changed_options()
+        if self.client.check_mode:
+            return True
+        self.create_on_device()
+        return True
 
     def should_update(self):
         result = self._update_changed_options()
@@ -377,13 +390,6 @@ class UntypedManager(BaseManager):
             name=self.want.name,
             partition=self.want.partition
         )
-
-    def create(self):
-        self._set_changed_options()
-        if self.client.check_mode:
-            return True
-        self.create_on_device()
-        return True
 
     def update_on_device(self):
         params = self.want.api_params()
@@ -436,12 +442,6 @@ class TypedManager(BaseManager):
             partition=self.want.partition
         )
         return result
-
-    def create(self):
-        if self.client.check_mode:
-            return True
-        self.create_on_device()
-        return True
 
     def update_on_device(self):
         params = self.want.api_params()
@@ -503,23 +503,18 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             lb_method=dict(
-                required=False,
-                choices=lb_method_choices,
-                default=None
+                choices=lb_method_choices
             ),
             name=dict(
                 required=True,
                 aliases=['wide_ip']
             ),
             type=dict(
-                required=False,
-                default=None,
                 choices=[
-                    'a','aaaa','cname','mx','naptr','srv'
+                    'a', 'aaaa', 'cname', 'mx', 'naptr', 'srv'
                 ]
             ),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present', 'enabled', 'disabled']
             )
@@ -545,6 +540,7 @@ def main():
         client.module.exit_json(**results)
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()

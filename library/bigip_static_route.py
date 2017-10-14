@@ -1,31 +1,20 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 module: bigip_static_route
-short_description: Manipulate static routes on a BIG-IP.
+short_description: Manipulate static routes on a BIG-IP
 description:
   - Manipulate static routes on a BIG-IP.
 version_added: 2.3
@@ -91,7 +80,7 @@ notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
   - Requires the netaddr Python package on the host. This is as easy as pip
-    install netaddr
+    install netaddr.
 extends_documentation_fragment: f5
 requirements:
     - f5-sdk >= 2.2.3
@@ -152,8 +141,14 @@ try:
 except ImportError:
     HAS_NETADDR = False
 
-from ansible.module_utils.basic import *
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.parsing.convert_bool import BOOLEANS_TRUE
+from ansible.module_utils.f5_utils import (
+    AnsibleF5Client,
+    AnsibleF5Parameters,
+    HAS_F5SDK,
+    F5ModuleError,
+    iControlUnexpectedHTTPError
+)
 
 
 class Parameters(AnsibleF5Parameters):
@@ -199,7 +194,7 @@ class Parameters(AnsibleF5Parameters):
     def vlan(self):
         if self._values['vlan'] is None:
             return None
-        if self._values['vlan'].startswith(self.partition):
+        if self._values['vlan'].startswith('/' + self.partition):
             return self._values['vlan']
         else:
             return '/{0}/{1}'.format(self.partition, self._values['vlan'])
@@ -308,8 +303,7 @@ class ModuleManager(object):
             )
         if all(getattr(self.want, v) is None for v in required_resources):
             raise F5ModuleError(
-                "You must specify at least one of "
-                + ', '.join(required_resources)
+                "You must specify at least one of " + ', '.join(required_resources)
             )
         if self.client.check_mode:
             return True
@@ -391,37 +385,16 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             name=dict(required=True),
-            description=dict(
-                required=False,
-                default=None
-            ),
-            destination=dict(
-                required=False,
-                default=None
-            ),
-            gateway_address=dict(
-                required=False,
-                default=None
-            ),
-            vlan=dict(
-                required=False,
-                default=None
-            ),
-            pool=dict(
-                required=False,
-                default=None
-            ),
-            mtu=dict(
-                required=False,
-                default=None
-            ),
+            description=dict(),
+            destination=dict(),
+            gateway_address=dict(),
+            vlan=dict(),
+            pool=dict(),
+            mtu=dict(),
             reject=dict(
-                required=False,
-                default=None,
-                choices=BOOLEANS_TRUE
+                type='bool'
             ),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )

@@ -1,41 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_gtm_facts
-short_description: Collect facts from F5 BIG-IP GTM devices.
+short_description: Collect facts from F5 BIG-IP GTM devices
 description:
   - Collect facts from F5 BIG-IP GTM devices.
 version_added: "2.3"
 options:
   include:
     description:
-      - Fact category to collect
-    required: true
+      - Fact category to collect.
+    required: True
     choices:
       - pool
       - wide_ip
@@ -45,11 +33,9 @@ options:
       - Perform regex filter of response. Filtering is done on the name of
         the resource. Valid filters are anything that can be provided to
         Python's C(re) module.
-    required: false
-    default: None
 notes:
-   - Requires the f5-sdk Python package on the host. This is as easy as
-     pip install f5-sdk
+  - Requires the f5-sdk Python package on the host. This is as easy as
+    pip install f5-sdk
 extends_documentation_fragment: f5
 requirements:
   - f5-sdk
@@ -57,145 +43,147 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Get pool facts
   bigip_gtm_facts:
-      server: "lb.mydomain.com"
-      user: "admin"
-      password: "secret"
-      include: "pool"
-      filter: "my_pool"
+    server: lb.mydomain.com
+    user: admin
+    password: secret
+    include: pool
+    filter: my_pool
   delegate_to: localhost
 '''
 
-RETURN = '''
+RETURN = r'''
 wide_ip:
-    description:
-        Contains the lb method for the wide ip and the pools
-        that are within the wide ip.
-    returned: changed
-    type: dict
-    sample:
-        wide_ip:
-            - enabled: "True"
-              failure_rcode: "noerror"
-              failure_rcode_response: "disabled"
-              failure_rcode_ttl: "0"
-              full_path: "/Common/foo.ok.com"
-              last_resort_pool: ""
-              minimal_response: "enabled"
-              name: "foo.ok.com"
-              partition: "Common"
-              persist_cidr_ipv4: "32"
-              persist_cidr_ipv6: "128"
-              persistence: "disabled"
-              pool_lb_mode: "round-robin"
-              pools:
-                  - name: "d3qw"
-                    order: "0"
-                    partition: "Common"
-                    ratio: "1"
-              ttl_persistence: "3600"
-              type: "naptr"
+  description:
+    Contains the lb method for the wide ip and the pools
+    that are within the wide ip.
+  returned: changed
+  type: dict
+  sample:
+    wide_ip:
+      - enabled: True
+        failure_rcode: noerror
+        failure_rcode_response: disabled
+        failure_rcode_ttl: 0
+        full_path: /Common/foo.ok.com
+        last_resort_pool: ""
+        minimal_response: enabled
+        name: foo.ok.com
+        partition: Common
+        persist_cidr_ipv4: 32
+        persist_cidr_ipv6: 128
+        persistence: disabled
+        pool_lb_mode: round-robin
+        pools:
+          - name: d3qw
+            order: 0
+            partition: Common
+            ratio: 1
+        ttl_persistence: 3600
+        type: naptr
 pool:
-    description: Contains the pool object status and enabled status.
-    returned: changed
-    type: dict
-    sample:
-        pool:
-            - alternate_mode: "round-robin"
-              dynamic_ratio: "disabled"
-              enabled: "True"
-              fallback_mode: "return-to-dns"
-              full_path: "/Common/d3qw"
-              load_balancing_mode: "round-robin"
-              manual_resume: "disabled"
-              max_answers_returned: "1"
-              members:
-                  - disabled: "True"
-                    flags: "a"
-                    full_path: "ok3.com"
-                    member_order: "0"
-                    name: "ok3.com"
-                    order: "10"
-                    preference: "10"
-                    ratio: "1"
-                    service: "80"
-              name: "d3qw"
-              partition: "Common"
-              qos_hit_ratio: "5"
-              qos_hops: "0"
-              qos_kilobytes_second: "3"
-              qos_lcs: "30"
-              qos_packet_rate: "1"
-              qos_rtt: "50"
-              qos_topology: "0"
-              qos_vs_capacity: "0"
-              qos_vs_score: "0"
-              ttl: "30"
-              type: "naptr"
-              verify_member_availability: "disabled"
+  description: Contains the pool object status and enabled status.
+  returned: changed
+  type: dict
+  sample:
+    pool:
+      - alternate_mode: round-robin
+        dynamic_ratio: disabled
+        enabled: True
+        fallback_mode: return-to-dns
+        full_path: /Common/d3qw
+        load_balancing_mode: round-robin
+        manual_resume: disabled
+        max_answers_returned: 1
+        members:
+          - disabled: True
+            flags: a
+            full_path: ok3.com
+            member_order: 0
+            name: ok3.com
+            order: 10
+            preference: 10
+            ratio: 1
+            service: 80
+        name: d3qw
+        partition: Common
+        qos_hit_ratio: 5
+        qos_hops: 0
+        qos_kilobytes_second: 3
+        qos_lcs: 30
+        qos_packet_rate: 1
+        qos_rtt: 50
+        qos_topology: 0
+        qos_vs_capacity: 0
+        qos_vs_score: 0
+        ttl: 30
+        type: naptr
+        verify_member_availability: disabled
 virtual_server:
-    description:
-        Contains the virtual server enabled and availability
-        status, and address
-    returned: changed
-    type: dict
-    sample:
-        virtual_server:
-            - addresses:
-                  - device_name: "/Common/qweqwe"
-                    name: "10.10.10.10"
-                    translation: "none"
-              datacenter: "/Common/xfxgh"
-              enabled: "True"
-              expose_route_domains: "no"
-              full_path: "/Common/qweqwe"
-              iq_allow_path: "yes"
-              iq_allow_service_check: "yes"
-              iq_allow_snmp: "yes"
-              limit_cpu_usage: "0"
-              limit_cpu_usage_status: "disabled"
-              limit_max_bps: "0"
-              limit_max_bps_status: "disabled"
-              limit_max_connections: "0"
-              limit_max_connections_status: "disabled"
-              limit_max_pps: "0"
-              limit_max_pps_status: "disabled"
-              limit_mem_avail: "0"
-              limit_mem_avail_status: "disabled"
-              link_discovery: "disabled"
-              monitor: "/Common/bigip "
-              name: "qweqwe"
-              partition: "Common"
-              product: "single-bigip"
-              virtual_server_discovery: "disabled"
-              virtual_servers:
-                  - destination: "10.10.10.10:0"
-                    enabled: "True"
-                    full_path: "jsdfhsd"
-                    limit_max_bps: "0"
-                    limit_max_bps_status: "disabled"
-                    limit_max_connections: "0"
-                    limit_max_connections_status: "disabled"
-                    limit_max_pps: "0"
-                    limit_max_pps_status: "disabled"
-                    name: "jsdfhsd"
-                    translation_address: "none"
-                    translation_port: "0"
+  description:
+    Contains the virtual server enabled and availability status, and address
+  returned: changed
+  type: dict
+  sample:
+    virtual_server:
+      - addresses:
+          - device_name: /Common/qweqwe
+            name: 10.10.10.10
+            translation: none
+        datacenter: /Common/xfxgh
+        enabled: True
+        expose_route_domains: no
+        full_path: /Common/qweqwe
+        iq_allow_path: yes
+        iq_allow_service_check: yes
+        iq_allow_snmp: yes
+        limit_cpu_usage: 0
+        limit_cpu_usage_status: disabled
+        limit_max_bps: 0
+        limit_max_bps_status: disabled
+        limit_max_connections: 0
+        limit_max_connections_status: disabled
+        limit_max_pps: 0
+        limit_max_pps_status: disabled
+        limit_mem_avail: 0
+        limit_mem_avail_status: disabled
+        link_discovery: disabled
+        monitor: /Common/bigip
+        name: qweqwe
+        partition: Common
+        product: single-bigip
+        virtual_server_discovery: disabled
+        virtual_servers:
+          - destination: 10.10.10.10:0
+            enabled: True
+            full_path: jsdfhsd
+            limit_max_bps: 0
+            limit_max_bps_status: disabled
+            limit_max_connections: 0
+            limit_max_connections_status: disabled
+            limit_max_pps: 0
+            limit_max_pps_status: disabled
+            name: jsdfhsd
+            translation_address: none
+            translation_port: 0
 '''
 
-try:
-    from distutils.version import LooseVersion
-    from f5.bigip.contexts import TransactionContextManager
-    from f5.bigip import ManagementRoot
-    from icontrol.session import iControlUnexpectedHTTPError
+import re
 
-    HAS_F5SDK = True
+from ansible.module_utils.f5_utils import f5_argument_spec
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.ec2 import camel_dict_to_snake_dict
+from distutils.version import LooseVersion
+from f5.bigip import ManagementRoot
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
 except ImportError:
     HAS_F5SDK = False
-
-import re
 
 
 class BigIpGtmFactsCommon(object):
@@ -215,7 +203,9 @@ class BigIpGtmFactsCommon(object):
             srvs='srv'
         )
         self.request_params = dict(
-            params='expandSubcollections=true'
+            requests_params=dict(
+                params='expandSubcollections=true'
+            )
         )
 
     def is_version_less_than_12(self):
@@ -304,7 +294,7 @@ class BigIpGtmFactsPools(BigIpGtmFactsCommon):
 
     def format_member_facts(self, pool):
         result = []
-        if not 'items' in pool.membersReference:
+        if 'items' not in pool.membersReference:
             return dict(members=[])
         for member in pool.membersReference['items']:
             member_facts = self.format_string_facts(member)
@@ -405,12 +395,13 @@ class BigIpGtmFactsVirtualServers(BigIpGtmFactsCommon):
 
     def format_virtual_server_facts(self, server):
         result = []
-        if not 'items' in server.virtualServersReference:
+        if 'items' not in server.virtualServersReference:
             return dict(virtual_servers=[])
         for server in server.virtualServersReference['items']:
             server_facts = self.format_string_facts(server)
             result.append(server_facts)
         return dict(virtual_servers=result)
+
 
 class BigIpGtmFactsManager(object):
     def __init__(self, *args, **kwargs):

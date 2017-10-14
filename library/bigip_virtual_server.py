@@ -1,150 +1,121 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-# (c) 2015, Etienne Carriere <etienne.carriere@gmail.com>
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
-    'metadata_version': '1.0'
+    'metadata_version': '1.1'
 }
 
 DOCUMENTATION = '''
 ---
 module: bigip_virtual_server
-short_description: "Manages F5 BIG-IP LTM virtual servers"
+short_description: Manage LTM virtual servers on a BIG-IP
 description:
-  - "Manages F5 BIG-IP LTM virtual servers via iControl SOAP API"
+  - Manage LTM virtual servers on a BIG-IP
 version_added: "2.1"
-author:
-  - Etienne Carriere (@Etienne-Carriere)
-  - Tim Rupp (@caphrim007)
-notes:
-  - "Requires BIG-IP software version >= 11"
-  - "F5 developed module 'bigsuds' required (see http://devcentral.f5.com)"
-  - "Best run as a local_action in your playbook"
-requirements:
-  - bigsuds
 options:
   state:
     description:
-      - Virtual Server state
-      - Absent, delete the VS if present
-      - C(present) (and its synonym enabled), create if needed the VS and set
-        state to enabled
-      - C(disabled), create if needed the VS and set state to disabled
-    required: false
+      - The virtual server state. If C(absent), delete the virtual server
+        if it exists. C(present) creates the virtual server and enable it.
+        If C(enabled), enable the virtual server if it exists. If C(disabled),
+        create the virtual server if needed, and set state to C(disabled).
     default: present
     choices:
       - present
       - absent
       - enabled
       - disabled
-    aliases: []
-  partition:
-    description:
-      - Partition
-    required: false
-    default: 'Common'
   name:
     description:
-      - Virtual server name
-    required: true
+      - Virtual server name.
+    required: True
     aliases:
       - vs
   destination:
     description:
-      - Destination IP of the virtual server (only host is currently supported).
-        Required when state=present and vs does not exist.
-    required: true
+      - Destination IP of the virtual server (only host is currently
+        supported). Required when state=present and vs does not exist.
+    required: True
     aliases:
       - address
       - ip
   port:
     description:
-      - Port of the virtual server. Required when state=present and vs does
-        not exist. If you specify a value for this field, it must be a number
-        between 0 and 65535.
-    required: false
-    default: None
-  all_profiles:
+      - Port of the virtual server. Required when C(state) is C(present)
+        and virtual server does not exist.
+  profiles:
     description:
-      - List of all Profiles (HTTP,ClientSSL,ServerSSL,etc) that must be used
-        by the virtual server
-    required: false
-    default: None
-  all_policies:
-    description:
-      - List of all policies enabled for the virtual server.
-    required: false
-    default: None
-    version_added: "2.3"
-  all_rules:
+      - List of all Profiles (HTTP, ClientSSL, ServerSSL, etc) that must be
+        used by the virtual server. The module will delegate to the device
+        whether the specified profile list is valid or not.
+    aliases:
+      - all_profiles
+  irules:
     version_added: "2.2"
     description:
-      - List of rules to be applied in priority order
-    required: false
-    default: None
+      - List of rules to be applied in priority order.
+    aliases:
+      - all_rules
   enabled_vlans:
     version_added: "2.2"
     description:
-      - List of vlans to be enabled. When a VLAN named C(ALL) is used, all
-        VLANs will be allowed.
-    required: false
-    default: None
+      - List of VLANs to be enabled. When a VLAN named C(ALL) is used, all
+        VLANs will be allowed. VLANs can be specified with or without the
+        leading partition. If the partition is not specified in the VLAN,
+        then the `partition` option of this module will be used.
   pool:
     description:
-      - Default pool for the virtual server
-    required: false
-    default: None
+      - Default pool for the virtual server.
   snat:
     description:
-      - Source network address policy
+      - Source network address policy.
     required: false
     choices:
       - None
       - Automap
-      - Name of a SNAT pool (eg "/Common/snat_pool_name") to enable SNAT with the specific pool
-    default: None
+      - Name of a SNAT pool (eg "/Common/snat_pool_name") to enable SNAT
+        with the specific pool
   default_persistence_profile:
     description:
-      - Default Profile which manages the session persistence
-    required: false
-    default: None
-  fallback_persistence_profile:
-    description:
-      - Specifies the persistence profile you want the system to use if it
-        cannot use the specified default persistence profile.
-    required: false
-    default: None
-    version_added: "2.3"
+      - Default Profile which manages the session persistence.
   route_advertisement_state:
     description:
-      - Enable route advertisement for destination
-    required: false
-    default: disabled
+      - Enable route advertisement for destination.
+    choices:
+      - enabled
+      - disabled
     version_added: "2.3"
+    deprecated: Deprecated in 2.4. Use the bigip_virtual_address module instead.
   description:
     description:
-      - Virtual server description
-    required: false
-    default: None
+      - Virtual server description.
+  partition:
+    description:
+      - Device partition to manage resources on.
+    required: False
+    default: 'Common'
+    version_added: 2.5
+notes:
+  - Requires BIG-IP software version >= 11
+  - Requires the f5-sdk Python package on the host. This is as easy as pip
+    install f5-sdk.
+  - Requires the netaddr Python package on the host. This is as easy as pip
+    install netaddr.
+requirements:
+  - f5-sdk
+  - netaddr
 extends_documentation_fragment: f5
+author:
+  - Tim Rupp (@caphrim007)
 '''
 
 EXAMPLES = '''
@@ -154,16 +125,20 @@ EXAMPLES = '''
       user: admin
       password: secret
       state: present
-      partition: MyPartition
-      name: myvirtualserver
-      destination: "{{ ansible_default_ipv4['address'] }}"
+      partition: Common
+      name: my-virtual-server
+      destination: "10.10.10.10"
       port: 443
-      pool: "{{ mypool }}"
+      pool: "my-pool"
       snat: Automap
       description: Test Virtual Server
-      all_profiles:
+      profiles_both:
           - http
+          - fix
+      profiles_server_side:
           - clientssl
+      profiles_client_side:
+          - ilx
       enabled_vlans:
           - /Common/vlan2
   delegate_to: localhost
@@ -174,8 +149,8 @@ EXAMPLES = '''
       user: admin
       password: secret
       state: present
-      partition: MyPartition
-      name: myvirtualserver
+      partition: Common
+      name: my-virtual-server
       port: 8080
   delegate_to: localhost
 
@@ -185,8 +160,8 @@ EXAMPLES = '''
       user: admin
       password: secret
       state: absent
-      partition: MyPartition
-      name: myvirtualserver
+      partition: Common
+      name: my-virtual-server
   delegate_to: localhost
 '''
 
@@ -199,641 +174,720 @@ deleted:
     sample: "my-virtual-server"
 '''
 
-# map of state values
-STATES = {
-    'enabled': 'STATE_ENABLED',
-    'disabled': 'STATE_DISABLED'
-}
 
-STATUSES = {
-    'enabled': 'SESSION_STATUS_ENABLED',
-    'disabled': 'SESSION_STATUS_DISABLED',
-    'offline': 'SESSION_STATUS_FORCED_DISABLED'
-}
+import netaddr
+import re
 
-
-def vs_exists(api, vs):
-    # hack to determine if pool exists
-    result = False
-    try:
-        api.LocalLB.VirtualServer.get_object_status(virtual_servers=[vs])
-        result = True
-    except bigsuds.OperationFailed as e:
-        if "was not found" in str(e):
-            result = False
-        else:
-            # genuine exception
-            raise
-    return result
+from ansible.module_utils.f5_utils import (
+    AnsibleF5Client,
+    AnsibleF5Parameters,
+    HAS_F5SDK,
+    F5ModuleError,
+    iControlUnexpectedHTTPError,
+    defaultdict,
+    iteritems
+)
 
 
-def vs_create(api, name, destination, port, pool, profiles):
-    if profiles:
-        _profiles = []
-        for profile in profiles:
-            _profiles.append(
-                dict(
-                    profile_context='PROFILE_CONTEXT_TYPE_ALL',
-                    profile_name=profile
-                )
-            )
-    else:
-        _profiles = [{'profile_context': 'PROFILE_CONTEXT_TYPE_ALL', 'profile_name': 'tcp'}]
+class Parameters(AnsibleF5Parameters):
+    def __init__(self, params=None):
+        self._values = defaultdict(lambda: None)
+        if params:
+            self.update(params=params)
 
-    # a bit of a hack to handle concurrent runs of this module.
-    # even though we've checked the vs doesn't exist,
-    # it may exist by the time we run create_vs().
-    # this catches the exception and does something smart
-    # about it!
-    try:
-        api.LocalLB.VirtualServer.create(
-            definitions=[{'name': [name], 'address': [destination], 'port': port, 'protocol': 'PROTOCOL_TCP'}],
-            wildmasks=['255.255.255.255'],
-            resources=[{'type': 'RESOURCE_TYPE_POOL', 'default_pool_name': pool}],
-            profiles=[_profiles])
-        created = True
-        return created
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on creating Virtual Server : %s' % e)
+    def update(self, params=None):
+        if params:
+            for k, v in iteritems(params):
+                if self.api_map is not None and k in self.api_map:
+                    map_key = self.api_map[k]
+                else:
+                    map_key = k
 
+                # Handle weird API parameters like `dns.proxy.__iter__` by
+                # using a map provided by the module developer
+                class_attr = getattr(type(self), map_key, None)
+                if isinstance(class_attr, property):
+                    # There is a mapped value for the api_map key
+                    if class_attr.fset is None:
+                        # If the mapped value does not have
+                        # an associated setter
+                        self._values[map_key] = v
+                    else:
+                        # The mapped value has a setter
+                        setattr(self, map_key, v)
+                else:
+                    # If the mapped value is not a @property
+                    self._values[map_key] = v
 
-def vs_remove(api, name):
-    api.LocalLB.VirtualServer.delete_virtual_server(
-        virtual_servers=[name]
-    )
-
-
-def get_rules(api, name):
-    return api.LocalLB.VirtualServer.get_rule(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_rules(api, name, rules_list):
-    updated = False
-    if rules_list is None:
-        return False
-    rules_list = list(enumerate(rules_list))
-    try:
-        current_rules = [(x['priority'], x['rule_name']) for x in get_rules(api, name)]
-        to_add_rules = []
-        for i, x in rules_list:
-            if (i, x) not in current_rules:
-                to_add_rules.append({'priority': i, 'rule_name': x})
-        to_del_rules = []
-        for i, x in current_rules:
-            if (i, x) not in rules_list:
-                to_del_rules.append({'priority': i, 'rule_name': x})
-        if len(to_del_rules) > 0:
-            api.LocalLB.VirtualServer.remove_rule(
-                virtual_servers=[name],
-                rules=[to_del_rules]
-            )
-            updated = True
-        if len(to_add_rules) > 0:
-            api.LocalLB.VirtualServer.add_rule(
-                virtual_servers=[name],
-                rules=[to_add_rules]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting rules : %s' % e)
-
-
-def get_profiles(api, name):
-    return api.LocalLB.VirtualServer.get_profile(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_profiles(api, name, profiles_list):
-    updated = False
-
-    try:
-        if profiles_list is None:
-            return False
-        profiles_list = list(profiles_list)
-        current_profiles = list(map(lambda x: x['profile_name'], get_profiles(api, name)))
-        to_add_profiles = []
-        for x in profiles_list:
-            if x not in current_profiles:
-                to_add_profiles.append({'profile_context': 'PROFILE_CONTEXT_TYPE_ALL', 'profile_name': x})
-        to_del_profiles = []
-        for x in current_profiles:
-            if (x not in profiles_list) and (x != "/Common/tcp"):
-                to_del_profiles.append({'profile_context': 'PROFILE_CONTEXT_TYPE_ALL', 'profile_name': x})
-        if len(to_del_profiles) > 0:
-            api.LocalLB.VirtualServer.remove_profile(
-                virtual_servers=[name],
-                profiles=[to_del_profiles]
-            )
-            updated = True
-        if len(to_add_profiles) > 0:
-            api.LocalLB.VirtualServer.add_profile(
-                virtual_servers=[name],
-                profiles=[to_add_profiles]
-            )
-            updated = True
-        current_profiles = list(map(lambda x: x['profile_name'], get_profiles(api, name)))
-        if len(current_profiles) == 0:
+    @property
+    def destination(self):
+        if self._values['destination'] is None:
+            return None
+        destination = self._values['destination']
+        try:
+            netaddr.IPAddress(destination.split("%")[0])
+        except netaddr.core.AddrFormatError:
             raise F5ModuleError(
-                "Virtual servers must has at least one profile"
+                "The provided destination is not a valid IP address"
             )
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting profiles : %s' % e)
+        result = '/{0}/{1}:{2}'.format(
+            self.partition, self._values['destination'], self.port
+        )
+        return result
 
-
-def get_policies(api, name):
-    return api.LocalLB.VirtualServer.get_content_policy(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_policies(api, name, policies_list):
-    updated = False
-    try:
-        if policies_list is None:
-            return False
-        policies_list = list(policies_list)
-        current_policies = get_policies(api, name)
-        to_add_policies = []
-        for x in policies_list:
-            if x not in current_policies:
-                to_add_policies.append(x)
-        to_del_policies = []
-        for x in current_policies:
-            if x not in policies_list:
-                to_del_policies.append(x)
-        if len(to_del_policies) > 0:
-            api.LocalLB.VirtualServer.remove_content_policy(
-                virtual_servers=[name],
-                policies=[to_del_policies]
-            )
-            updated = True
-        if len(to_add_policies) > 0:
-            api.LocalLB.VirtualServer.add_content_policy(
-                virtual_servers=[name],
-                policies=[to_add_policies]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting policies : %s' % e)
-
-
-def get_vlan(api, name):
-    return api.LocalLB.VirtualServer.get_vlan(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_enabled_vlans(api, name, vlans_enabled_list):
-    updated = False
-    to_add_vlans = []
-    try:
-        if vlans_enabled_list is None:
-            return updated
-        vlans_enabled_list = list(vlans_enabled_list)
-        current_vlans = get_vlan(api, name)
-
-        # Set allowed list back to default ("all")
-        #
-        # This case allows you to undo what you may have previously done.
-        # The default case is "All VLANs and Tunnels". This case will handle
-        # that situation.
-        if 'ALL' in vlans_enabled_list:
-            # The user is coming from a situation where they previously
-            # were specifying a list of allowed VLANs
-            if len(current_vlans['vlans']) > 0 or \
-               current_vlans['state'] is "STATE_ENABLED":
-                api.LocalLB.VirtualServer.set_vlan(
-                    virtual_servers=[name],
-                    vlans=[{'state': 'STATE_DISABLED', 'vlans': []}]
-                )
-                updated = True
+    @destination.setter
+    def destination(self, value):
+        if value is None:
+            return
+        matches = re.search(r'.*\/(?P<destination>.*):(?P<port>\d+)', value)
+        if matches:
+            self._values['destination'] = matches.group('destination')
+            self._values['port'] = matches.group('port')
         else:
-            if current_vlans['state'] is "STATE_DISABLED":
-                to_add_vlans = vlans_enabled_list
+            self._values['destination'] = value
+
+    @property
+    def destination_address(self):
+        return self._values['destination']
+
+    @destination_address.setter
+    def destination_address(self, value):
+        self._values['destination'] = value
+
+    @property
+    def port(self):
+        if self._values['port'] is None:
+            return None
+        try:
+            port = int(self._values['port'])
+        except ValueError:
+            raise F5ModuleError(
+                "The specified port was not a valid integer"
+            )
+        if 0 <= port <= 65535:
+            return port
+        raise F5ModuleError(
+            "Valid ports must be in range 0 - 65535"
+        )
+
+    def to_return(self):
+        result = {}
+        for returnable in self.returnables:
+            result[returnable] = getattr(self, returnable)
+        result = self._filter_params(result)
+        return result
+
+    def api_params(self):
+        result = {}
+        for api_attribute in self.api_attributes:
+            if self.api_map is not None and api_attribute in self.api_map:
+                result[api_attribute] = getattr(self, self.api_map[api_attribute])
             else:
-                for vlan in vlans_enabled_list:
-                    if vlan not in current_vlans['vlans']:
-                        updated = True
-                        to_add_vlans = vlans_enabled_list
-                        break
-            if updated:
-                api.LocalLB.VirtualServer.set_vlan(
-                    virtual_servers=[name],
-                    vlans=[{
-                        'state': 'STATE_ENABLED',
-                        'vlans': [to_add_vlans]
-                    }]
+                result[api_attribute] = getattr(self, api_attribute)
+        result = self._filter_params(result)
+        return result
+
+
+class VirtualAddressParameters(Parameters):
+    api_map = {
+        'routeAdvertisement': 'route_advertisement_state'
+    }
+    returnables = [
+        'route_advertisement_state'
+    ]
+
+    updatables = [
+        'route_advertisement_state'
+    ]
+
+    api_attributes = [
+        'routeAdvertisement'
+    ]
+
+    @property
+    def route_advertisement_state(self):
+        # TODO: Remove in 2.5
+        if self._values['route_advertisement_state'] is None:
+            return None
+        if self._values['__warnings'] is None:
+            self._values['__warnings'] = []
+        self._values['__warnings'].append(
+            dict(
+                msg="Usage of the 'route_advertisement_state' parameter is deprecated. Use the bigip_virtual_address module instead",
+                version='2.4'
+            )
+        )
+        return str(self._values['route_advertisement_state'])
+
+
+class VirtualServerParameters(Parameters):
+    api_map = {
+        'sourceAddressTranslation': 'snat'
+    }
+
+    api_attributes = [
+        'destination', 'enabled', 'disabled', 'pool',
+        'vlans', 'persist', 'sourceAddressTranslation', 'profiles',
+        'vlansEnabled', 'vlansDisabled'
+    ]
+
+    updatables = [
+        'destination', 'enabled', 'disabled', 'pool', 'port',
+        'irules', 'profiles', 'enabled_vlans', 'default_persistence_profile'
+    ]
+
+    returnables = [
+        'destination', 'enabled', 'disabled', 'pool', 'port',
+        'irules', 'profiles', 'enabled_vlans', 'default_persistence_profile'
+    ]
+
+    @property
+    def irules(self):
+        results = []
+        if self._values['irules'] is None:
+            return None
+        for irule in self._values['irules']:
+            if not irule.startswith(self.partition):
+                irule = '/{0}/{1}'.format(self.partition, irule)
+            results.append(irule)
+        return results
+
+    @property
+    def profiles_both(self):
+        result = []
+        mutually_exclusive_profiles = [
+            'sip', 'sipsession', 'iiop', 'rtsp', 'http', 'diameter',
+            'diametersession', 'radius', 'ftp', 'tftp', 'dns', 'pptp', 'fix'
+        ]
+        if self._values['profiles_both'] is None:
+            return None
+        profiles = set(self._values['profiles_both'])
+        mutually_exclusive = [x for x in profiles if x in mutually_exclusive_profiles]
+        if len(mutually_exclusive) > 1:
+            raise F5ModuleError(
+                "Profiles {0} are mutually exclusive".format(
+                    ', '.join(mutually_exclusive_profiles).strip()
+                )
+            )
+        for profile in profiles:
+            result.append({
+                'name': str(profile),
+                'context': 'all'
+            })
+        return result
+
+    @property
+    def profiles_client_side(self):
+        result = []
+        if self._values['profiles_client_side'] is None:
+            return None
+        profiles = set(self._values['profiles_client_side'])
+        for profile in profiles:
+            result.append({
+                'name': str(profile),
+                'context': 'clientside'
+            })
+        return result
+
+    @property
+    def profiles_server_side(self):
+        result = []
+        if self._values['profiles_server_side'] is None:
+            return None
+        profiles = set(self._values['profiles_server_side'])
+        for profile in profiles:
+            result.append({
+                'name': str(profile),
+                'context': 'serverside'
+            })
+        return result
+
+    @property
+    def pool(self):
+        if self._values['pool'] is None:
+            return None
+        if self._values['pool'].startswith('/' + self.partition):
+            return self._values['pool']
+        else:
+            return '/{0}/{1}'.format(self.partition, self._values['pool'])
+
+    @property
+    def vlansEnabled(self):
+        if self._values['enabled_vlans'] is None:
+            return False
+        return True
+
+    @property
+    def vlansDisabled(self):
+        if self._values['enabled_vlans'] in [None, '', 'ALL']:
+            return True
+        return False
+
+    @property
+    def enabled_vlans(self):
+        if self._values['vlans'] is None:
+            return None
+        elif 'ALL' in self._values['vlans']:
+            return []
+        results = []
+        vlans = set(self._values['vlans'])
+        for vlan in vlans:
+            if vlan.startswith('/' + self.partition):
+                results.append(vlan)
+            else:
+                vlan = '/{0}/{1}'.format(self.partition, vlan)
+                results.append(vlan)
+        return list(set(results))
+
+    @property
+    def disabled_vlans(self):
+        return None
+
+    @property
+    def vlans(self):
+        if self.diabled_vlans:
+            return self.disabled_vlans
+        return self.enabled_vlans
+
+    @enabled_vlans.setter
+    def enabled_vlans(self, value):
+        self._values['vlans'] = value
+
+    @property
+    def description(self):
+        if self._values['description'] is None:
+            return None
+        return str(self._values['description'])
+
+    @property
+    def state(self):
+        if self._values['state'] == 'present':
+            return 'enabled'
+        return self._values['state']
+
+    @property
+    def default_persistence_profile(self):
+        if self._values['default_persistence_profile'] is None:
+            return None
+        return str(self._values['default_persistence_profile'])
+
+    @property
+    def snat(self):
+        if self._values['snat'] is None:
+            return None
+        lowercase = self._values['snat'].lower()
+        if lowercase in ['automap', 'none']:
+            return dict(
+                type=lowercase
+            )
+        snat_pool = '/{0}/{1}'.format(
+            self.partition, self._values['snat']
+        )
+        return dict(
+            pool=snat_pool,
+            type='snat'
+        )
+
+    @property
+    def profilesReference(self):
+        return self._values['profilesReference']
+
+    @profilesReference.setter
+    def profilesReference(self, value):
+        self._values['profiles_both'] = []
+        self._values['profiles_client_side'] = []
+        self._values['profiles_server_side'] = []
+
+        if 'items' not in value:
+            return
+
+        for item in value['items']:
+            context = str(item['context'])
+            name = str(item['name'])
+            if context == 'all':
+                self._values['profiles_both'].append(name)
+            elif context == 'serverside':
+                self._values['profiles_server_side'].append(name)
+            elif context == 'clientside':
+                self._values['profiles_client_side'].append(name)
+            else:
+                raise F5ModuleError(
+                    "Unknown profile context found"
                 )
 
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting enabled vlans : %s' % e)
+
+class Difference(object):
+    def __init__(self, want, have=None):
+        self.want = want
+        self.have = have
+
+    def compare(self, param):
+        try:
+            result = getattr(self, param)
+            return result
+        except AttributeError:
+            result = self.__default(param)
+            return result
+
+    @property
+    def destination(self):
+        if self.want.destination is None and self.want.port is None:
+            return None
+
+        if self.want.destination is None:
+            self.want.destination_address = self.have.destination_address
+        elif self.want.port is None:
+            self.want.update({'port': self.have.port})
+
+        if self.want.destination == self.have.destination:
+            return None
+        else:
+            return self.want.destination
+
+    @property
+    def enabled_vlans(self):
+        if self.want.vlans is None:
+            return None
+        elif self.want.vlans == [] and self.have.vlans is None:
+            return None
+        elif self.want.vlans == self.have.vlans:
+            return None
+        else:
+            return self.want.vlans
+
+    def __default(self, param):
+        attr1 = getattr(self.want, param)
+        try:
+            attr2 = getattr(self.have, param)
+            if attr1 != attr2:
+                return attr1
+        except AttributeError:
+            return attr1
 
 
-def set_snat(api, name, snat):
-    updated = False
-    try:
-        current_state = get_snat_type(api, name)
-        current_snat_pool = get_snat_pool(api, name)
-        if snat is None:
-            return updated
-        elif snat == 'None' and current_state != 'SRC_TRANS_NONE':
-            api.LocalLB.VirtualServer.set_source_address_translation_none(
-                virtual_servers=[name]
+class ModuleManager(object):
+    def __init__(self, client):
+        self.client = client
+
+    def exec_module(self):
+        managers = list()
+        managers.append(self.get_manager('virtual_server'))
+        if self.client.module.params['route_advertisement_state'] is not None:
+            managers.append(self.get_manager('virtual_address'))
+        result = self.execute_managers(managers)
+        return result
+
+    def execute_managers(self, managers):
+        results = dict(changed=False)
+        for manager in managers:
+            result = manager.exec_module()
+            for k, v in iteritems(result):
+                if k == 'changed':
+                    if v is True:
+                        results['changed'] = True
+                else:
+                    results[k] = v
+        return results
+
+    def get_manager(self, type):
+        vsm = VirtualServerManager(self.client)
+        if type == 'virtual_server':
+            return vsm
+        elif type == 'virtual_address':
+            self.set_name_of_virtual_address()
+            result = VirtualAddressManager(self.client)
+            return result
+
+    def set_name_of_virtual_address(self):
+        mgr = VirtualServerManager(self.client)
+        params = mgr.read_current_from_device()
+        name = params.destination_address
+        self.client.module.params['name'] = name
+
+
+class BaseManager(object):
+    def __init__(self, client):
+        self.client = client
+        self.have = None
+
+    def exec_module(self):
+        changed = False
+        result = dict()
+        state = self.want.state
+
+        try:
+            if state in ['present', 'enabled', 'disabled']:
+                changed = self.present()
+            elif state == "absent":
+                changed = self.absent()
+        except iControlUnexpectedHTTPError as e:
+            raise F5ModuleError(str(e))
+
+        changes = self.changes.to_return()
+        result.update(**changes)
+        result.update(dict(changed=changed))
+        self._announce_deprecations()
+        return result
+
+    def _announce_deprecations(self):
+        warnings = []
+        if self.want:
+            warnings += self.want._values.get('__warnings', [])
+        if self.have:
+            warnings += self.have._values.get('__warnings', [])
+        for warning in warnings:
+            self.client.module.deprecate(
+                msg=warning['msg'],
+                version=warning['version']
             )
-            updated = True
-        elif snat == 'Automap' and current_state != 'SRC_TRANS_AUTOMAP':
-            api.LocalLB.VirtualServer.set_source_address_translation_automap(
-                virtual_servers=[name]
-            )
-            updated = True
-        elif snat_settings_need_updating(snat, current_state, current_snat_pool):
-            api.LocalLB.VirtualServer.set_source_address_translation_snat_pool(
-                virtual_servers=[name],
-                pools=[snat]
-            )
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting snat : %s' % e)
 
+    def present(self):
+        if self.exists():
+            return self.update()
+        else:
+            return self.create()
 
-def get_snat_type(api, name):
-    return api.LocalLB.VirtualServer.get_source_address_translation_type(
-        virtual_servers=[name]
-    )[0]
-
-
-def get_snat_pool(api, name):
-    return api.LocalLB.VirtualServer.get_source_address_translation_snat_pool(
-        virtual_servers=[name]
-    )[0]
-
-
-def snat_settings_need_updating(snat, current_state, current_snat_pool):
-    if snat == 'None' or snat == 'Automap':
+    def absent(self):
+        if self.exists():
+            return self.remove()
         return False
-    elif snat and current_state != 'SRC_TRANS_SNATPOOL':
+
+    def update(self):
+        self.have = self.read_current_from_device()
+        if not self.should_update():
+            return False
+        if self.client.check_mode:
+            return True
+        self.update_on_device()
         return True
-    elif snat and current_state == 'SRC_TRANS_SNATPOOL' and current_snat_pool != snat:
+
+    def create(self):
+        if self.client.check_mode:
+            return True
+        self.create_on_device()
         return True
-    else:
+
+    def should_update(self):
+        result = self._update_changed_options()
+        if result:
+            return True
         return False
 
-
-def get_pool(api, name):
-    return api.LocalLB.VirtualServer.get_default_pool_name(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_pool(api, name, pool):
-    updated = False
-    try:
-        current_pool = get_pool(api, name)
-        if pool is not None and (pool != current_pool):
-            api.LocalLB.VirtualServer.set_default_pool_name(
-                virtual_servers=[name],
-                default_pools=[pool]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting pool : %s' % e)
+    def remove(self):
+        if self.client.check_mode:
+            return True
+        self.remove_from_device()
+        if self.exists():
+            raise F5ModuleError("Failed to delete the virtual server")
+        return True
 
 
-def get_destination(api, name):
-    return api.LocalLB.VirtualServer.get_destination_v2(
-        virtual_servers=[name]
-    )[0]
+class VirtualServerManager(BaseManager):
+    def __init__(self, client):
+        super(VirtualServerManager, self).__init__(client)
+        self.want = VirtualServerParameters(self.client.module.params)
+        self.changes = VirtualServerParameters()
 
+    def _set_changed_options(self):
+        changed = {}
+        for key in VirtualServerParameters.returnables:
+            if getattr(self.want, key) is not None:
+                changed[key] = getattr(self.want, key)
+        if changed:
+            self.changes = VirtualServerParameters(changed)
 
-def set_destination(api, name, destination):
-    updated = False
-    try:
-        current_destination = get_destination(api, name)
-        if destination is not None and destination != current_destination['address']:
-            api.LocalLB.VirtualServer.set_destination_v2(
-                virtual_servers=[name],
-                destinations=[{'address': destination, 'port': current_destination['port']}]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting destination : %s' % e)
-
-
-def set_port(api, name, port):
-    updated = False
-    try:
-        current_destination = get_destination(api, name)
-        if port is not None and port != current_destination['port']:
-            api.LocalLB.VirtualServer.set_destination_v2(
-                virtual_servers=[name],
-                destinations=[{'address': current_destination['address'], 'port': port}]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting port : %s' % e)
-
-
-def get_state(api, name):
-    return api.LocalLB.VirtualServer.get_enabled_state(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_state(api, name, state):
-    updated = False
-    try:
-        current_state = get_state(api, name)
-        # We consider that being present is equivalent to enabled
-        if state == 'present':
-            state = 'enabled'
-        if STATES[state] != current_state:
-            api.LocalLB.VirtualServer.set_enabled_state(
-                virtual_servers=[name],
-                states=[STATES[state]]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting state : %s' % e)
-
-
-def get_description(api, name):
-    return api.LocalLB.VirtualServer.get_description(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_description(api, name, description):
-    updated = False
-    try:
-        current_description = get_description(api, name)
-        if description is not None and current_description != description:
-            api.LocalLB.VirtualServer.set_description(
-                virtual_servers=[name],
-                descriptions=[description]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting description : %s ' % e)
-
-
-def get_persistence_profiles(api, name):
-    return api.LocalLB.VirtualServer.get_persistence_profile(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_default_persistence_profiles(api, name, persistence_profile):
-    updated = False
-    if persistence_profile is None:
-        return updated
-    try:
-        current_persistence_profiles = get_persistence_profiles(api, name)
-        default = None
-        for profile in current_persistence_profiles:
-            if profile['default_profile']:
-                default = profile['profile_name']
-                break
-        if default is not None and default != persistence_profile:
-            api.LocalLB.VirtualServer.remove_persistence_profile(
-                virtual_servers=[name],
-                profiles=[[{'profile_name': default, 'default_profile': True}]]
-            )
-        if default != persistence_profile:
-            api.LocalLB.VirtualServer.add_persistence_profile(
-                virtual_servers=[name],
-                profiles=[[{'profile_name': persistence_profile, 'default_profile': True}]]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting default persistence profile : %s' % e)
-
-
-def get_fallback_persistence_profile(api, name):
-    return api.LocalLB.VirtualServer.get_fallback_persistence_profile(
-        virtual_servers=[name]
-    )[0]
-
-
-def set_fallback_persistence_profile(api, partition, name, persistence_profile):
-    updated = False
-    if persistence_profile is None:
-        return updated
-    try:
-        # This is needed because the SOAP API expects this to be an "empty"
-        # value to set the fallback profile to "None". The fq_name function
-        # does not take "None" into account though, so I do that here.
-        if persistence_profile != "":
-            persistence_profile = fq_name(partition, persistence_profile)
-
-        current_fallback_profile = get_fallback_persistence_profile(api, name)
-
-        if current_fallback_profile != persistence_profile:
-            api.LocalLB.VirtualServer.set_fallback_persistence_profile(
-                virtual_servers=[name],
-                profile_names=[persistence_profile]
-            )
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting fallback persistence profile : %s' % e)
-
-
-def get_route_advertisement_status(api, address):
-    result = None
-    results = api.LocalLB.VirtualAddressV2.get_route_advertisement_state(virtual_addresses=[address])
-    if results:
-        result = results.pop(0)
-        result = result.split("STATE_")[-1].lower()
-    return result
-
-
-def set_route_advertisement_state(api, destination, partition, route_advertisement_state):
-    updated = False
-
-    if route_advertisement_state is None:
+    def _update_changed_options(self):
+        diff = Difference(self.want, self.have)
+        updatables = VirtualServerParameters.updatables
+        changed = dict()
+        for k in updatables:
+            change = diff.compare(k)
+            if change is None:
+                continue
+            else:
+                changed[k] = change
+        if changed:
+            self.changes = VirtualServerParameters(changed)
+            return True
         return False
 
-    try:
-        state = "STATE_%s" % route_advertisement_state.strip().upper()
-        address = fq_name(partition, destination,)
-        current_route_advertisement_state = get_route_advertisement_status(api,address)
-        if current_route_advertisement_state != route_advertisement_state:
-            api.LocalLB.VirtualAddressV2.set_route_advertisement_state(virtual_addresses=[address], states=[state])
-            updated = True
-        return updated
-    except bigsuds.OperationFailed as e:
-        raise Exception('Error on setting profiles : %s' % e)
+    def exists(self):
+        result = self.client.api.tm.ltm.virtuals.virtual.exists(
+            name=self.want.name,
+            partition=self.want.partition
+        )
+        return result
+
+    def create(self):
+        required_resources = ['destination', 'port']
+
+        self._set_changed_options()
+        if self.want.destination is None:
+            raise F5ModuleError(
+                "'destination' must be specified when creating a virtual server"
+            )
+        if all(getattr(self.want, v) is None for v in required_resources):
+            raise F5ModuleError(
+                "You must specify both of " + ', '.join(required_resources)
+            )
+        return super(VirtualServerManager, self).create()
+
+    def update_on_device(self):
+        params = self.changes.api_params()
+        resource = self.client.api.tm.ltm.virtuals.virtual.load(
+            name=self.want.name,
+            partition=self.want.partition
+        )
+        resource.modify(**params)
+
+    def read_current_from_device(self):
+        result = self.client.api.tm.ltm.virtuals.virtual.load(
+            name=self.want.name,
+            partition=self.want.partition,
+            requests_params=dict(
+                params=dict(
+                    expandSubcollections='true'
+                )
+            )
+        )
+        result = VirtualServerParameters(result.attrs)
+        return result
+
+    def create_on_device(self):
+        params = self.want.api_params()
+        self.client.api.tm.ltm.virtuals.virtual.create(
+            name=self.want.name,
+            partition=self.want.partition,
+            **params
+        )
+
+    def remove_from_device(self):
+        resource = self.client.api.tm.ltm.virtuals.virtual.load(
+            name=self.want.name,
+            partition=self.want.partition
+        )
+        if resource:
+            resource.delete()
+
+
+class VirtualAddressManager(BaseManager):
+    def __init__(self, client):
+        super(VirtualAddressManager, self).__init__(client)
+        self.want = VirtualAddressParameters(self.client.module.params)
+        self.have = None
+        self.changes = VirtualAddressParameters()
+
+    def _set_changed_options(self):
+        changed = {}
+        for key in VirtualAddressParameters.returnables:
+            if getattr(self.want, key) is not None:
+                changed[key] = getattr(self.want, key)
+        if changed:
+            self.changes = VirtualAddressParameters(changed)
+
+    def _update_changed_options(self):
+        diff = Difference(self.want, self.have)
+        updatables = VirtualAddressParameters.updatables
+        changed = dict()
+        for k in updatables:
+            change = diff.compare(k)
+            if change is None:
+                continue
+            else:
+                changed[k] = change
+        if changed:
+            self.changes = VirtualAddressParameters(changed)
+            return True
+        return False
+
+    def read_current_from_device(self):
+        result = self.client.api.tm.ltm.virtual_address_s.virtual_address.load(
+            name=self.want.name,
+            partition=self.want.partition
+        )
+        result = VirtualAddressParameters(result.attrs)
+        return result
+
+    def update_on_device(self):
+        params = self.want.api_params()
+        resource = self.client.api.tm.ltm.virtual_address_s.virtual_address.load(
+            name=self.want.name,
+            partition=self.want.partition
+        )
+        resource.modify(**params)
+
+    def exists(self):
+        result = self.client.api.tm.ltm.virtual_address_s.virtual_address.exists(
+            name=self.want.name,
+            partition=self.want.partition
+        )
+        return result
+
+
+class ArgumentSpec(object):
+    def __init__(self):
+        self.supports_check_mode = True
+        self.argument_spec = dict(
+            state=dict(
+                default='present',
+                choices=['present', 'absent', 'disabled', 'enabled']
+            ),
+            name=dict(
+                required=True,
+                aliases=['vs']
+            ),
+            destination=dict(
+                aliases=['address', 'ip']
+            ),
+            port=dict(
+                type='int'
+            ),
+            profiles_both=dict(
+                type='list',
+                aliases=['all_profiles']
+            ),
+            profiles_client_side=dict(
+                type='list'
+            ),
+            profiles_server_side=dict(
+                type='list'
+            ),
+            irules=dict(
+                type='list',
+                aliases=['all_rules']
+            ),
+            enabled_vlans=dict(
+                type='list'
+            ),
+            pool=dict(),
+            description=dict(),
+            snat=dict(),
+            route_advertisement_state=dict(
+                choices=['enabled', 'disabled']
+            ),
+            default_persistence_profile=dict()
+        )
+        self.f5_product_name = 'bigip'
 
 
 def main():
-    argument_spec = f5_argument_spec()
-    argument_spec.update(dict(
-        state=dict(type='str', default='present',
-                   choices=['present', 'absent', 'disabled', 'enabled']),
-        name=dict(type='str', required=True, aliases=['vs']),
-        destination=dict(type='str', aliases=['address', 'ip']),
-        port=dict(type='str', default=None),
-        all_policies=dict(type='list'),
-        all_profiles=dict(type='list', default=None),
-        all_rules=dict(type='list'),
-        enabled_vlans=dict(type='list'),
-        pool=dict(type='str'),
-        description=dict(type='str'),
-        snat=dict(type='str'),
-        route_advertisement_state=dict(
-            type='str',
-            default=None,
-            choices=['enabled', 'disabled']
-        ),
-        default_persistence_profile=dict(type='str'),
-        fallback_persistence_profile=dict(type='str')
-    ))
+    if not HAS_F5SDK:
+        raise F5ModuleError("The python f5-sdk module is required")
 
-    module = AnsibleModule(
-        argument_spec=argument_spec,
-        supports_check_mode=True
+    spec = ArgumentSpec()
+
+    client = AnsibleF5Client(
+        argument_spec=spec.argument_spec,
+        supports_check_mode=spec.supports_check_mode,
+        f5_product_name=spec.f5_product_name
     )
 
-    if not bigsuds_found:
-        module.fail_json(msg="the python bigsuds module is required")
-
-    if module.params['validate_certs']:
-        import ssl
-        if not hasattr(ssl, 'SSLContext'):
-            module.fail_json(msg='bigsuds does not support verifying certificates with python < 2.7.9.  Either update python or set validate_certs=False on the task')
-
-    server = module.params['server']
-    server_port = module.params['server_port']
-    user = module.params['user']
-    password = module.params['password']
-    state = module.params['state']
-    partition = module.params['partition']
-    validate_certs = module.params['validate_certs']
-
-    name = fq_name(partition, module.params['name'])
-    destination = module.params['destination']
-    port = module.params['port']
-    if port == '' or port is None:
-        port = None
-    else:
-        port = int(port)
-    all_profiles = fq_list_names(partition, module.params['all_profiles'])
-    all_policies = fq_list_names(partition, module.params['all_policies'])
-    all_rules = fq_list_names(partition, module.params['all_rules'])
-
-    enabled_vlans = module.params['enabled_vlans']
-    if enabled_vlans is None or 'ALL' in enabled_vlans:
-        all_enabled_vlans = enabled_vlans
-    else:
-        all_enabled_vlans = fq_list_names(partition, enabled_vlans)
-
-    pool = fq_name(partition, module.params['pool'])
-    description = module.params['description']
-    snat = module.params['snat']
-    route_advertisement_state = module.params['route_advertisement_state']
-    default_persistence_profile = fq_name(partition, module.params['default_persistence_profile'])
-    fallback_persistence_profile = module.params['fallback_persistence_profile']
-
-    if 0 > port > 65535:
-        module.fail_json(msg="valid ports must be in range 0 - 65535")
-
     try:
-        api = bigip_api(server, user, password, validate_certs, port=server_port)
-        result = {'changed': False}  # default
-
-        if state == 'absent':
-            if not module.check_mode:
-                if vs_exists(api, name):
-                    # hack to handle concurrent runs of module
-                    # pool might be gone before we actually remove
-                    try:
-                        vs_remove(api, name)
-                        result = {'changed': True, 'deleted': name}
-                    except bigsuds.OperationFailed as e:
-                        if "was not found" in str(e):
-                            result['changed'] = False
-                        else:
-                            raise
-            else:
-                # check-mode return value
-                result = {'changed': True}
-
-        else:
-            update = False
-            if not vs_exists(api, name):
-                if (not destination) or (port is None):
-                    module.fail_json(msg="both destination and port must be supplied to create a VS")
-                if not module.check_mode:
-                    # a bit of a hack to handle concurrent runs of this module.
-                    # even though we've checked the virtual_server doesn't exist,
-                    # it may exist by the time we run virtual_server().
-                    # this catches the exception and does something smart
-                    # about it!
-                    try:
-                        vs_create(api, name, destination, port, pool, all_profiles)
-                        set_policies(api, name, all_policies)
-                        set_enabled_vlans(api, name, all_enabled_vlans)
-                        set_rules(api, name, all_rules)
-                        set_snat(api, name, snat)
-                        set_description(api, name, description)
-                        set_default_persistence_profiles(api, name, default_persistence_profile)
-                        set_fallback_persistence_profile(api, partition, name, fallback_persistence_profile)
-                        set_state(api, name, state)
-                        set_route_advertisement_state(api, destination, partition, route_advertisement_state)
-                        result = {'changed': True}
-                    except bigsuds.OperationFailed as e:
-                        raise Exception('Error on creating Virtual Server : %s' % e)
-                else:
-                    # check-mode return value
-                    result = {'changed': True}
-            else:
-                update = True
-            if update:
-                # VS exists
-                if not module.check_mode:
-                    # Have a transaction for all the changes
-                    try:
-                        api.System.Session.start_transaction()
-                        result['changed'] |= set_destination(api, name, fq_name(partition, destination))
-                        result['changed'] |= set_port(api, name, port)
-                        result['changed'] |= set_pool(api, name, pool)
-                        result['changed'] |= set_description(api, name, description)
-                        result['changed'] |= set_snat(api, name, snat)
-                        result['changed'] |= set_profiles(api, name, all_profiles)
-                        result['changed'] |= set_policies(api, name, all_policies)
-                        result['changed'] |= set_enabled_vlans(api, name, all_enabled_vlans)
-                        result['changed'] |= set_rules(api, name, all_rules)
-                        result['changed'] |= set_default_persistence_profiles(api, name, default_persistence_profile)
-                        result['changed'] |= set_fallback_persistence_profile(api, partition, name, fallback_persistence_profile)
-                        result['changed'] |= set_state(api, name, state)
-                        result['changed'] |= set_route_advertisement_state(api, destination, partition, route_advertisement_state)
-                        api.System.Session.submit_transaction()
-                    except Exception as e:
-                        raise Exception("Error on updating Virtual Server : %s" % str(e))
-                else:
-                    # check-mode return value
-                    result = {'changed': True}
-
-    except Exception as e:
-        module.fail_json(msg="received exception: %s" % e)
-
-    module.exit_json(**result)
-# import module snippets
-from ansible.module_utils.basic import *
-from ansible.module_utils.f5_utils import *
+        mm = ModuleManager(client)
+        results = mm.exec_module()
+        client.module.exit_json(**results)
+    except F5ModuleError as e:
+        client.module.fail_json(msg=str(e))
 
 if __name__ == '__main__':
     main()

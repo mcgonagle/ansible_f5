@@ -1,36 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_config
 short_description: Manage BIG-IP configuration sections
 description:
   - Manages a BIG-IP configuration by allowing TMSH commands that
-    modify running configuration, or,
+    modify running configuration, or merge SCF formatted files into
+    the running configuration. Additionally, this module is of
+    significant importance because it allows you to save your running
+    configuration to disk. Since the F5 module only manipulate running
+    configuration, it is important that you utilize this module to save
+    that running config.
 version_added: "2.4"
 options:
   save:
@@ -44,15 +37,16 @@ options:
     choices:
       - yes
       - no
-    required: False
-    default: False
+    default: no
   reset:
     description:
       - Loads the default configuration on the device. If this option
         is specified, the default configuration will be loaded before
         any commands or other provided configuration is run.
-    required: False
-    default: False
+    choices:
+      - yes
+      - no
+    default: no
   merge_content:
     description:
       - Loads the specified configuration that you want to merge into
@@ -65,12 +59,13 @@ options:
       - Validates the specified configuration to see whether they are
         valid to replace the running configuration. The running
         configuration will not be changed.
-    required: False
-    default: True
+    choices:
+      - yes
+      - no
+    default: yes
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
-  - Requires Ansible >= 2.3.
 requirements:
   - f5-sdk >= 2.2.3
 extends_documentation_fragment: f5
@@ -78,39 +73,48 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Save the running configuration of the BIG-IP
   bigip_config:
     save: yes
-    server: "lb.mydomain.com"
-    password: "secret"
-    user: "admin"
-    validate_certs: "no"
+    server: lb.mydomain.com
+    password: secret
+    user: admin
+    validate_certs: no
   delegate_to: localhost
 
 - name: Reset the BIG-IP configuration, for example, to RMA the device
   bigip_config:
     reset: yes
     save: yes
-    server: "lb.mydomain.com"
-    password: "secret"
-    user: "admin"
-    validate_certs: "no"
+    server: lb.mydomain.com
+    password: secret
+    user: admin
+    validate_certs: no
+  delegate_to: localhost
+
+- name: Load an SCF configuration
+  bigip_config:
+    merge_content: "{{ lookup('file', '/path/to/config.scf') }}"
+    server: lb.mydomain.com
+    password: secret
+    user: admin
+    validate_certs: no
   delegate_to: localhost
 '''
 
-RETURN = '''
+RETURN = r'''
 stdout:
-    description: The set of responses from the options
-    returned: always
-    type: list
-    sample: ['...', '...']
+  description: The set of responses from the options
+  returned: always
+  type: list
+  sample: ['...', '...']
 
 stdout_lines:
-    description: The value of stdout split into a list
-    returned: always
-    type: list
-    sample: [['...', '...'], ['...'], ['...']]
+  description: The value of stdout split into a list
+  returned: always
+  type: list
+  sample: [['...', '...'], ['...'], ['...']]
 '''
 
 import os
@@ -121,8 +125,18 @@ try:
 except ImportError:
     from io import StringIO
 
-from ansible.module_utils.f5_utils import *
 from ansible.module_utils.basic import BOOLEANS
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+from ansible.module_utils.six import iteritems
+from collections import defaultdict
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+except ImportError:
+    HAS_F5SDK = False
 
 
 class Parameters(AnsibleF5Parameters):
@@ -142,7 +156,7 @@ class Parameters(AnsibleF5Parameters):
 
     def update(self, params=None):
         if params:
-            for k,v in iteritems(params):
+            for k, v in iteritems(params):
                 if self.api_map is not None and k in self.api_map:
                     map_key = self.api_map[k]
                 else:
@@ -181,7 +195,7 @@ class ModuleManager(object):
     def _to_lines(self, stdout):
         lines = list()
         for item in stdout:
-            if isinstance(item, string_types):
+            if isinstance(item, str):
                 item = str(item).split('\n')
             lines.append(item)
         return lines
@@ -258,7 +272,6 @@ class ModuleManager(object):
         command = 'tmsh load sys config file {0} merge'.format(
             remote_path
         )
-        print command
         if verify:
             command += ' verify'
 
@@ -311,27 +324,17 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             reset=dict(
-                required=False,
                 type='bool',
-                default=False,
-                choices=BOOLEANS
+                default=False
             ),
-            merge_content=dict(
-                required=False,
-                default=None,
-                type='str'
-            ),
+            merge_content=dict(),
             verify=dict(
                 type='bool',
-                required=False,
-                default=True,
-                choices=BOOLEANS
+                default=True
             ),
             save=dict(
                 type='bool',
-                required=False,
-                default=False,
-                choices=BOOLEANS
+                default=True
             )
         )
         self.f5_product_name = 'bigip'
@@ -356,6 +359,6 @@ def main():
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
 
+
 if __name__ == '__main__':
     main()
-

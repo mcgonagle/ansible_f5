@@ -1,33 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
 
-DOCUMENTATION = '''
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_device_sshd
-short_description: Manage the SSHD settings of a BIG-IP.
+short_description: Manage the SSHD settings of a BIG-IP
 description:
   - Manage the SSHD settings of a BIG-IP.
 version_added: "2.2"
@@ -44,23 +31,17 @@ options:
   banner:
     description:
       - Whether to enable the banner or not.
-    required: False
     choices:
       - enabled
       - disabled
-    default: None
   banner_text:
     description:
       - Specifies the text to include on the pre-login banner that displays
         when a user attempts to login to the system using SSH.
-    required: False
-    default: None
   inactivity_timeout:
     description:
       - Specifies the number of seconds before inactivity causes an SSH
         session to log out.
-    required: False
-    default: None
   log_level:
     description:
       - Specifies the minimum SSHD message level to include in the system log.
@@ -74,8 +55,6 @@ options:
       - info
       - quiet
       - verbose
-    required: False
-    default: None
   login:
     description:
       - Specifies, when checked C(enabled), that the system accepts SSH
@@ -83,13 +62,9 @@ options:
     choices:
       - enabled
       - disabled
-    required: False
-    default: None
   port:
     description:
       - Port that you want the SSH daemon to run on.
-    required: False
-    default: None
 notes:
   - Requires the f5-sdk Python package on the host This is as easy as pip
     install f5-sdk.
@@ -101,87 +76,89 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Set the banner for the SSHD service from a string
   bigip_device_sshd:
-      banner: "enabled"
-      banner_text: "banner text goes here"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
+    banner: enabled
+    banner_text: banner text goes here
+    password: secret
+    server: lb.mydomain.com
+    user: admin
   delegate_to: localhost
 
 - name: Set the banner for the SSHD service from a file
   bigip_device_sshd:
-      banner: "enabled"
-      banner_text: "{{ lookup('file', '/path/to/file') }}"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
+    banner: enabled
+    banner_text: "{{ lookup('file', '/path/to/file') }}"
+    password: secret
+    server: lb.mydomain.com
+    user: admin
   delegate_to: localhost
 
 - name: Set the SSHD service to run on port 2222
   bigip_device_sshd:
-      password: "secret"
-      port: 2222
-      server: "lb.mydomain.com"
-      user: "admin"
+    password: secret
+    port: 2222
+    server: lb.mydomain.com
+    user: admin
   delegate_to: localhost
 '''
 
 RETURN = '''
 allow:
-    description: >
-        Specifies, if you have enabled SSH access, the IP address or address
-        range for other systems that can use SSH to communicate with this
-        system.
-    returned: changed
-    type: string
-    sample: "192.0.2.*"
+  description: >
+    Specifies, if you have enabled SSH access, the IP address or address
+    range for other systems that can use SSH to communicate with this
+    system.
+  returned: changed
+  type: string
+  sample: 192.0.2.*
 banner:
-    description: Whether the banner is enabled or not.
-    returned: changed
-    type: string
-    sample: "true"
+  description: Whether the banner is enabled or not.
+  returned: changed
+  type: string
+  sample: true
 banner_text:
-    description: >
-        Specifies the text included on the pre-login banner that
-        displays when a user attempts to login to the system using SSH.
-    returned: changed and success
-    type: string
-    sample: "This is a corporate device. Connecting to it without..."
+  description: >
+    Specifies the text included on the pre-login banner that
+    displays when a user attempts to login to the system using SSH.
+  returned: changed and success
+  type: string
+  sample: This is a corporate device. Connecting to it without...
 inactivity_timeout:
-    description: >
-        The number of seconds before inactivity causes an SSH.
-        session to log out
-    returned: changed
-    type: int
-    sample: "10"
+  description: >
+    The number of seconds before inactivity causes an SSH
+    session to log out.
+  returned: changed
+  type: int
+  sample: 10
 log_level:
-    description: The minimum SSHD message level to include in the system log.
-    returned: changed
-    type: string
-    sample: "debug"
+  description: The minimum SSHD message level to include in the system log.
+  returned: changed
+  type: string
+  sample: debug
 login:
-    description: Specifies that the system accepts SSH communications or not.
-    return: changed
-    type: bool
-    sample: true
+  description: Specifies that the system accepts SSH communications or not.
+  return: changed
+  type: bool
+  sample: true
 port:
-    description: Port that you want the SSH daemon to run on.
-    return: changed
-    type: int
-    sample: 22
+  description: Port that you want the SSH daemon to run on.
+  return: changed
+  type: int
+  sample: 22
 '''
 
 
-from ansible.module_utils.f5_utils import (
-    AnsibleF5Client,
-    AnsibleF5Parameters,
-    HAS_F5SDK,
-    F5ModuleError,
-    iControlUnexpectedHTTPError
-)
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+except ImportError:
+    HAS_F5SDK = False
 
 
 class Parameters(AnsibleF5Parameters):
@@ -283,11 +260,6 @@ class ModuleManager(object):
 
     def update(self):
         self.have = self.read_current_from_device()
-        if self.have.dhcp:
-            raise F5ModuleError(
-                "DHCP on the mgmt interface must be disabled to make use of"
-                "this module"
-            )
         if not self.should_update():
             return False
         if self.client.check_mode:

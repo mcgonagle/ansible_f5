@@ -1,30 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
 
-DOCUMENTATION = '''
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_dns_record
 short_description: Manage DNS resource records on a BIG-IP
@@ -64,33 +51,33 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Add an A record to organization.com zone
   bigip_dns_record:
-      user="admin"
-      password="secret"
-      hostname="lb.mydomain.com"
-      type="A"
-      zone="organization.com"
-      state="present"
-      options:
-          hostname: "elliot.organization.com"
-          ip_address: "10.1.1.1"
+    user: admin
+    password: secret
+    hostname: lb.mydomain.com
+    type: A
+    zone: organization.com
+    state: present
+    options:
+      hostname: elliot.organization.com
+      ip_address: 10.1.1.1
   delegate_to: localhost
 
 - name: Add an A record to organization.com zone
   local_action:
-      module: bigip_dns_record
-      user: "admin"
-      password: "admin"
-      hostname: "lb.mydomain.com"
-      type: "A"
-      zone: "organization.com"
-      state: "present"
-      ttl: "10"
-      options:
-          domain_name: "elliot.organization.com"
-          ip_address: "10.1.1.1"
+    module: bigip_dns_record
+    user: admin
+    password: secret
+    hostname: lb.mydomain.com
+    type: A
+    zone: organization.com
+    state: present
+    ttl: 10
+    options:
+      domain_name: elliot.organization.com
+      ip_address: 10.1.1.1
 '''
 
 from distutils.version import StrictVersion
@@ -134,10 +121,6 @@ def get_resource_record(module):
         return AResourceRecord(module)
     elif rtype == 'CNAME':
         return AResourceRecord(module)
-
-
-class ResourceRecordException(Exception):
-    pass
 
 
 class ResourceRecord(object):

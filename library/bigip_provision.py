@@ -1,37 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 ---
 module: bigip_provision
 short_description: Manage BIG-IP module provisioning
 description:
   - Manage BIG-IP module provisioning. This module will only provision at the
     standard levels of Dedicated, Nominal, and Minimum.
-version_added: "2.3"
+version_added: "2.4"
 options:
   module:
     description:
@@ -51,6 +39,7 @@ options:
       - pem
       - sam
       - swg
+      - vcmp
   level:
     description:
       - Sets the provisioning level for the requested modules. Changing the
@@ -58,7 +47,6 @@ options:
         For example, changing one module to C(dedicated) requires setting all
         others to C(none). Setting the level of a module to C(none) means that
         the module is not run.
-    required: false
     default: nominal
     choices:
       - dedicated
@@ -70,8 +58,7 @@ options:
         guarantees that the specified module is provisioned at the requested
         level provided that there are sufficient resources on the device (such
         as physical RAM) to support the provisioned module. When C(absent),
-        deprovision the module.
-    required: false
+        de-provision the module.
     default: present
     choices:
       - present
@@ -79,8 +66,6 @@ options:
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
-  - This module only works reliably on BIG-IP versions >= 13.1.
-  - After you provision something you should
 requirements:
   - f5-sdk >= 2.2.3
 extends_documentation_fragment: f5
@@ -88,35 +73,53 @@ author:
   - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Provision PEM at "nominal" level
   bigip_provision:
-      server: "lb.mydomain.com"
-      module: "pem"
-      level: "nominal"
-      password: "secret"
-      user: "admin"
-      validate_certs: "no"
+    server: lb.mydomain.com
+    module: pem
+    level: nominal
+    password: secret
+    user: admin
+    validate_certs: no
   delegate_to: localhost
 
 - name: Provision a dedicated SWG. This will unprovision every other module
   bigip_provision:
-      server: "lb.mydomain.com"
-      module: "swg"
-      password: "secret"
-      level: "dedicated"
-      user: "admin"
-      validate_certs: "no"
+    server: lb.mydomain.com
+    module: swg
+    password: secret
+    level: dedicated
+    user: admin
+    validate_certs: no
   delegate_to: localhost
+'''
+
+RETURN = r'''
+level:
+  description: The new provisioning level of the module.
+  returned: changed
+  type: string
+  sample: minimum
 '''
 
 import time
 
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+except ImportError:
+    HAS_F5SDK = False
 
 
 class Parameters(AnsibleF5Parameters):
     api_attributes = ['level']
+
+    returnables = ['level']
 
     updatables = ['level']
 
@@ -204,7 +207,10 @@ class ModuleManager(object):
         if self.client.check_mode:
             return True
         self.update_on_device()
-        self.wait_for_module_provisioning()
+        self._wait_for_module_provisioning()
+        if self.want.module == 'vcmp':
+            self._wait_for_reboot()
+            self._wait_for_module_provisioning()
         return True
 
     def should_update(self):
@@ -236,7 +242,15 @@ class ModuleManager(object):
         if self.client.check_mode:
             return True
         self.remove_from_device()
-        self.wait_for_module_provisioning()
+        self._wait_for_module_provisioning()
+
+        # For vCMP, because it has to reboot, we also wait for mcpd to become available
+        # before "moving on", or else the REST API would not be available and subsequent
+        # Tasks would fail.
+        if self.want.module == 'vcmp':
+            self._wait_for_reboot()
+            self._wait_for_module_provisioning()
+
         if self.exists():
             raise F5ModuleError("Failed to de-provision the module")
         return True
@@ -247,7 +261,7 @@ class ModuleManager(object):
         resource = resource.load()
         resource.update(level='none')
 
-    def wait_for_module_provisioning(self):
+    def _wait_for_module_provisioning(self):
         # To prevent things from running forever, the hack is to check
         # for mprov's status twice. If mprov is finished, then in most
         # cases (not ASM) the provisioning is probably ready.
@@ -276,6 +290,37 @@ class ModuleManager(object):
             return True
         return False
 
+    def _get_last_reboot(self):
+        output = self.client.api.tm.util.bash.exec_cmd(
+            'run',
+            utilCmdArgs='-c "/usr/bin/last reboot | head - 1"'
+        )
+        if hasattr(output, 'commandResult'):
+            return str(output.commandResult)
+        return None
+
+    def _wait_for_reboot(self):
+        nops = 0
+
+        last_reboot = self._get_last_reboot()
+
+        # Sleep a little to let provisioning settle and begin properly
+        time.sleep(5)
+
+        while nops < 6:
+            try:
+                next_reboot = self._get_last_reboot()
+                if next_reboot is None:
+                    nops = 0
+                if next_reboot == last_reboot:
+                    nops = 0
+                else:
+                    nops += 1
+            except Exception as ex:
+                # This can be caused by restjavad restarting.
+                pass
+            time.sleep(10)
+
 
 class ArgumentSpec(object):
     def __init__(self):
@@ -286,7 +331,7 @@ class ArgumentSpec(object):
                 choices=[
                     'afm', 'am', 'sam', 'asm', 'avr', 'fps',
                     'gtm', 'lc', 'ltm', 'pem', 'swg', 'ilx',
-                    'apm'
+                    'apm', 'vcmp'
                 ]
             ),
             level=dict(
@@ -305,6 +350,9 @@ class ArgumentSpec(object):
 
 
 def main():
+    if not HAS_F5SDK:
+        raise F5ModuleError("The python f5-sdk module is required")
+
     spec = ArgumentSpec()
 
     client = AnsibleF5Client(
@@ -314,9 +362,13 @@ def main():
         f5_product_name=spec.f5_product_name
     )
 
-    mm = ModuleManager(client)
-    results = mm.exec_module()
-    client.module.exit_json(**results)
+    try:
+        mm = ModuleManager(client)
+        results = mm.exec_module()
+        client.module.exit_json(**results)
+    except F5ModuleError as e:
+        client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()

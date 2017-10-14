@@ -1,33 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
-    'metadata_version': '1.0'
+    'metadata_version': '1.1'
 }
 
 DOCUMENTATION = '''
 ---
 module: iworkflow_service
-short_description: Manages L4/L7 Services on iWorkflow.
+short_description: Manages L4/L7 Services on iWorkflow
 description:
   - Manages L4/L7 Service on iWorkflow. Services can only be created and
     otherwise managed by tenants on iWorkflow. Since all of the F5 modules
@@ -55,20 +45,14 @@ options:
     description:
       - A dictionary containing the values of input parameters that the
         service administrator has made available for tenant editing.
-    required: False
-    default: None
   connector:
     description:
       - The cloud connector associated with this L4/L7 service. This option
         is required when C(state) is C(present).
-    required: False
-    default: None
   service_template:
     description:
       - The Service Template that you want to base this L4/L7 Service off of.
         This option is required when C(state) is C(present).
-    required: False
-    default: None
 notes:
   - Requires the f5-sdk Python package on the remote host. This is as easy as
     pip install f5-sdk.
@@ -89,6 +73,7 @@ RETURN = '''
 
 '''
 
+import time
 
 from ansible.module_utils.f5_utils import *
 
@@ -113,7 +98,7 @@ class Parameters(AnsibleF5Parameters):
 
     def update(self, params=None):
         if params:
-            for k,v in iteritems(params):
+            for k, v in iteritems(params):
                 if self.api_map is not None and k in self.api_map:
                     map_key = self.api_map[k]
                 else:
@@ -210,30 +195,18 @@ class Parameters(AnsibleF5Parameters):
                     "One of the provided tables does not have a name"
                 )
             tmp['name'] = str(name)
-            columns = table.get('columnNames', None)
+            columns = table.get('columns', None)
             if columns:
-                tmp['columnNames'] = []
+                tmp['columns'] = []
                 for column in columns:
-                    tmp['columnNames'].append(
-                        dict((str(k),str(v)) for k,v in iteritems(column))
+                    tmp['columns'].append(
+                        dict((str(k), str(v)) for k, v in iteritems(column))
                     )
                 # You cannot have rows without columns
                 rows = table.get('rows', None)
                 if rows:
                     tmp['rows'] = list(list())
                     for row in rows:
-                        # This looks weird, but iWorkflow puts the "many" rows
-                        # into a single row. The actual payload looks like this
-                        #
-                        # "rows": [
-                        #   [
-                        #     "12.0.1.11",
-                        #     "80"
-                        #   ],
-                        #   [
-                        #     "12.0.1.12"
-                        #   ]
-                        # ]
                         tmp['rows'][0].append([str(x) for x in row])
             description = table.get('description', None)
             if description:
@@ -428,25 +401,13 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.argument_spec = dict(
             name=dict(required=True),
-            service_template=dict(
-                required=False,
-                default=None
-            ),
+            service_template=dict(),
             parameters=dict(
-                required=False,
-                default=None,
                 type='dict'
             ),
-            connector=dict(
-                required=False,
-                default=None
-            ),
-            tenant=dict(
-                required=False,
-                default=None
-            ),
+            connector=dict(),
+            tenant=dict(),
             state=dict(
-                required=False,
                 default='present',
                 choices=['absent', 'present']
             )

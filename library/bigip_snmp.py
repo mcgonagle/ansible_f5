@@ -1,48 +1,33 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
-# Copyright 2017 F5 Networks Inc.
-#
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2017 F5 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {
-    'status': ['preview'],
-    'supported_by': 'community',
-    'metadata_version': '1.0'
-}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-DOCUMENTATION = '''
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+DOCUMENTATION = r'''
 module: bigip_snmp
-short_description: Manipulate general SNMP settings on a BIG-IP.
+short_description: Manipulate general SNMP settings on a BIG-IP
 description:
   - Manipulate general SNMP settings on a BIG-IP.
-version_added: 2.3
+version_added: 2.4
 options:
   contact:
     description:
       - Specifies the name of the person who administers the SNMP
         service for this system.
-    required: False
-    default: None
   agent_status_traps:
     description:
       - When C(enabled), ensures that the system sends a trap whenever the
         SNMP agent starts running or stops running. This is usually enabled
         by default on a BIG-IP.
-    required: False
-    default: None
     choices:
       - enabled
       - disabled
@@ -51,8 +36,6 @@ options:
       - When C(enabled), ensures that the system sends authentication warning
         traps to the trap destinations. This is usually disabled by default on
         a BIG-IP.
-    required: False
-    default: None
     choices:
       - enabled
       - disabled
@@ -61,76 +44,79 @@ options:
       - When C(enabled), ensures that the system sends device warning traps
         to the trap destinations. This is usually enabled by default on a
         BIG-IP.
-    required: False
-    default: None
     choices:
       - enabled
       - disabled
   location:
     description:
       - Specifies the description of this system's physical location.
-    required: False
-    default: None
 notes:
   - Requires the f5-sdk Python package on the host. This is as easy as pip
     install f5-sdk.
 extends_documentation_fragment: f5
 requirements:
     - f5-sdk >= 2.2.0
-    - ansible >= 2.3.0
 author:
     - Tim Rupp (@caphrim007)
 '''
 
-EXAMPLES = '''
+EXAMPLES = r'''
 - name: Set snmp contact
   bigip_snmp:
-      contact: "Joe User"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
-      validate_certs: "false"
+    contact: "Joe User"
+    password: "secret"
+    server: "lb.mydomain.com"
+    user: "admin"
+    validate_certs: "false"
   delegate_to: localhost
 
 - name: Set snmp location
   bigip_snmp:
-      location: "US West 1"
-      password: "secret"
-      server: "lb.mydomain.com"
-      user: "admin"
-      validate_certs: "false"
+    location: "US West 1
+    password: "secret
+    server: "lb.mydomain.com
+    user: "admin
+    validate_certs: no
   delegate_to: localhost
 '''
 
-RETURN = '''
+RETURN = r'''
 agent_status_traps:
-    description: Value that the agent status traps was set to.
-    return: changed
-    type: string
-    sample: "enabled"
+  description: Value that the agent status traps was set to.
+  returned: changed
+  type: string
+  sample: enabled
 agent_authentication_traps:
-    description: Value that the authentication status traps was set to.
-    return: changed
-    type: string
-    sample: "enabled"
+  description: Value that the authentication status traps was set to.
+  returned: changed
+  type: string
+  sample: enabled
 device_warning_traps:
-    description: Value that the warning status traps was set to.
-    return: changed
-    type: string
-    sample: "enabled"
+  description: Value that the warning status traps was set to.
+  returned: changed
+  type: string
+  sample: enabled
 contact:
-    description: The new value for the person who administers SNMP on the device.
-    return: changed
-    type: string
-    sample: Joe User
+  description: The new value for the person who administers SNMP on the device.
+  returned: changed
+  type: string
+  sample: Joe User
 location:
-    description: The new value for the system's physical location.
-    return: changed
-    type: string
-    sample: "US West 1a"
+  description: The new value for the system's physical location.
+  returned: changed
+  type: string
+  sample: US West 1a
 '''
 
-from ansible.module_utils.f5_utils import *
+from ansible.module_utils.f5_utils import AnsibleF5Client
+from ansible.module_utils.f5_utils import AnsibleF5Parameters
+from ansible.module_utils.f5_utils import HAS_F5SDK
+from ansible.module_utils.f5_utils import F5ModuleError
+
+try:
+    from ansible.module_utils.f5_utils import iControlUnexpectedHTTPError
+except ImportError:
+    HAS_F5SDK = False
 
 
 class Parameters(AnsibleF5Parameters):
@@ -179,7 +165,7 @@ class ModuleManager(object):
         self.client = client
         self.have = None
         self.want = Parameters(self.client.module.params)
-        self.changes = None
+        self.changes = Parameters()
 
     def _update_changed_options(self):
         changed = {}
@@ -238,29 +224,17 @@ class ArgumentSpec(object):
         self.supports_check_mode = True
         self.choices = ['enabled', 'disabled']
         self.argument_spec = dict(
-            contact=dict(
-                required=False,
-                default=None
-            ),
+            contact=dict(),
             agent_status_traps=dict(
-                required=False,
-                default=None,
                 choices=self.choices
             ),
             agent_authentication_traps=dict(
-                required=False,
-                default=None,
                 choices=self.choices
             ),
             device_warning_traps=dict(
-                required=False,
-                default=None,
                 choices=self.choices
             ),
-            location=dict(
-                required=False,
-                default=None
-            )
+            location=dict()
         )
         self.f5_product_name = 'bigip'
 
@@ -283,6 +257,7 @@ def main():
         client.module.exit_json(**results)
     except F5ModuleError as e:
         client.module.fail_json(msg=str(e))
+
 
 if __name__ == '__main__':
     main()
